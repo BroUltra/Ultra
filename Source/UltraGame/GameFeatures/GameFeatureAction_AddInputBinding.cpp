@@ -9,7 +9,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 #include "Engine/LocalPlayer.h"
-#include "Character/UltraHeroComponent.h"
+#include "Character/UltraCharacterComponent.h"
 #include "Input/UltraInputConfig.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GameFeatureAction_AddInputBinding)

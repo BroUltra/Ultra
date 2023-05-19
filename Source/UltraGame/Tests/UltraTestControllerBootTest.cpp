@@ -19,8 +19,8 @@ bool UUltraTestControllerBootTest::IsBootProcessComplete() const
 // 		{
 // 			if (const UUltraGameInstance* GameInstance = Cast<UUltraGameInstance>(GetWorld()->GetGameInstance()))
 // 			{
-// 				if (GameInstance->GetCurrentState() == ShooterGameInstanceState::WelcomeScreen ||
-// 					GameInstance->GetCurrentState() == ShooterGameInstanceState::MainMenu)
+// 				if (GameInstance->GetCurrentState() == UltraGameInstanceState::WelcomeScreen ||
+// 					GameInstance->GetCurrentState() == UltraGameInstanceState::MainMenu)
 // 				{
 // 					return true;
 // 				}

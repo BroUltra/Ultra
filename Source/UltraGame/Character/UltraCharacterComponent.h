@@ -13,7 +13,7 @@
 #include "UObject/NameTypes.h"
 #include "UObject/UObjectGlobals.h"
 
-#include "UltraHeroComponent.generated.h"
+#include "UltraCharacterComponent.generated.h"
 
 class UGameFrameworkComponentManager;
 class UInputComponent;

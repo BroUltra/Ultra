@@ -327,9 +327,9 @@ TArray<int32> UUltraTeamSubsystem::GetTeamIDs() const
 	return Result;
 }
 
-bool UUltraTeamSubsystem::CanCauseDamage(const UObject* Instigator, const UObject* Target, bool bAllowDamageToSelf) const
+bool UUltraTeamSubsystem::CanCauseHit(const UObject* Instigator, const UObject* Target, bool bAllowHitToSelf) const
 {
-	if (bAllowDamageToSelf)
+	if (bAllowHitToSelf)
 	{
 		if ((Instigator == Target) || (FindPlayerStateFromActor(Cast<AActor>(Instigator)) == FindPlayerStateFromActor(Cast<AActor>(Target))))
 		{

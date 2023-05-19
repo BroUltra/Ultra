@@ -6,7 +6,7 @@
 /NAME:"UnrealEditor-UltraCoreRuntime.dll"
 /IGNORE:4221
 /NODEFAULTLIB
-"C:\Users\UltraBro\Documents\Unreal Projects\LyraStarterGame\Intermediate\Build\Win64\LyraEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.obj"
-"C:\Users\UltraBro\Documents\Unreal Projects\LyraStarterGame\Plugins\GameFeatures\UltraCore\Intermediate\Build\Win64\UnrealEditor\Development\UltraCoreRuntime\UltraCoreRuntimeModule.cpp.obj"
-"C:\Users\UltraBro\Documents\Unreal Projects\LyraStarterGame\Plugins\GameFeatures\UltraCore\Intermediate\Build\Win64\UnrealEditor\Development\UltraCoreRuntime\Default.rc2.res"
-/OUT:"C:\Users\UltraBro\Documents\Unreal Projects\LyraStarterGame\Plugins\GameFeatures\UltraCore\Intermediate\Build\Win64\UnrealEditor\Development\UltraCoreRuntime\UnrealEditor-UltraCoreRuntime.lib"
+"C:\Users\UltraBro\Documents\Unreal Projects\Ultra\Intermediate\Build\Win64\UltraEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.obj"
+"C:\Users\UltraBro\Documents\Unreal Projects\Ultra\Plugins\GameFeatures\UltraCore\Intermediate\Build\Win64\UnrealEditor\Development\UltraCoreRuntime\Module.UltraCoreRuntime.cpp.obj"
+"C:\Users\UltraBro\Documents\Unreal Projects\Ultra\Plugins\GameFeatures\UltraCore\Intermediate\Build\Win64\UnrealEditor\Development\UltraCoreRuntime\Default.rc2.res"
+/OUT:"C:\Users\UltraBro\Documents\Unreal Projects\Ultra\Plugins\GameFeatures\UltraCore\Intermediate\Build\Win64\UnrealEditor\Development\UltraCoreRuntime\UnrealEditor-UltraCoreRuntime.lib"

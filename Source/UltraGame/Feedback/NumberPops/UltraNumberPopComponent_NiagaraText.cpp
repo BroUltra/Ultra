@@ -7,7 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "Logging/LogCategory.h"
 #include "Logging/LogMacros.h"
-#include "UltraDamagePopStyleNiagara.h"
+#include "UltraHitPopStyleNiagara.h"
 #include "UltraLogChannels.h"
 #include "Math/UnrealMathSSE.h"
 #include "Math/Vector.h"
@@ -29,12 +29,12 @@ UUltraNumberPopComponent_NiagaraText::UUltraNumberPopComponent_NiagaraText(const
 
 void UUltraNumberPopComponent_NiagaraText::AddNumberPop(const FUltraNumberPopRequest& NewRequest)
 {
-	int32 LocalDamage = NewRequest.NumberToDisplay;
+	int32 LocalHit = NewRequest.NumberToDisplay;
 
-	//Change Damage to negative to differentiate Critial vs Normal hit
-	if (NewRequest.bIsCriticalDamage)
+	//Change Hit to negative to differentiate Critial vs Normal hit
+	if (NewRequest.bIsCriticalHit)
 	{
-		LocalDamage *= -1;
+		LocalHit *= -1;
 	}
 
 	//Add a NiagaraComponent if we don't already have one
@@ -56,11 +56,11 @@ void UUltraNumberPopComponent_NiagaraText::AddNumberPop(const FUltraNumberPopReq
 	NiagaraComp->Activate(false);
 	NiagaraComp->SetWorldLocation(NewRequest.WorldLocation);
 
-	UE_LOG(LogUltra, Log, TEXT("DamageHit location : %s"), *(NewRequest.WorldLocation.ToString()));
-	//Add Damage information to the current Niagara list - Damage informations are packed inside a FVector4 where XYZ = Position, W = Damage
-	TArray<FVector4> DamageList = UNiagaraDataInterfaceArrayFunctionLibrary::GetNiagaraArrayVector4(NiagaraComp, Style->NiagaraArrayName);
-	DamageList.Add(FVector4(NewRequest.WorldLocation.X, NewRequest.WorldLocation.Y, NewRequest.WorldLocation.Z, LocalDamage));
-	UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayVector4(NiagaraComp, Style->NiagaraArrayName, DamageList);
+	UE_LOG(LogUltra, Log, TEXT("HitHit location : %s"), *(NewRequest.WorldLocation.ToString()));
+	//Add Hit information to the current Niagara list - Hit information is packed inside a FVector4 where XYZ = Position, W = Hit
+	TArray<FVector4> HitList = UNiagaraDataInterfaceArrayFunctionLibrary::GetNiagaraArrayVector4(NiagaraComp, Style->NiagaraArrayName);
+	HitList.Add(FVector4(NewRequest.WorldLocation.X, NewRequest.WorldLocation.Y, NewRequest.WorldLocation.Z, LocalHit));
+	UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayVector4(NiagaraComp, Style->NiagaraArrayName, HitList);
 	
 }
 

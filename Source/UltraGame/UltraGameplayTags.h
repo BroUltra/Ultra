@@ -25,8 +25,8 @@ public:
 	static FGameplayTag FindTagByString(FString TagString, bool bMatchPartialString = false);
 
 public:
-
-	FGameplayTag Ability_ActivateFail_IsDead;
+	
+	FGameplayTag Ability_ActivateFail_IsDespawned;
 	FGameplayTag Ability_ActivateFail_Cooldown;
 	FGameplayTag Ability_ActivateFail_Cost;
 	FGameplayTag Ability_ActivateFail_TagsBlocked;
@@ -34,7 +34,7 @@ public:
 	FGameplayTag Ability_ActivateFail_Networking;
 	FGameplayTag Ability_ActivateFail_ActivationGroup;
 
-	FGameplayTag Ability_Behavior_SurvivesDeath;
+	FGameplayTag Ability_Behavior_SurvivesDespawn;
 
 	FGameplayTag InputTag_Move;
 	FGameplayTag InputTag_Look_Mouse;
@@ -56,21 +56,17 @@ public:
 	/** The actor/component is fully ready for active gameplay */
 	FGameplayTag InitState_GameplayReady;
 
-	FGameplayTag GameplayEvent_Death;
+	FGameplayTag GameplayEvent_Despawn;
 	FGameplayTag GameplayEvent_Reset;
 	FGameplayTag GameplayEvent_RequestReset;
 
-	FGameplayTag SetByCaller_Damage;
-	FGameplayTag SetByCaller_Heal;
-
-	FGameplayTag Cheat_GodMode;
-	FGameplayTag Cheat_UnlimitedHealth;
+	FGameplayTag SetByCaller_Hit;
 
 	FGameplayTag Status_Crouching;
 	FGameplayTag Status_AutoRunning;
-	FGameplayTag Status_Death;
-	FGameplayTag Status_Death_Dying;
-	FGameplayTag Status_Death_Dead;
+	FGameplayTag Status_Despawn;
+	FGameplayTag Status_Despawn_Despawning;
+	FGameplayTag Status_Despawn_Despawned;
 
 	FGameplayTag Movement_Mode_Walking;
 	FGameplayTag Movement_Mode_NavWalking;

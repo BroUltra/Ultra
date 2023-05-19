@@ -14,7 +14,7 @@
 
 #include "UltraNumberPopComponent_MeshText.generated.h"
 
-class UUltraDamagePopStyle;
+class UUltraHitPopStyle;
 class UMaterialInstanceDynamic;
 class UObject;
 class UStaticMesh;
@@ -52,14 +52,14 @@ struct FLiveNumberPopEntry
 	{}
 };
 
-/** Struct that holds the info for a new damage number */
+/** Struct that holds the info for a new hit number */
 struct FTempNumberPopInfo
 {
 	UStaticMeshComponent* StaticMeshComponent = nullptr;
 
 	TArray<UMaterialInstanceDynamic*> MeshMIDs;
 
-	TArray<int32> DamageNumberArray;
+	TArray<int32> HitNumberArray;
 };
 
 
@@ -79,7 +79,7 @@ public:
 	//~End of UUltraNumberPopComponent interface
 
 protected:
-	void SetMaterialParameters(const FUltraNumberPopRequest& Request, FTempNumberPopInfo& NewDamageNumberInfo, const FTransform& CameraTransform, const FVector& NumberLocation);
+	void SetMaterialParameters(const FUltraNumberPopRequest& Request, FTempNumberPopInfo& NewHitNumberInfo, const FTransform& CameraTransform, const FVector& NumberLocation);
 
 	FLinearColor DetermineColor(const FUltraNumberPopRequest& Request) const;
 	UStaticMesh* DetermineStaticMesh(const FUltraNumberPopRequest& Request) const;
@@ -90,7 +90,7 @@ protected:
 
 	/** Style patterns to attempt to apply to the incoming number pops */
 	UPROPERTY(EditDefaultsOnly, Category="Number Pop|Style")
-	TArray<TObjectPtr<UUltraDamagePopStyle>> Styles;
+	TArray<TObjectPtr<UUltraHitPopStyle>> Styles;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Number Pop|Style")
 	float ComponentLifespan;
@@ -125,7 +125,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Number Pop|Material Bindings")
 	FName IsCriticalHitParameterName;
 
-	/** Damage numbers by default are given a depth close to the camera in the material to make sure they are never occluded. This can be toggled off here, should only be 0/1. */
+	/** Hit numbers by default are given a depth close to the camera in the material to make sure they are never occluded. This can be toggled off here, should only be 0/1. */
 	UPROPERTY(EditDefaultsOnly, Category = "Number Pop|Material Bindings")
 	FName MoveToCameraParameterName;
 

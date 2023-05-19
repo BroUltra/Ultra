@@ -12,7 +12,6 @@
 #include "Character/UltraPawnExtensionComponent.h"
 #include "AIController.h"
 #include "Kismet/GameplayStatics.h"
-#include "Character/UltraHealthComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraBotCreationComponent)
 
@@ -144,19 +143,10 @@ void UUltraBotCreationComponent::RemoveOneBot()
 
 		if (BotToRemove)
 		{
-			// If we can find a health component, self-destruct it, otherwise just destroy the actor
+			// If we can find an actor, destroy it
 			if (APawn* ControlledPawn = BotToRemove->GetPawn())
 			{
-				if (UUltraHealthComponent* HealthComponent = UUltraHealthComponent::FindHealthComponent(ControlledPawn))
-				{
-					// Note, right now this doesn't work quite as desired: as soon as the player state goes away when
-					// the controller is destroyed, the abilities like the death animation will be interrupted immediately
-					HealthComponent->DamageSelfDestruct();
-				}
-				else
-				{
-					ControlledPawn->Destroy();
-				}
+				ControlledPawn->Destroy();
 			}
 
 			// Destroy the controller (will cause it to Logout, etc...)

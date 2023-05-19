@@ -2,14 +2,19 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Modules/ModuleManager.h"
+#include "Modules/ModuleInterface.h"
+
+class UUltraCoreRuntimeSettings;
 
 class FUltraCoreRuntimeModule : public IModuleInterface
 {
 public:
-	//~IModuleInterface
+
+	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
-	//~End of IModuleInterface
+	
+protected:
+
+	UUltraCoreRuntimeSettings* UltraCoreSettings = nullptr;
 };

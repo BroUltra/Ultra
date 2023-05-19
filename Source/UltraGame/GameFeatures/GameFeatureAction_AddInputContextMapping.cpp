@@ -8,7 +8,7 @@
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
-#include "Character/UltraHeroComponent.h"
+#include "Character/UltraCharacterComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GameFeatureAction_AddInputContextMapping)
 

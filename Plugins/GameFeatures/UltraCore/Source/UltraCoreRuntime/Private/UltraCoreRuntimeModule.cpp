@@ -2,6 +2,8 @@
 
 #include "UltraCoreRuntimeModule.h"
 
+#include "Modules/ModuleManager.h"
+
 #define LOCTEXT_NAMESPACE "FUltraCoreRuntimeModule"
 
 void FUltraCoreRuntimeModule::StartupModule()

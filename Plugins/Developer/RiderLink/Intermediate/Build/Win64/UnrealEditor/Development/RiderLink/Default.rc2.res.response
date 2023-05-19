@@ -66,9 +66,9 @@
 /DORIGINAL_FILE_NAME="UnrealEditor-RiderLink.dll"
 /DBUILT_FROM_CHANGELIST=23901901
 /DBUILD_VERSION=++UE5+Release-5.1-CL-23901901
-/DBUILD_ICON_FILE_NAME="\"C:\\Users\\UltraBro\\Documents\\Unreal Projects\\LyraStarterGame\\Build\\Windows\\Application.ico\""
+/DBUILD_ICON_FILE_NAME="\"..\\Build\\Windows\\Resources\\Default.ico\""
 /DPROJECT_COPYRIGHT_STRING="Fill out your copyright notice in the Description page of Project Settings."
-/DPROJECT_PRODUCT_NAME=Lyra
-/DPROJECT_PRODUCT_IDENTIFIER=LyraStarterGame
-/fo "C:\Users\UltraBro\Documents\Unreal Projects\LyraStarterGame\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderLink\Default.rc2.res"
+/DPROJECT_PRODUCT_NAME=Ultra
+/DPROJECT_PRODUCT_IDENTIFIER=Ultra
+/fo "C:\Users\UltraBro\Documents\Unreal Projects\Ultra\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderLink\Default.rc2.res"
 "..\Build\Windows\Resources\Default.rc2"

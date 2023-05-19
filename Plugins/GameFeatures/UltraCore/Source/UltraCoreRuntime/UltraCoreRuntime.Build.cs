@@ -12,23 +12,26 @@ public class UltraCoreRuntime : ModuleRules
 			new string[] {
 				// ... add public include paths required here ...
 			}
-			);
+		);
 				
 		
 		PrivateIncludePaths.AddRange(
 			new string[] {
 				// ... add other private include paths required here ...
 			}
-			);
+		);
 			
 		
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
 				"Core",
+				"UltraGame",
+				"ModularGameplay",
+				"CommonGame",
 				// ... add other public dependencies that you statically link with here ...
 			}
-			);
+		);
 			
 		
 		PrivateDependencyModuleNames.AddRange(
@@ -38,9 +41,21 @@ public class UltraCoreRuntime : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
+				"GameplayTags",
+				"GameplayTasks",
+				"GameplayAbilities",
+				"GameplayMessageRuntime",
+				"CommonUI",
+				"UMG",
+				"DataRegistry",
+				"AsyncMixin",
+				"EnhancedInput",
+				"GameSubtitles",
+				"DeveloperSettings",
+				"AIModule"
 				// ... add private dependencies that you statically link with here ...	
 			}
-			);
+		);
 		
 		
 		DynamicallyLoadedModuleNames.AddRange(
@@ -48,6 +63,6 @@ public class UltraCoreRuntime : ModuleRules
 			{
 				// ... add any modules that your module loads dynamically here ...
 			}
-			);
+		);
 	}
 }

@@ -9,7 +9,7 @@
 #include "Character/UltraCharacter.h"
 #include "UltraGameplayTags.h"
 #include "UltraAbilityCost.h"
-#include "Character/UltraHeroComponent.h"
+#include "Character/UltraCharacterComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemGlobals.h"
 #include "UltraAbilitySimpleFailureMessage.h"
@@ -382,13 +382,6 @@ bool UUltraGameplayAbility::DoesAbilitySatisfyTagRequirements(const UAbilitySyst
 
 		if (AbilitySystemComponentTags.HasAny(AllBlockedTags))
 		{
-			const FUltraGameplayTags& GameplayTags = FUltraGameplayTags::Get();
-			if (OptionalRelevantTags && AbilitySystemComponentTags.HasTag(GameplayTags.Status_Death))
-			{
-				// If player is dead and was rejected due to blocking tags, give that feedback
-				OptionalRelevantTags->AddTag(GameplayTags.Ability_ActivateFail_IsDead);
-			}
-
 			bBlocked = true;
 		}
 

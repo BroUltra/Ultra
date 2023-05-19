@@ -1,6 +1,6 @@
 ﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "UltraHeroComponent.h"
+#include "UltraCharacterComponent.h"
 #include "UltraLogChannels.h"
 #include "GameFramework/Pawn.h"
 #include "EnhancedInputComponent.h"
@@ -23,7 +23,7 @@
 #include "PlayerMappableInputConfig.h"
 #include "Camera/UltraCameraMode.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(UltraHeroComponent)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(UltraCharacterComponent)
 
 #if WITH_EDITOR
 #include "Misc/UObjectToken.h"
@@ -163,7 +163,7 @@ void UUltraHeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* 
 		{
 			PawnData = PawnExtComp->GetPawnData<UUltraPawnData>();
 
-			// The player state holds the persistent data for this player (state that persists across deaths and multiple pawns).
+			// The player state holds the persistent data for this player (state that persists across despawns and multiple pawns).
 			// The ability system component and attribute sets live on the player state.
 			PawnExtComp->InitializeAbilitySystem(UltraPS->GetUltraAbilitySystemComponent(), UltraPS);
 		}

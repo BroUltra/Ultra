@@ -69,32 +69,6 @@ public:
 	UFUNCTION(Exec, BlueprintAuthorityOnly)
 	virtual void RemoveTagFromSelf(FString TagName);
 
-	// Applies the specified damage amount to the owning player.
-	UFUNCTION(Exec, BlueprintAuthorityOnly)
-	virtual void DamageSelf(float DamageAmount);
-
-	// Applies the specified damage amount to the actor that the player is looking at.
-	virtual void DamageTarget(float DamageAmount) override;
-
-	// Applies the specified amount of healing to the owning player.
-	UFUNCTION(Exec, BlueprintAuthorityOnly)
-	virtual void HealSelf(float HealAmount);
-
-	// Applies the specified amount of healing to the actor that the player is looking at.
-	UFUNCTION(Exec, BlueprintAuthorityOnly)
-	virtual void HealTarget(float HealAmount);
-
-	// Applies enough damage to kill the owning player.
-	UFUNCTION(Exec, BlueprintAuthorityOnly)
-	virtual void DamageSelfDestruct();
-
-	// Prevents the owning player from taking any damage.
-	virtual void God() override;
-
-	// Prevents the owning player from dropping below 1 health.
-	UFUNCTION(Exec, BlueprintAuthorityOnly)
-	virtual void UnlimitedHealth(int32 Enabled = -1);
-
 protected:
 
 	virtual void EnableDebugCamera() override;
@@ -105,8 +79,7 @@ protected:
 	virtual void DisableFixedCamera();
 	bool InFixedCamera() const;
 
-	void ApplySetByCallerDamage(UUltraAbilitySystemComponent* UltraASC, float DamageAmount);
-	void ApplySetByCallerHeal(UUltraAbilitySystemComponent* UltraASC, float HealAmount);
+	void ApplySetByCallerHit(UUltraAbilitySystemComponent* UltraASC, float HitAmount);
 
 	UUltraAbilitySystemComponent* GetPlayerAbilitySystemComponent() const;
 };

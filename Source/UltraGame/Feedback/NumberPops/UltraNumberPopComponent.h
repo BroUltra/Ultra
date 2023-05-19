@@ -36,7 +36,7 @@ struct FUltraNumberPopRequest
 
 	// Whether the number is 'critical' or not (@TODO: move to a tag)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ultra|Number Pops")
-	bool bIsCriticalDamage = false;
+	bool bIsCriticalHit = false;
 
 	FUltraNumberPopRequest()
 		: WorldLocation(ForceInitToZero)
@@ -54,7 +54,7 @@ public:
 
 	UUltraNumberPopComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	/** Adds a damage number to the damage number list for visualization */
+	/** Adds a hit number to the hit number list for visualization */
 	UFUNCTION(BlueprintCallable, Category = Foo)
 	virtual void AddNumberPop(const FUltraNumberPopRequest& NewRequest) {}
 };

@@ -175,7 +175,7 @@ void UUltraPawnExtensionComponent::UninitializeAbilitySystem()
 	if (AbilitySystemComponent->GetAvatarActor() == GetOwner())
 	{
 		FGameplayTagContainer AbilityTypesToIgnore;
-		AbilityTypesToIgnore.AddTag(FUltraGameplayTags::Get().Ability_Behavior_SurvivesDeath);
+		AbilityTypesToIgnore.AddTag(FUltraGameplayTags::Get().Ability_Behavior_SurvivesDespawn);
 
 		AbilitySystemComponent->CancelAbilities(nullptr, &AbilityTypesToIgnore);
 		AbilitySystemComponent->ClearAbilityInput();

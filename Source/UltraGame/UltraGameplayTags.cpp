@@ -26,7 +26,7 @@ void FUltraGameplayTags::InitializeNativeTags()
 
 void FUltraGameplayTags::AddAllTags(UGameplayTagsManager& Manager)
 {
-	AddTag(Ability_ActivateFail_IsDead, "Ability.ActivateFail.IsDead", "Ability failed to activate because its owner is dead.");
+	AddTag(Ability_ActivateFail_IsDespawned, "Ability.ActivateFail.IsDespawned", "Ability failed to activate because its owner is despawned.");
 	AddTag(Ability_ActivateFail_Cooldown, "Ability.ActivateFail.Cooldown", "Ability failed to activate because it is on cool down.");
 	AddTag(Ability_ActivateFail_Cost, "Ability.ActivateFail.Cost", "Ability failed to activate because it did not pass the cost checks.");
 	AddTag(Ability_ActivateFail_TagsBlocked, "Ability.ActivateFail.TagsBlocked", "Ability failed to activate because tags are blocking it.");
@@ -34,8 +34,8 @@ void FUltraGameplayTags::AddAllTags(UGameplayTagsManager& Manager)
 	AddTag(Ability_ActivateFail_Networking, "Ability.ActivateFail.Networking", "Ability failed to activate because it did not pass the network checks.");
 	AddTag(Ability_ActivateFail_ActivationGroup, "Ability.ActivateFail.ActivationGroup", "Ability failed to activate because of its activation group.");
 
-	AddTag(Ability_Behavior_SurvivesDeath, "Ability.Behavior.SurvivesDeath", "An ability with this type tag should not be canceled due to death.");
-
+	AddTag(Ability_Behavior_SurvivesDespawn, "Ability.Behavior.SurvivesDespawn", "An ability with this type tag should not be canceled due to despawning.");
+	
 	AddTag(InputTag_Move, "InputTag.Move", "Move input.");
 	AddTag(InputTag_Look_Mouse, "InputTag.Look.Mouse", "Look (mouse) input.");
 	AddTag(InputTag_Look_Stick, "InputTag.Look.Stick", "Look (stick) input.");
@@ -47,21 +47,17 @@ void FUltraGameplayTags::AddAllTags(UGameplayTagsManager& Manager)
 	AddTag(InitState_DataInitialized, "InitState.DataInitialized", "3: The available data has been initialized for this actor/component, but it is not ready for full gameplay");
 	AddTag(InitState_GameplayReady, "InitState.GameplayReady", "4: The actor/component is fully ready for active gameplay");
 
-	AddTag(GameplayEvent_Death, "GameplayEvent.Death", "Event that fires on death. This event only fires on the server.");
+	AddTag(GameplayEvent_Despawn, "GameplayEvent.Despawn", "Event that fires on despawn. This event only fires on the server.");
 	AddTag(GameplayEvent_Reset, "GameplayEvent.Reset", "Event that fires once a player reset is executed.");
 	AddTag(GameplayEvent_RequestReset, "GameplayEvent.RequestReset", "Event to request a player's pawn to be instantly replaced with a new one at a valid spawn location.");
-
-	AddTag(SetByCaller_Damage, "SetByCaller.Damage", "SetByCaller tag used by damage gameplay effects.");
-	AddTag(SetByCaller_Heal, "SetByCaller.Heal", "SetByCaller tag used by healing gameplay effects.");
-
-	AddTag(Cheat_GodMode, "Cheat.GodMode", "GodMode cheat is active on the owner.");
-	AddTag(Cheat_UnlimitedHealth, "Cheat.UnlimitedHealth", "UnlimitedHealth cheat is active on the owner.");
-
+	
+	AddTag(SetByCaller_Hit, "SetByCaller.Hit", "SetByCaller tag used by hit gameplay effects.");
+	
 	AddTag(Status_Crouching, "Status.Crouching", "Target is crouching.");
 	AddTag(Status_AutoRunning, "Status.AutoRunning", "Target is auto-running.");
-	AddTag(Status_Death, "Status.Death", "Target has the death status.");
-	AddTag(Status_Death_Dying, "Status.Death.Dying", "Target has begun the death process.");
-	AddTag(Status_Death_Dead, "Status.Death.Dead", "Target has finished the death process.");
+	AddTag(Status_Despawn, "Status.Despawn", "Target has the despawn status.");
+	AddTag(Status_Despawn_Despawning, "Status.Despawn.Despawning", "Target has begun the despawn process.");
+	AddTag(Status_Despawn_Despawned, "Status.Despawn.Despawned", "Target has finished the despawn process.");
 
 	AddMovementModeTag(Movement_Mode_Walking, "Movement.Mode.Walking", MOVE_Walking);
 	AddMovementModeTag(Movement_Mode_NavWalking, "Movement.Mode.NavWalking", MOVE_NavWalking);

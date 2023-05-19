@@ -25,7 +25,7 @@ class UAbilitySystemComponent;
 class UInputComponent;
 class UUltraAbilitySystemComponent;
 class UUltraCameraComponent;
-class UUltraHealthComponent;
+class UUltraDespawnComponent;
 class UUltraPawnExtensionComponent;
 class UObject;
 struct FFrame;
@@ -119,23 +119,21 @@ protected:
 
 	void InitializeGameplayTags();
 
-	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
-
-	// Begins the death sequence for the character (disables collision, disables movement, etc...)
+	// Begins the despawn sequence for the character (disables collision, disables movement, etc...)
 	UFUNCTION()
-	virtual void OnDeathStarted(AActor* OwningActor);
+	virtual void OnDespawnStarted(AActor* OwningActor);
 
-	// Ends the death sequence for the character (detaches controller, destroys pawn, etc...)
+	// Ends the despawn sequence for the character (detaches controller, destroys pawn, etc...)
 	UFUNCTION()
-	virtual void OnDeathFinished(AActor* OwningActor);
+	virtual void OnDespawnFinished(AActor* OwningActor);
 
 	void DisableMovementAndCollision();
-	void DestroyDueToDeath();
+	void DestroyDueToDespawn();
 	void UninitAndDestroy();
 
-	// Called when the death sequence for the character has completed
-	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="OnDeathFinished"))
-	void K2_OnDeathFinished();
+	// Called when the despawn sequence for the character has completed
+	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="OnDespawnFinished"))
+	void K2_OnDespawnFinished();
 
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 	void SetMovementModeTag(EMovementMode MovementMode, uint8 CustomMovementMode, bool bTagEnabled);
@@ -150,8 +148,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ultra|Character", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UUltraPawnExtensionComponent> PawnExtComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ultra|Character", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UUltraHealthComponent> HealthComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lyra|Character", Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UUltraDespawnComponent> DespawnComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ultra|Character", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UUltraCameraComponent> CameraComponent;

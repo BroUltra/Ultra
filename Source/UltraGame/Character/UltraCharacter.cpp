@@ -6,7 +6,7 @@
 #include "AbilitySystem/UltraAbilitySystemComponent.h"
 #include "AbilitySystemComponent.h"
 #include "Camera/UltraCameraComponent.h"
-#include "Character/UltraHealthComponent.h"
+#include "Character/UltraDespawnComponent.h"
 #include "Character/UltraPawnExtensionComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -91,9 +91,9 @@ AUltraCharacter::AUltraCharacter(const FObjectInitializer& ObjectInitializer)
 	PawnExtComponent->OnAbilitySystemInitialized_RegisterAndCall(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemInitialized));
 	PawnExtComponent->OnAbilitySystemUninitialized_Register(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemUninitialized));
 
-	HealthComponent = CreateDefaultSubobject<UUltraHealthComponent>(TEXT("HealthComponent"));
-	HealthComponent->OnDeathStarted.AddDynamic(this, &ThisClass::OnDeathStarted);
-	HealthComponent->OnDeathFinished.AddDynamic(this, &ThisClass::OnDeathFinished);
+	DespawnComponent = CreateDefaultSubobject<UUltraDespawnComponent>(TEXT("DespawnComponent"));
+	DespawnComponent->OnDespawnStarted.AddDynamic(this, &ThisClass::OnDespawnStarted);
+	DespawnComponent->OnDespawnFinished.AddDynamic(this, &ThisClass::OnDespawnFinished);
 
 	CameraComponent = CreateDefaultSubobject<UUltraCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetRelativeLocation(FVector(-300.0f, 0.0f, 75.0f));
@@ -220,14 +220,14 @@ void AUltraCharacter::OnAbilitySystemInitialized()
 	UUltraAbilitySystemComponent* UltraASC = GetUltraAbilitySystemComponent();
 	check(UltraASC);
 
-	HealthComponent->InitializeWithAbilitySystem(UltraASC);
+	DespawnComponent->InitializeWithAbilitySystem(UltraASC);
 
 	InitializeGameplayTags();
 }
 
 void AUltraCharacter::OnAbilitySystemUninitialized()
 {
-	HealthComponent->UninitializeFromAbilitySystem();
+	DespawnComponent->UninitializeFromAbilitySystem();
 }
 
 void AUltraCharacter::PossessedBy(AController* NewController)
@@ -354,19 +354,14 @@ bool AUltraCharacter::HasAnyMatchingGameplayTags(const FGameplayTagContainer& Ta
 	return false;
 }
 
-void AUltraCharacter::FellOutOfWorld(const class UDamageType& dmgType)
-{
-	HealthComponent->DamageSelfDestruct(/*bFellOutOfWorld=*/ true);
-}
-
-void AUltraCharacter::OnDeathStarted(AActor*)
+void AUltraCharacter::OnDespawnStarted(AActor*)
 {
 	DisableMovementAndCollision();
 }
 
-void AUltraCharacter::OnDeathFinished(AActor*)
+void AUltraCharacter::OnDespawnFinished(AActor*)
 {
-	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ThisClass::DestroyDueToDeath);
+	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ThisClass::DestroyDueToDespawn);
 }
 
 
@@ -387,13 +382,12 @@ void AUltraCharacter::DisableMovementAndCollision()
 	UltraMoveComp->DisableMovement();
 }
 
-void AUltraCharacter::DestroyDueToDeath()
+void AUltraCharacter::DestroyDueToDespawn()
 {
-	K2_OnDeathFinished();
+	K2_OnDespawnFinished();
 
 	UninitAndDestroy();
 }
-
 
 void AUltraCharacter::UninitAndDestroy()
 {

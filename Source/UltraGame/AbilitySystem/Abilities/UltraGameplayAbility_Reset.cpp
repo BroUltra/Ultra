@@ -49,12 +49,6 @@ void UUltraGameplayAbility_Reset::ActivateAbility(const FGameplayAbilitySpecHand
 
 	UUltraAbilitySystemComponent* UltraASC = CastChecked<UUltraAbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
 
-	FGameplayTagContainer AbilityTypesToIgnore;
-	AbilityTypesToIgnore.AddTag(FUltraGameplayTags::Get().Ability_Behavior_SurvivesDeath);
-
-	// Cancel all abilities and block others from starting.
-	UltraASC->CancelAbilities(nullptr, &AbilityTypesToIgnore, this);
-
 	SetCanBeCanceled(false);
 
 	// Execute the reset from the character

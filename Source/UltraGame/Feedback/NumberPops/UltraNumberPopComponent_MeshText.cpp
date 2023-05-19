@@ -12,7 +12,7 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/PlayerController.h"
 #include "GameplayTagContainer.h"
-#include "UltraDamagePopStyle.h"
+#include "UltraHitPopStyle.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Math/Box.h"
 #include "Math/Vector.h"
@@ -66,28 +66,28 @@ void UUltraNumberPopComponent_MeshText::AddNumberPop(const FUltraNumberPopReques
 
 	FTempNumberPopInfo PreparedNumberInfo;
 
-	// Prepare the DamageNumberArray with the digits from the damage.
+	// Prepare the HitNumberArray with the digits from the hit.
 	{
-		int32 LocalDamage = NewRequest.NumberToDisplay;
-		PreparedNumberInfo.DamageNumberArray.Empty();
+		int32 LocalHit = NewRequest.NumberToDisplay;
+		PreparedNumberInfo.HitNumberArray.Empty();
 
-		if (LocalDamage == 0)
+		if (LocalHit == 0)
 		{
 			// We want to just show a zero
-			PreparedNumberInfo.DamageNumberArray.Insert(0, 0);
+			PreparedNumberInfo.HitNumberArray.Insert(0, 0);
 		}
 		else
 		{
 			// Parse the base10 number into an array
-			while (LocalDamage > 0)
+			while (LocalHit > 0)
 			{
-				PreparedNumberInfo.DamageNumberArray.Insert(LocalDamage % 10, 0);
-				LocalDamage /= 10;
+				PreparedNumberInfo.HitNumberArray.Insert(LocalHit % 10, 0);
+				LocalHit /= 10;
 			}
 		}
 
 		// Insert a zero to reserve space for + or -. Used by the blueprint
-		PreparedNumberInfo.DamageNumberArray.Insert(0, 0);
+		PreparedNumberInfo.HitNumberArray.Insert(0, 0);
 	}
 
 	// Grab a component from the pool for this number or create one
@@ -224,13 +224,13 @@ void UUltraNumberPopComponent_MeshText::ReleaseNextComponents()
 
 FLinearColor UUltraNumberPopComponent_MeshText::DetermineColor(const FUltraNumberPopRequest& Request) const
 {
-	for (UUltraDamagePopStyle* Style : Styles)
+	for (UUltraHitPopStyle* Style : Styles)
 	{
 		if ((Style != nullptr) && Style->bOverrideColor)
 		{
 			if (Style->MatchPattern.Matches(Request.TargetTags))
 			{
-				return Request.bIsCriticalDamage ? Style->CriticalColor : Style->Color;
+				return Request.bIsCriticalHit ? Style->CriticalColor : Style->Color;
 			}
 		}
 	}
@@ -240,7 +240,7 @@ FLinearColor UUltraNumberPopComponent_MeshText::DetermineColor(const FUltraNumbe
 
 UStaticMesh* UUltraNumberPopComponent_MeshText::DetermineStaticMesh(const FUltraNumberPopRequest& Request) const
 {
-	for (UUltraDamagePopStyle* Style : Styles)
+	for (UUltraHitPopStyle* Style : Styles)
 	{
 		if ((Style != nullptr) && Style->bOverrideMesh)
 		{
@@ -254,7 +254,7 @@ UStaticMesh* UUltraNumberPopComponent_MeshText::DetermineStaticMesh(const FUltra
 	return nullptr;
 }
 
-void UUltraNumberPopComponent_MeshText::SetMaterialParameters(const FUltraNumberPopRequest& Request, FTempNumberPopInfo& NewDamageNumberInfo, const FTransform& CameraTransform, const FVector& NumberLocation)
+void UUltraNumberPopComponent_MeshText::SetMaterialParameters(const FUltraNumberPopRequest& Request, FTempNumberPopInfo& NewHitNumberInfo, const FTransform& CameraTransform, const FVector& NumberLocation)
 {
 	UWorld* World = GetWorld();
 	if (World && GEngine)
@@ -266,41 +266,41 @@ void UUltraNumberPopComponent_MeshText::SetMaterialParameters(const FUltraNumber
 		const bool bShouldShowSign = false;
 		const bool bIsSignNegative = true;
 
-		for (UMaterialInstanceDynamic* MeshMID : NewDamageNumberInfo.MeshMIDs)
+		for (UMaterialInstanceDynamic* MeshMID : NewHitNumberInfo.MeshMIDs)
 		{
 			MeshMID->SetScalarParameterValue(SignDigitParameterName, bIsSignNegative ? 0.5f : 0.0f);
 			MeshMID->SetVectorParameterValue(ColorParameterName, DetermineColor(Request));
 
-			// IF the damage number has more digits than we support
-			// THEN force the damage number to the highest number we can support
+			// IF the hit number has more digits than we support
+			// THEN force the hit number to the highest number we can support
 			const int32 MaxSupportedDigits = FMath::Min(FMath::Min(PositionParameterNames.Num(), ScaleRotationAngleParameterNames.Num()), DurationParameterNames.Num());
-			if (!ensure(NewDamageNumberInfo.DamageNumberArray.Num() <= MaxSupportedDigits))
+			if (!ensure(NewHitNumberInfo.HitNumberArray.Num() <= MaxSupportedDigits))
 			{
-				NewDamageNumberInfo.DamageNumberArray.SetNum(MaxSupportedDigits);
+				NewHitNumberInfo.HitNumberArray.SetNum(MaxSupportedDigits);
 
 				// Set all number digits to 9 so we show the largest number we can
 				// Skip digit 0 because that digit is for the +/- sign
-				for (int32 DigitIndex = 1; DigitIndex < NewDamageNumberInfo.DamageNumberArray.Num(); ++DigitIndex)
+				for (int32 DigitIndex = 1; DigitIndex < NewHitNumberInfo.HitNumberArray.Num(); ++DigitIndex)
 				{
-					NewDamageNumberInfo.DamageNumberArray[DigitIndex] = 9;
+					NewHitNumberInfo.HitNumberArray[DigitIndex] = 9;
 				}
 			}
 
 			MeshMID->SetScalarParameterValue(AnimationLifespanParameterName, ComponentLifespan);
-			MeshMID->SetScalarParameterValue(IsCriticalHitParameterName, Request.bIsCriticalDamage ? 1.f : 0.f);
+			MeshMID->SetScalarParameterValue(IsCriticalHitParameterName, Request.bIsCriticalHit ? 1.f : 0.f);
 
-			const int32 DamageNumberArrayLength = NewDamageNumberInfo.DamageNumberArray.Num();
-			float OffsetAccumulatedValue = (DamageNumberArrayLength * -1.f) + (bShouldShowSign ? 0.f : -1.f);
+			const int32 HitNumberArrayLength = NewHitNumberInfo.HitNumberArray.Num();
+			float OffsetAccumulatedValue = (HitNumberArrayLength * -1.f) + (bShouldShowSign ? 0.f : -1.f);
 
-			const int32 LastIndex = (DamageNumberArrayLength >= 4) ? DamageNumberArrayLength : 4;
+			const int32 LastIndex = (HitNumberArrayLength >= 4) ? HitNumberArrayLength : 4;
 
 			for (int32 NumberIndex = 0; NumberIndex < LastIndex; ++NumberIndex)
 			{
-				const float NumberYOffset = ((NumberIndex / FMath::Max(1, DamageNumberArrayLength - 1)) - 0.5f) * 2.f;
+				const float NumberYOffset = ((NumberIndex / FMath::Max(1, HitNumberArrayLength - 1)) - 0.5f) * 2.f;
 				const FVector NumberOffset = FVector(0.f, NumberYOffset, 0.f);
 				const FVector CameraSpaceDirection = CameraTransform.TransformVectorNoScale(NumberOffset);
 
-				const float SpacingForNumber = ((NumberIndex < DamageNumberArrayLength) && ((NewDamageNumberInfo.DamageNumberArray[NumberIndex] == 1) || ((NumberIndex > 0) && (NewDamageNumberInfo.DamageNumberArray[NumberIndex - 1] == 1)))) ? SpacingPercentageForOnes : 1.f;
+				const float SpacingForNumber = ((NumberIndex < HitNumberArrayLength) && ((NewHitNumberInfo.HitNumberArray[NumberIndex] == 1) || ((NumberIndex > 0) && (NewHitNumberInfo.HitNumberArray[NumberIndex - 1] == 1)))) ? SpacingPercentageForOnes : 1.f;
 				OffsetAccumulatedValue += SpacingForNumber;
 
 				FLinearColor RGBAPositionParameter(CameraSpaceDirection);
@@ -312,15 +312,15 @@ void UUltraNumberPopComponent_MeshText::SetMaterialParameters(const FUltraNumber
 				const float DistanceFromCameraToNumber = (CameraTransform.GetLocation() - NumberLocation).Size();
 				const float DistanceSpriteScale = DistanceFromCameraBeforeDoublingSize == 0.f ? 1.f : FMath::Clamp(DistanceFromCameraToNumber / DistanceFromCameraBeforeDoublingSize, 1.f, 1000000000.f);
 
-				const float ScaleToZeroMultiplier = (NumberIndex < DamageNumberArrayLength) && (((NumberIndex == 0) && bShouldShowSign) || (NumberIndex != 0)) ? 1.f : 0.f;
+				const float ScaleToZeroMultiplier = (NumberIndex < HitNumberArrayLength) && (((NumberIndex == 0) && bShouldShowSign) || (NumberIndex != 0)) ? 1.f : 0.f;
 
-				const float HitSizeMultiplier = Request.bIsCriticalDamage ? CriticalHitSizeMultiplier : 1.f;
+				const float HitSizeMultiplier = Request.bIsCriticalHit ? CriticalHitSizeMultiplier : 1.f;
 				const float FontSizeMultiplier = HitSizeMultiplier * DistanceSpriteScale * ScaleToZeroMultiplier;
 
 				FLinearColor RGBAScaleRotationParameter;
 				RGBAScaleRotationParameter.R = FontXSize * FontSizeMultiplier;
 				RGBAScaleRotationParameter.G = FontYSize * FontSizeMultiplier;
-				RGBAScaleRotationParameter.B = NewDamageNumberInfo.DamageNumberArray[FMath::Min(DamageNumberArrayLength - 1, NumberIndex)];
+				RGBAScaleRotationParameter.B = NewHitNumberInfo.HitNumberArray[FMath::Min(HitNumberArrayLength - 1, NumberIndex)];
 				RGBAScaleRotationParameter.A = FMath::Sign(CameraSpaceDirection.X) * NumberOfNumberRotations;
 
 				const FName ScaleRotationAngleParameterName = ScaleRotationAngleParameterNames[NumberIndex];
@@ -335,7 +335,7 @@ void UUltraNumberPopComponent_MeshText::SetMaterialParameters(const FUltraNumber
 			}
 
 			// Non-gameplay cameras while spectating have more cinematic values of aperture as default.
-			// This makes damage numbers very blurry as they are brought close to the camera, and away from the point of focus.
+			// This makes hit numbers very blurry as they are brought close to the camera, and away from the point of focus.
 			// Disable the shifting of numbers towards the camera here, if in a cinematic spectator camera.
 			//@TODO: Determine whether or not we are spectating
 			const bool bIsSpectating = false;

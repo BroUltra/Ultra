@@ -14,7 +14,6 @@
 #include "AbilitySystem/UltraAbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "GameplayEffect.h"
-#include "Character/UltraHealthComponent.h"
 #include "Character/UltraPawnExtensionComponent.h"
 #include "System/UltraSystemStatics.h"
 #include "Development/UltraDeveloperSettings.h"
@@ -271,81 +270,16 @@ void UUltraCheatManager::RemoveTagFromSelf(FString TagName)
 	}
 }
 
-void UUltraCheatManager::DamageSelf(float DamageAmount)
-{
-	if (UUltraAbilitySystemComponent* UltraASC = GetPlayerAbilitySystemComponent())
-	{
-		ApplySetByCallerDamage(UltraASC, DamageAmount);
-	}
-}
-
-void UUltraCheatManager::DamageTarget(float DamageAmount)
-{
-	if (AUltraPlayerController* UltraPC = Cast<AUltraPlayerController>(GetOuterAPlayerController()))
-	{
-		if (UltraPC->GetNetMode() == NM_Client)
-		{
-			// Automatically send cheat to server for convenience.
-			UltraPC->ServerCheat(FString::Printf(TEXT("DamageTarget %.2f"), DamageAmount));
-			return;
-		}
-
-		FHitResult TargetHitResult;
-		AActor* TargetActor = GetTarget(UltraPC, TargetHitResult);
-
-		if (UUltraAbilitySystemComponent* UltraTargetASC = Cast<UUltraAbilitySystemComponent>(UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor)))
-		{
-			ApplySetByCallerDamage(UltraTargetASC, DamageAmount);
-		}
-	}
-}
-
-void UUltraCheatManager::ApplySetByCallerDamage(UUltraAbilitySystemComponent* UltraASC, float DamageAmount)
+void UUltraCheatManager::ApplySetByCallerHit(UUltraAbilitySystemComponent* UltraASC, float HitAmount)
 {
 	check(UltraASC);
 
-	TSubclassOf<UGameplayEffect> DamageGE = UUltraAssetManager::GetSubclass(UUltraGameData::Get().DamageGameplayEffect_SetByCaller);
-	FGameplayEffectSpecHandle SpecHandle = UltraASC->MakeOutgoingSpec(DamageGE, 1.0f, UltraASC->MakeEffectContext());
+	TSubclassOf<UGameplayEffect> HitGE = UUltraAssetManager::GetSubclass(UUltraGameData::Get().HitGameplayEffect_SetByCaller);
+	FGameplayEffectSpecHandle SpecHandle = UltraASC->MakeOutgoingSpec(HitGE, 1.0f, UltraASC->MakeEffectContext());
 
 	if (SpecHandle.IsValid())
 	{
-		SpecHandle.Data->SetSetByCallerMagnitude(FUltraGameplayTags::Get().SetByCaller_Damage, DamageAmount);
-		UltraASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-	}
-}
-
-void UUltraCheatManager::HealSelf(float HealAmount)
-{
-	if (UUltraAbilitySystemComponent* UltraASC = GetPlayerAbilitySystemComponent())
-	{
-		ApplySetByCallerHeal(UltraASC, HealAmount);
-	}
-}
-
-void UUltraCheatManager::HealTarget(float HealAmount)
-{
-	if (AUltraPlayerController* UltraPC = Cast<AUltraPlayerController>(GetOuterAPlayerController()))
-	{
-		FHitResult TargetHitResult;
-		AActor* TargetActor = GetTarget(UltraPC, TargetHitResult);
-
-		if (UUltraAbilitySystemComponent* UltraTargetASC = Cast<UUltraAbilitySystemComponent>(UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor)))
-		{
-			ApplySetByCallerHeal(UltraTargetASC, HealAmount);
-		}
-	}
-}
-
-void UUltraCheatManager::ApplySetByCallerHeal(UUltraAbilitySystemComponent* UltraASC, float HealAmount)
-{
-	check(UltraASC);
-
-	TSubclassOf<UGameplayEffect> HealGE = UUltraAssetManager::GetSubclass(UUltraGameData::Get().HealGameplayEffect_SetByCaller);
-	FGameplayEffectSpecHandle SpecHandle = UltraASC->MakeOutgoingSpec(HealGE, 1.0f, UltraASC->MakeEffectContext());
-
-	if (SpecHandle.IsValid())
-	{
-		SpecHandle.Data->SetSetByCallerMagnitude(FUltraGameplayTags::Get().SetByCaller_Heal, HealAmount);
+		SpecHandle.Data->SetSetByCallerMagnitude(FUltraGameplayTags::Get().SetByCaller_Hit, HitAmount);
 		UltraASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 	}
 }
@@ -357,71 +291,5 @@ UUltraAbilitySystemComponent* UUltraCheatManager::GetPlayerAbilitySystemComponen
 		return UltraPC->GetUltraAbilitySystemComponent();
 	}
 	return nullptr;
-}
-
-void UUltraCheatManager::DamageSelfDestruct()
-{
-	if (AUltraPlayerController* UltraPC = Cast<AUltraPlayerController>(GetOuterAPlayerController()))
-	{
- 		if (const UUltraPawnExtensionComponent* PawnExtComp = UUltraPawnExtensionComponent::FindPawnExtensionComponent(UltraPC->GetPawn()))
-		{
-			if (PawnExtComp->HasReachedInitState(FUltraGameplayTags::Get().InitState_GameplayReady))
-			{
-				if (UUltraHealthComponent* HealthComponent = UUltraHealthComponent::FindHealthComponent(UltraPC->GetPawn()))
-				{
-					HealthComponent->DamageSelfDestruct();
-				}
-			}
-		}
-	}
-}
-
-void UUltraCheatManager::God()
-{
-	if (AUltraPlayerController* UltraPC = Cast<AUltraPlayerController>(GetOuterAPlayerController()))
-	{
-		if (UltraPC->GetNetMode() == NM_Client)
-		{
-			// Automatically send cheat to server for convenience.
-			UltraPC->ServerCheat(FString::Printf(TEXT("God")));
-			return;
-		}
-
-		if (UUltraAbilitySystemComponent* UltraASC = UltraPC->GetUltraAbilitySystemComponent())
-		{
-			const FGameplayTag Tag = FUltraGameplayTags::Get().Cheat_GodMode;
-			const bool bHasTag = UltraASC->HasMatchingGameplayTag(Tag);
-
-			if (bHasTag)
-			{
-				UltraASC->RemoveDynamicTagGameplayEffect(Tag);
-			}
-			else
-			{
-				UltraASC->AddDynamicTagGameplayEffect(Tag);
-			}
-		}
-	}
-}
-
-void UUltraCheatManager::UnlimitedHealth(int32 Enabled)
-{
-	if (UUltraAbilitySystemComponent* UltraASC = GetPlayerAbilitySystemComponent())
-	{
-		const FGameplayTag Tag = FUltraGameplayTags::Get().Cheat_UnlimitedHealth;
-		const bool bHasTag = UltraASC->HasMatchingGameplayTag(Tag);
-
-		if ((Enabled == -1) || ((Enabled > 0) && !bHasTag) || ((Enabled == 0) && bHasTag))
-		{
-			if (bHasTag)
-			{
-				UltraASC->RemoveDynamicTagGameplayEffect(Tag);
-			}
-			else
-			{
-				UltraASC->AddDynamicTagGameplayEffect(Tag);
-			}
-		}
-	}
 }
 

@@ -2,8 +2,6 @@
 
 #include "UltraPlayerState.h"
 
-#include "AbilitySystem/Attributes/UltraCombatSet.h"
-#include "AbilitySystem/Attributes/UltraHealthSet.h"
 #include "AbilitySystem/UltraAbilitySet.h"
 #include "AbilitySystem/UltraAbilitySystemComponent.h"
 #include "AbilitySystemComponent.h"
@@ -50,9 +48,6 @@ AUltraPlayerState::AUltraPlayerState(const FObjectInitializer& ObjectInitializer
 	AbilitySystemComponent = ObjectInitializer.CreateDefaultSubobject<UUltraAbilitySystemComponent>(this, TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
-
-	CreateDefaultSubobject<UUltraHealthSet>(TEXT("HealthSet"));
-	CreateDefaultSubobject<UUltraCombatSet>(TEXT("CombatSet"));
 
 	// AbilitySystemComponent needs to be updated at a high frequency.
 	NetUpdateFrequency = 100.0f;

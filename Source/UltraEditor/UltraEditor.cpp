@@ -87,7 +87,7 @@ static FString GetGameplayCuePath(FString GameplayCueTag)
 {
 	FString Path = FString(TEXT("/Game"));
 
-	//@TODO: Try plugins (e.g., GameplayCue.ShooterGame.Foo should be in ShooterCore or something)
+	//@TODO: Try plugins (e.g., GameplayCue.UltraGame.Foo should be in UltraCore or something)
 
 	// Default path to the first entry in the UAbilitySystemGlobals::GameplayCueNotifyPaths.
 	if (IGameplayAbilitiesModule::IsAvailable())

@@ -22,7 +22,7 @@ void UUltraReplaySubsystem::PlayReplay(UUltraReplayListEntry* Replay)
 
 // void UUltraReplaySubsystem::DeleteReplay()
 // {
-//	ReplayStreamer->DeleteFinishedStream(SelectedItem->StreamInfo.Name, FDeleteFinishedStreamCallback::CreateSP(this, &SShooterDemoList::OnDeleteFinishedStreamComplete));
+//	ReplayStreamer->DeleteFinishedStream(SelectedItem->StreamInfo.Name, FDeleteFinishedStreamCallback::CreateSP(this, &SUltraDemoList::OnDeleteFinishedStreamComplete));
 // }
 
 void UUltraReplaySubsystem::SeekInActiveReplay(float TimeInSeconds)

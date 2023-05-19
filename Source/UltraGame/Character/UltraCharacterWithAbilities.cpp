@@ -2,8 +2,6 @@
 
 #include "UltraCharacterWithAbilities.h"
 
-#include "AbilitySystem/Attributes/UltraCombatSet.h"
-#include "AbilitySystem/Attributes/UltraHealthSet.h"
 #include "AbilitySystem/UltraAbilitySystemComponent.h"
 #include "AbilitySystemComponent.h"
 #include "HAL/Platform.h"
@@ -17,9 +15,6 @@ AUltraCharacterWithAbilities::AUltraCharacterWithAbilities(const FObjectInitiali
 	AbilitySystemComponent = ObjectInitializer.CreateDefaultSubobject<UUltraAbilitySystemComponent>(this, TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
-
-	CreateDefaultSubobject<UUltraHealthSet>(TEXT("HealthSet"));
-	CreateDefaultSubobject<UUltraCombatSet>(TEXT("CombatSet"));
 
 	// AbilitySystemComponent needs to be updated at a high frequency.
 	NetUpdateFrequency = 100.0f;

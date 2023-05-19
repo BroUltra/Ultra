@@ -102,8 +102,8 @@ public:
 	// Compare the teams of two actors and returns a value indicating if they are on same teams, different teams, or one/both are invalid
 	EUltraTeamComparison CompareTeams(const UObject* A, const UObject* B) const;
 
-	// Returns true if the instigator can damage the target, taking into account the friendly fire settings
-	bool CanCauseDamage(const UObject* Instigator, const UObject* Target, bool bAllowDamageToSelf = true) const;
+	// Returns true if the instigator can hit the target, taking into account the friendly fire settings
+	bool CanCauseHit(const UObject* Instigator, const UObject* Target, bool bAllowHitToSelf = true) const;
 
 	// Adds a specified number of stacks to the tag (does nothing if StackCount is below 1)
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category=Teams)

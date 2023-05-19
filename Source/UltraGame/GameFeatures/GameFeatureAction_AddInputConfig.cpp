@@ -3,7 +3,7 @@
 #include "GameFeatures/GameFeatureAction_AddInputConfig.h"
 #include "Components/GameFrameworkComponentManager.h"
 #include "EnhancedInputSubsystems.h"
-#include "Character/UltraHeroComponent.h"	// for NAME_BindInputsNow
+#include "Character/UltraCharacterComponent.h"	// for NAME_BindInputsNow
 #include "GameFramework/PlayerController.h"
 #include "Engine/LocalPlayer.h"
 #include "PlayerMappableInputConfig.h"

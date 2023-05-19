@@ -8,7 +8,6 @@
 #include "Delegates/Delegate.h"
 #include "Engine/GameInstance.h"
 #include "Engine/LocalPlayer.h"
-#include "Equipment/UltraEquipmentDefinition.h"
 #include "GameFramework/HUD.h"
 #include "GameFramework/PlayerController.h"
 #include "GameUIPolicy.h"

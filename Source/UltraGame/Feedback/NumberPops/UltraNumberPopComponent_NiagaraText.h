@@ -9,7 +9,7 @@
 
 #include "UltraNumberPopComponent_NiagaraText.generated.h"
 
-class UUltraDamagePopStyleNiagara;
+class UUltraHitPopStyleNiagara;
 class UNiagaraComponent;
 class UObject;
 
@@ -28,13 +28,13 @@ public:
 
 protected:
 	
-	TArray<int32> DamageNumberArray;
+	TArray<int32> HitNumberArray;
 
 	/** Style patterns to attempt to apply to the incoming number pops */
 	UPROPERTY(EditDefaultsOnly, Category = "Number Pop|Style")
-	TObjectPtr<UUltraDamagePopStyleNiagara> Style;
+	TObjectPtr<UUltraHitPopStyleNiagara> Style;
 
-	//Niagara Component used to display the damage
+	//Niagara Component used to display the hit
 	UPROPERTY(EditDefaultsOnly, Category = "Number Pop|Style")
 	TObjectPtr<UNiagaraComponent> NiagaraComp;
 };
