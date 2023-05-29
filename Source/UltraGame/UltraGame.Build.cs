@@ -40,6 +40,7 @@ public class UltraGame : ModuleRules
 				"Niagara",
 				"AsyncMixin",
 				"ControlFlows",
+				"PropertyPath"
 			}
 		);
 
@@ -69,6 +70,7 @@ public class UltraGame : ModuleRules
 				"ClientPilot",
 				"AudioModulation",
 				"EngineSettings",
+				"DTLSHandlerComponent",
 			}
 		);
 
@@ -79,5 +81,8 @@ public class UltraGame : ModuleRules
 
 		// Generate compile errors if using DrawDebug functions in test/shipping builds.
 		PublicDefinitions.Add("SHIPPING_DRAW_DEBUG_ERROR=1");
+		
+		SetupGameplayDebuggerSupport(Target);
+		SetupIrisSupport(Target);
 	}
 }

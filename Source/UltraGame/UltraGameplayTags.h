@@ -37,6 +37,7 @@ public:
 	FGameplayTag Ability_Behavior_SurvivesDespawn;
 
 	FGameplayTag InputTag_Move;
+	FGameplayTag InputTag_MoveVertical;
 	FGameplayTag InputTag_Look_Mouse;
 	FGameplayTag InputTag_Look_Stick;
 	FGameplayTag InputTag_Crouch;

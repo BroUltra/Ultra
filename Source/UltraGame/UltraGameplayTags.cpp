@@ -37,6 +37,7 @@ void FUltraGameplayTags::AddAllTags(UGameplayTagsManager& Manager)
 	AddTag(Ability_Behavior_SurvivesDespawn, "Ability.Behavior.SurvivesDespawn", "An ability with this type tag should not be canceled due to despawning.");
 	
 	AddTag(InputTag_Move, "InputTag.Move", "Move input.");
+	AddTag(InputTag_MoveVertical, "InputTag.MoveVertical", "Move vertical input.");
 	AddTag(InputTag_Look_Mouse, "InputTag.Look.Mouse", "Look (mouse) input.");
 	AddTag(InputTag_Look_Stick, "InputTag.Look.Stick", "Look (stick) input.");
 	AddTag(InputTag_Crouch, "InputTag.Crouch", "Crouch input.");

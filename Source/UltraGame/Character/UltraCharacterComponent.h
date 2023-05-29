@@ -30,17 +30,17 @@ struct FInputActionValue;
  * This depends on a PawnExtensionComponent to coordinate initialization.
  */
 UCLASS(Blueprintable, Meta=(BlueprintSpawnableComponent))
-class ULTRAGAME_API UUltraHeroComponent : public UPawnComponent, public IGameFrameworkInitStateInterface
+class ULTRAGAME_API UUltraCharacterComponent : public UPawnComponent, public IGameFrameworkInitStateInterface
 {
 	GENERATED_BODY()
 
 public:
 
-	UUltraHeroComponent(const FObjectInitializer& ObjectInitializer);
+	UUltraCharacterComponent(const FObjectInitializer& ObjectInitializer);
 
 	/** Returns the hero component if one exists on the specified actor. */
 	UFUNCTION(BlueprintPure, Category = "Ultra|Hero")
-	static UUltraHeroComponent* FindHeroComponent(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<UUltraHeroComponent>() : nullptr); }
+	static UUltraCharacterComponent* FindCharacterComponent(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<UUltraCharacterComponent>() : nullptr); }
 
 	/** Overrides the camera from an active gameplay ability */
 	void SetAbilityCameraMode(TSubclassOf<UUltraCameraMode> CameraMode, const FGameplayAbilitySpecHandle& OwningSpecHandle);
@@ -83,6 +83,7 @@ protected:
 	void Input_AbilityInputTagReleased(FGameplayTag InputTag);
 
 	void Input_Move(const FInputActionValue& InputActionValue);
+	void Input_MoveVertical(const FInputActionValue& InputActionValue);
 	void Input_LookMouse(const FInputActionValue& InputActionValue);
 	void Input_LookStick(const FInputActionValue& InputActionValue);
 	void Input_Crouch(const FInputActionValue& InputActionValue);

@@ -108,7 +108,7 @@ void UGameFeatureAction_AddInputContextMapping::HandleControllerExtension(AActor
 	{
 		RemoveInputMapping(AsController, ActiveData);
 	}
-	else if ((EventName == UGameFrameworkComponentManager::NAME_ExtensionAdded) || (EventName == UUltraHeroComponent::NAME_BindInputsNow))
+	else if ((EventName == UGameFrameworkComponentManager::NAME_ExtensionAdded) || (EventName == UUltraCharacterComponent::NAME_BindInputsNow))
 	{
 		AddInputMappingForPlayer(AsController->GetLocalPlayer(), ActiveData);
 	}

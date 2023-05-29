@@ -35,29 +35,29 @@ namespace UltraHero
 	static const float LookPitchRate = 165.0f;
 };
 
-const FName UUltraHeroComponent::NAME_BindInputsNow("BindInputsNow");
-const FName UUltraHeroComponent::NAME_ActorFeatureName("Hero");
+const FName UUltraCharacterComponent::NAME_BindInputsNow("BindInputsNow");
+const FName UUltraCharacterComponent::NAME_ActorFeatureName("Hero");
 
-UUltraHeroComponent::UUltraHeroComponent(const FObjectInitializer& ObjectInitializer)
+UUltraCharacterComponent::UUltraCharacterComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	AbilityCameraMode = nullptr;
 	bReadyToBindInputs = false;
 }
 
-void UUltraHeroComponent::OnRegister()
+void UUltraCharacterComponent::OnRegister()
 {
 	Super::OnRegister();
 
 	if (!GetPawn<APawn>())
 	{
-		UE_LOG(LogUltra, Error, TEXT("[UUltraHeroComponent::OnRegister] This component has been added to a blueprint whose base class is not a Pawn. To use this component, it MUST be placed on a Pawn Blueprint."));
+		UE_LOG(LogUltra, Error, TEXT("[UUltraCharacterComponent::OnRegister] This component has been added to a blueprint whose base class is not a Pawn. To use this component, it MUST be placed on a Pawn Blueprint."));
 
 #if WITH_EDITOR
 		if (GIsEditor)
 		{
-			static const FText Message = NSLOCTEXT("UltraHeroComponent", "NotOnPawnError", "has been added to a blueprint whose base class is not a Pawn. To use this component, it MUST be placed on a Pawn Blueprint. This will cause a crash if you PIE!");
-			static const FName HeroMessageLogName = TEXT("UltraHeroComponent");
+			static const FText Message = NSLOCTEXT("UltraCharacterComponent", "NotOnPawnError", "has been added to a blueprint whose base class is not a Pawn. To use this component, it MUST be placed on a Pawn Blueprint. This will cause a crash if you PIE!");
+			static const FName HeroMessageLogName = TEXT("UltraCharacterComponent");
 			
 			FMessageLog(HeroMessageLogName).Error()
 				->AddToken(FUObjectToken::Create(this, FText::FromString(GetNameSafe(this))))
@@ -74,7 +74,7 @@ void UUltraHeroComponent::OnRegister()
 	}
 }
 
-bool UUltraHeroComponent::CanChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState) const
+bool UUltraCharacterComponent::CanChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState) const
 {
 	check(Manager);
 
@@ -144,7 +144,7 @@ bool UUltraHeroComponent::CanChangeInitState(UGameFrameworkComponentManager* Man
 	return false;
 }
 
-void UUltraHeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState)
+void UUltraCharacterComponent::HandleChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState)
 {
 	const FUltraGameplayTags& InitTags = FUltraGameplayTags::Get();
 	if (CurrentState == FUltraGameplayTags::Get().InitState_DataAvailable && DesiredState == FUltraGameplayTags::Get().InitState_DataInitialized)
@@ -186,7 +186,7 @@ void UUltraHeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* 
 	}
 }
 
-void UUltraHeroComponent::OnActorInitStateChanged(const FActorInitStateChangedParams& Params)
+void UUltraCharacterComponent::OnActorInitStateChanged(const FActorInitStateChangedParams& Params)
 {
 	if (Params.FeatureName == UUltraPawnExtensionComponent::NAME_ActorFeatureName)
 	{
@@ -198,7 +198,7 @@ void UUltraHeroComponent::OnActorInitStateChanged(const FActorInitStateChangedPa
 	}
 }
 
-void UUltraHeroComponent::CheckDefaultInitialization()
+void UUltraCharacterComponent::CheckDefaultInitialization()
 {
 	const FUltraGameplayTags& InitTags = FUltraGameplayTags::Get();
 	static const TArray<FGameplayTag> StateChain = { InitTags.InitState_Spawned, InitTags.InitState_DataAvailable, InitTags.InitState_DataInitialized, InitTags.InitState_GameplayReady };
@@ -207,7 +207,7 @@ void UUltraHeroComponent::CheckDefaultInitialization()
 	ContinueInitStateChain(StateChain);
 }
 
-void UUltraHeroComponent::BeginPlay()
+void UUltraCharacterComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -219,14 +219,14 @@ void UUltraHeroComponent::BeginPlay()
 	CheckDefaultInitialization();
 }
 
-void UUltraHeroComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void UUltraCharacterComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	UnregisterInitStateFeature();
 
 	Super::EndPlay(EndPlayReason);
 }
 
-void UUltraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputComponent)
+void UUltraCharacterComponent::InitializePlayerInput(UInputComponent* PlayerInputComponent)
 {
 	check(PlayerInputComponent);
 
@@ -274,6 +274,7 @@ void UUltraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputComp
 				UltraIC->BindAbilityActions(InputConfig, this, &ThisClass::Input_AbilityInputTagPressed, &ThisClass::Input_AbilityInputTagReleased, /*out*/ BindHandles);
 
 				UltraIC->BindNativeAction(InputConfig, GameplayTags.InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move, /*bLogIfNotFound=*/ false);
+				UltraIC->BindNativeAction(InputConfig, GameplayTags.InputTag_MoveVertical, ETriggerEvent::Triggered, this, &ThisClass::Input_MoveVertical, /*bLogIfNotFound=*/ false);
 				UltraIC->BindNativeAction(InputConfig, GameplayTags.InputTag_Look_Mouse, ETriggerEvent::Triggered, this, &ThisClass::Input_LookMouse, /*bLogIfNotFound=*/ false);
 				UltraIC->BindNativeAction(InputConfig, GameplayTags.InputTag_Look_Stick, ETriggerEvent::Triggered, this, &ThisClass::Input_LookStick, /*bLogIfNotFound=*/ false);
 				UltraIC->BindNativeAction(InputConfig, GameplayTags.InputTag_Crouch, ETriggerEvent::Triggered, this, &ThisClass::Input_Crouch, /*bLogIfNotFound=*/ false);
@@ -291,7 +292,7 @@ void UUltraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputComp
 	UGameFrameworkComponentManager::SendGameFrameworkComponentExtensionEvent(const_cast<APawn*>(Pawn), NAME_BindInputsNow);
 }
 
-void UUltraHeroComponent::AddAdditionalInputConfig(const UUltraInputConfig* InputConfig)
+void UUltraCharacterComponent::AddAdditionalInputConfig(const UUltraInputConfig* InputConfig)
 {
 	TArray<uint32> BindHandles;
 
@@ -319,17 +320,17 @@ void UUltraHeroComponent::AddAdditionalInputConfig(const UUltraInputConfig* Inpu
 	}
 }
 
-void UUltraHeroComponent::RemoveAdditionalInputConfig(const UUltraInputConfig* InputConfig)
+void UUltraCharacterComponent::RemoveAdditionalInputConfig(const UUltraInputConfig* InputConfig)
 {
 	//@TODO: Implement me!
 }
 
-bool UUltraHeroComponent::IsReadyToBindInputs() const
+bool UUltraCharacterComponent::IsReadyToBindInputs() const
 {
 	return bReadyToBindInputs;
 }
 
-void UUltraHeroComponent::Input_AbilityInputTagPressed(FGameplayTag InputTag)
+void UUltraCharacterComponent::Input_AbilityInputTagPressed(FGameplayTag InputTag)
 {
 	if (const APawn* Pawn = GetPawn<APawn>())
 	{
@@ -343,7 +344,7 @@ void UUltraHeroComponent::Input_AbilityInputTagPressed(FGameplayTag InputTag)
 	}
 }
 
-void UUltraHeroComponent::Input_AbilityInputTagReleased(FGameplayTag InputTag)
+void UUltraCharacterComponent::Input_AbilityInputTagReleased(FGameplayTag InputTag)
 {
 	const APawn* Pawn = GetPawn<APawn>();
 	if (!Pawn)
@@ -360,7 +361,7 @@ void UUltraHeroComponent::Input_AbilityInputTagReleased(FGameplayTag InputTag)
 	}
 }
 
-void UUltraHeroComponent::Input_Move(const FInputActionValue& InputActionValue)
+void UUltraCharacterComponent::Input_Move(const FInputActionValue& InputActionValue)
 {
 	APawn* Pawn = GetPawn<APawn>();
 	AController* Controller = Pawn ? Pawn->GetController() : nullptr;
@@ -375,10 +376,11 @@ void UUltraHeroComponent::Input_Move(const FInputActionValue& InputActionValue)
 	{
 		const FVector2D Value = InputActionValue.Get<FVector2D>();
 		const FRotator MovementRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
+		const FRotator MovementRotation2D(Controller->GetControlRotation().Pitch, Controller->GetControlRotation().Yaw, 0.0f);
 
 		if (Value.X != 0.0f)
 		{
-			const FVector MovementDirection = MovementRotation.RotateVector(FVector::RightVector);
+			const FVector MovementDirection = MovementRotation2D.RotateVector(FVector::RightVector);
 			Pawn->AddMovementInput(MovementDirection, Value.X);
 		}
 
@@ -390,7 +392,31 @@ void UUltraHeroComponent::Input_Move(const FInputActionValue& InputActionValue)
 	}
 }
 
-void UUltraHeroComponent::Input_LookMouse(const FInputActionValue& InputActionValue)
+void UUltraCharacterComponent::Input_MoveVertical(const FInputActionValue& InputActionValue)
+{
+	APawn* Pawn = GetPawn<APawn>();
+	AController* Controller = Pawn ? Pawn->GetController() : nullptr;
+
+	// If the player has attempted to move again then cancel auto running
+	if (AUltraPlayerController* UltraController = Cast<AUltraPlayerController>(Controller))
+	{
+		UltraController->SetIsAutoRunning(false);
+	}
+	
+	if (Controller)
+	{
+		const FVector Value = InputActionValue.Get<FVector>();
+		const FRotator MovementRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
+
+		if (Value.X != 0.0f)
+		{
+			const FVector MovementDirection = MovementRotation.RotateVector(FVector::UpVector);
+			Pawn->AddMovementInput(MovementDirection, Value.X);
+		}
+	}
+}
+
+void UUltraCharacterComponent::Input_LookMouse(const FInputActionValue& InputActionValue)
 {
 	APawn* Pawn = GetPawn<APawn>();
 
@@ -412,7 +438,7 @@ void UUltraHeroComponent::Input_LookMouse(const FInputActionValue& InputActionVa
 	}
 }
 
-void UUltraHeroComponent::Input_LookStick(const FInputActionValue& InputActionValue)
+void UUltraCharacterComponent::Input_LookStick(const FInputActionValue& InputActionValue)
 {
 	APawn* Pawn = GetPawn<APawn>();
 
@@ -437,7 +463,7 @@ void UUltraHeroComponent::Input_LookStick(const FInputActionValue& InputActionVa
 	}
 }
 
-void UUltraHeroComponent::Input_Crouch(const FInputActionValue& InputActionValue)
+void UUltraCharacterComponent::Input_Crouch(const FInputActionValue& InputActionValue)
 {
 	if (AUltraCharacter* Character = GetPawn<AUltraCharacter>())
 	{
@@ -445,7 +471,7 @@ void UUltraHeroComponent::Input_Crouch(const FInputActionValue& InputActionValue
 	}
 }
 
-void UUltraHeroComponent::Input_AutoRun(const FInputActionValue& InputActionValue)
+void UUltraCharacterComponent::Input_AutoRun(const FInputActionValue& InputActionValue)
 {
 	if (APawn* Pawn = GetPawn<APawn>())
 	{
@@ -457,7 +483,7 @@ void UUltraHeroComponent::Input_AutoRun(const FInputActionValue& InputActionValu
 	}
 }
 
-TSubclassOf<UUltraCameraMode> UUltraHeroComponent::DetermineCameraMode() const
+TSubclassOf<UUltraCameraMode> UUltraCharacterComponent::DetermineCameraMode() const
 {
 	if (AbilityCameraMode)
 	{
@@ -481,7 +507,7 @@ TSubclassOf<UUltraCameraMode> UUltraHeroComponent::DetermineCameraMode() const
 	return nullptr;
 }
 
-void UUltraHeroComponent::SetAbilityCameraMode(TSubclassOf<UUltraCameraMode> CameraMode, const FGameplayAbilitySpecHandle& OwningSpecHandle)
+void UUltraCharacterComponent::SetAbilityCameraMode(TSubclassOf<UUltraCameraMode> CameraMode, const FGameplayAbilitySpecHandle& OwningSpecHandle)
 {
 	if (CameraMode)
 	{
@@ -490,7 +516,7 @@ void UUltraHeroComponent::SetAbilityCameraMode(TSubclassOf<UUltraCameraMode> Cam
 	}
 }
 
-void UUltraHeroComponent::ClearAbilityCameraMode(const FGameplayAbilitySpecHandle& OwningSpecHandle)
+void UUltraCharacterComponent::ClearAbilityCameraMode(const FGameplayAbilitySpecHandle& OwningSpecHandle)
 {
 	if (AbilityCameraModeOwningSpecHandle == OwningSpecHandle)
 	{

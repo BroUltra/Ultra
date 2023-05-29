@@ -389,6 +389,7 @@ void AUltraCharacter::DestroyDueToDespawn()
 	UninitAndDestroy();
 }
 
+
 void AUltraCharacter::UninitAndDestroy()
 {
 	if (GetLocalRole() == ROLE_Authority)

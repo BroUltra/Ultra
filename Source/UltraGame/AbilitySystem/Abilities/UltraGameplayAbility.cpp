@@ -96,9 +96,9 @@ AUltraCharacter* UUltraGameplayAbility::GetUltraCharacterFromActorInfo() const
 	return (CurrentActorInfo ? Cast<AUltraCharacter>(CurrentActorInfo->AvatarActor.Get()) : nullptr);
 }
 
-UUltraHeroComponent* UUltraGameplayAbility::GetHeroComponentFromActorInfo() const
+UUltraCharacterComponent* UUltraGameplayAbility::GetCharacterComponentFromActorInfo() const
 {
-	return (CurrentActorInfo ? UUltraHeroComponent::FindHeroComponent(CurrentActorInfo->AvatarActor.Get()) : nullptr);
+	return (CurrentActorInfo ? UUltraCharacterComponent::FindCharacterComponent(CurrentActorInfo->AvatarActor.Get()) : nullptr);
 }
 
 void UUltraGameplayAbility::NativeOnAbilityFailedToActivate(const FGameplayTagContainer& FailedReason) const
@@ -546,9 +546,9 @@ void UUltraGameplayAbility::SetCameraMode(TSubclassOf<UUltraCameraMode> CameraMo
 {
 	ENSURE_ABILITY_IS_INSTANTIATED_OR_RETURN(SetCameraMode, );
 
-	if (UUltraHeroComponent* HeroComponent = GetHeroComponentFromActorInfo())
+	if (UUltraCharacterComponent* CharacterComponent = GetCharacterComponentFromActorInfo())
 	{
-		HeroComponent->SetAbilityCameraMode(CameraMode, CurrentSpecHandle);
+		CharacterComponent->SetAbilityCameraMode(CameraMode, CurrentSpecHandle);
 		ActiveCameraMode = CameraMode;
 	}
 }
@@ -559,9 +559,9 @@ void UUltraGameplayAbility::ClearCameraMode()
 
 	if (ActiveCameraMode)
 	{
-		if (UUltraHeroComponent* HeroComponent = GetHeroComponentFromActorInfo())
+		if (UUltraCharacterComponent* CharacterComponent = GetCharacterComponentFromActorInfo())
 		{
-			HeroComponent->ClearAbilityCameraMode(CurrentSpecHandle);
+			CharacterComponent->ClearAbilityCameraMode(CurrentSpecHandle);
 		}
 
 		ActiveCameraMode = nullptr;

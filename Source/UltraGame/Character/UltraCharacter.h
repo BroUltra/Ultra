@@ -148,7 +148,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ultra|Character", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UUltraPawnExtensionComponent> PawnExtComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lyra|Character", Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ultra|Character", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UUltraDespawnComponent> DespawnComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ultra|Character", Meta = (AllowPrivateAccess = "true"))

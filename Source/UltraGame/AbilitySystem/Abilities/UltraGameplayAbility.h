@@ -26,7 +26,7 @@ class UAnimMontage;
 class UUltraAbilityCost;
 class UUltraAbilitySystemComponent;
 class UUltraCameraMode;
-class UUltraHeroComponent;
+class UUltraCharacterComponent;
 class UObject;
 struct FFrame;
 struct FGameplayAbilityActorInfo;
@@ -119,7 +119,7 @@ public:
 	AUltraCharacter* GetUltraCharacterFromActorInfo() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Ultra|Ability")
-	UUltraHeroComponent* GetHeroComponentFromActorInfo() const;
+	UUltraCharacterComponent* GetCharacterComponentFromActorInfo() const;
 
 	EUltraAbilityActivationPolicy GetActivationPolicy() const { return ActivationPolicy; }
 	EUltraAbilityActivationGroup GetActivationGroup() const { return ActivationGroup; }

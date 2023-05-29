@@ -109,7 +109,7 @@ void UGameFeatureAction_AddInputBinding::HandlePawnExtension(AActor* Actor, FNam
 	{
 		RemoveInputMapping(AsPawn, ActiveData);
 	}
-	else if ((EventName == UGameFrameworkComponentManager::NAME_ExtensionAdded) || (EventName == UUltraHeroComponent::NAME_BindInputsNow))
+	else if ((EventName == UGameFrameworkComponentManager::NAME_ExtensionAdded) || (EventName == UUltraCharacterComponent::NAME_BindInputsNow))
 	{
 		AddInputMappingForPlayer(AsPawn, ActiveData);
 	}
@@ -123,14 +123,14 @@ void UGameFeatureAction_AddInputBinding::AddInputMappingForPlayer(APawn* Pawn, F
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
 		{
-			UUltraHeroComponent* HeroComponent = Pawn->FindComponentByClass<UUltraHeroComponent>();
-			if (HeroComponent && HeroComponent->IsReadyToBindInputs())
+			UUltraCharacterComponent* CharacterComponent = Pawn->FindComponentByClass<UUltraCharacterComponent>();
+			if (CharacterComponent && CharacterComponent->IsReadyToBindInputs())
 			{
 				for (const TSoftObjectPtr<const UUltraInputConfig>& Entry : InputConfigs)
 				{
 					if (const UUltraInputConfig* BindSet = Entry.Get())
 					{
-						HeroComponent->AddAdditionalInputConfig(BindSet);
+						CharacterComponent->AddAdditionalInputConfig(BindSet);
 					}
 				}
 			}
@@ -151,13 +151,13 @@ void UGameFeatureAction_AddInputBinding::RemoveInputMapping(APawn* Pawn, FPerCon
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
 		{
-			if (UUltraHeroComponent* HeroComponent = Pawn->FindComponentByClass<UUltraHeroComponent>())
+			if (UUltraCharacterComponent* CharacterComponent = Pawn->FindComponentByClass<UUltraCharacterComponent>())
 			{
 				for (const TSoftObjectPtr<const UUltraInputConfig>& Entry : InputConfigs)
 				{
 					if (const UUltraInputConfig* InputConfig = Entry.Get())
 					{
-						HeroComponent->RemoveAdditionalInputConfig(InputConfig);
+						CharacterComponent->RemoveAdditionalInputConfig(InputConfig);
 					}
 				}
 			}

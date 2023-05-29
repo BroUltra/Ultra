@@ -35,6 +35,8 @@
 /FUNCTIONPADMIN:6
 "C:\Users\UltraBro\Documents\Unreal Projects\Ultra\Intermediate\Build\Win64\UltraEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.obj"
 "C:\Users\UltraBro\Documents\Unreal Projects\Ultra\Plugins\GameFeatures\UltraCore\Intermediate\Build\Win64\UnrealEditor\Development\UltraCoreRuntime\Module.UltraCoreRuntime.cpp.obj"
+"C:\Users\UltraBro\Documents\Unreal Projects\Ultra\Plugins\GameFeatures\UltraCore\Intermediate\Build\Win64\UnrealEditor\Development\UltraCoreRuntime\Battle_PlayerSpawningManagementComponent.cpp.obj"
+"C:\Users\UltraBro\Documents\Unreal Projects\Ultra\Plugins\GameFeatures\UltraCore\Intermediate\Build\Win64\UnrealEditor\Development\UltraCoreRuntime\UltraCoreRuntime.init.gen.cpp.obj"
 "C:\Users\UltraBro\Documents\Unreal Projects\Ultra\Plugins\GameFeatures\UltraCore\Intermediate\Build\Win64\UnrealEditor\Development\UltraCoreRuntime\Default.rc2.res"
 "..\Intermediate\Build\Win64\UnrealEditor\Development\CoreUObject\UnrealEditor-CoreUObject.lib"
 "..\Intermediate\Build\Win64\UnrealEditor\Development\Engine\UnrealEditor-Engine.lib"

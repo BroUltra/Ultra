@@ -122,7 +122,7 @@ void UGameFeatureAction_AddInputConfig::HandlePawnExtension(AActor* Actor, FName
 	APawn* AsPawn = CastChecked<APawn>(Actor);
 	FPerContextData& ActiveData = ContextData.FindOrAdd(ChangeContext);
 
-	if (EventName == UGameFrameworkComponentManager::NAME_ExtensionAdded || EventName == UUltraHeroComponent::NAME_BindInputsNow)
+	if (EventName == UGameFrameworkComponentManager::NAME_ExtensionAdded || EventName == UUltraCharacterComponent::NAME_BindInputsNow)
 	{
 		AddInputConfig(AsPawn, ActiveData);
 	}
