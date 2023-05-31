@@ -2,11 +2,7 @@
 
 #include "UltraSettingAction_SafeZoneEditor.h"
 
-#include "DataSource/GameSettingDataSourceDynamic.h"
-#include "HAL/Platform.h"
-#include "Internationalization/Internationalization.h"
-#include "Internationalization/Text.h"
-#include "Misc/Optional.h"
+#include "DataSource/GameSettingDataSource.h"
 #include "Player/UltraLocalPlayer.h"
 #include "Settings/UltraGameSettingRegistry.h"
 #include "Widgets/Layout/SSafeZone.h"

@@ -7,15 +7,10 @@
 #include "System/UltraGameData.h"
 #include "UltraGameplayTags.h"
 #include "Net/UnrealNetwork.h"
-#include "GameplayEffect.h"
 #include "GameplayEffectExtension.h"
-#include "GameplayPrediction.h"
-#include "Abilities/GameplayAbilityTypes.h"
 #include "AbilitySystem/UltraAbilitySystemComponent.h"
 #include "Messages/UltraVerbMessage.h"
 #include "Messages/UltraVerbMessageHelpers.h"
-#include "NativeGameplayTags.h"
-#include "Components/GameFrameworkComponentManager.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "GameFramework/PlayerState.h"
 #include "Engine/World.h"
@@ -83,10 +78,8 @@ void UUltraDespawnComponent::ClearGameplayTags()
 {
 	if (AbilitySystemComponent)
 	{
-		const FUltraGameplayTags& GameplayTags = FUltraGameplayTags::Get();
-
-		AbilitySystemComponent->SetLooseGameplayTagCount(GameplayTags.Status_Despawn_Despawning, 0);
-		AbilitySystemComponent->SetLooseGameplayTagCount(GameplayTags.Status_Despawn_Despawned, 0);
+		AbilitySystemComponent->SetLooseGameplayTagCount(UltraGameplayTags::Status_Despawn_Despawning, 0);
+		AbilitySystemComponent->SetLooseGameplayTagCount(UltraGameplayTags::Status_Despawn_Despawned, 0);
 	}
 }
 
@@ -157,7 +150,7 @@ void UUltraDespawnComponent::StartDespawn()
 
 	if (AbilitySystemComponent)
 	{
-		AbilitySystemComponent->SetLooseGameplayTagCount(FUltraGameplayTags::Get().Status_Despawn_Despawning, 1);
+		AbilitySystemComponent->SetLooseGameplayTagCount(UltraGameplayTags::Status_Despawn_Despawning, 1);
 	}
 
 	AActor* Owner = GetOwner();
@@ -179,7 +172,7 @@ void UUltraDespawnComponent::FinishDespawn()
 
 	if (AbilitySystemComponent)
 	{
-		AbilitySystemComponent->SetLooseGameplayTagCount(FUltraGameplayTags::Get().Status_Despawn_Despawned, 1);
+		AbilitySystemComponent->SetLooseGameplayTagCount(UltraGameplayTags::Status_Despawn_Despawned, 1);
 	}
 
 	AActor* Owner = GetOwner();

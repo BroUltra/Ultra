@@ -3,7 +3,6 @@
 #include "UltraPerfStatWidgetBase.h"
 
 #include "Engine/GameInstance.h"
-#include "Engine/World.h"
 #include "Performance/UltraPerformanceStatSubsystem.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraPerfStatWidgetBase)

@@ -3,29 +3,15 @@
 #include "Teams/UltraTeamSubsystem.h"
 
 #include "AbilitySystemGlobals.h"
-#include "Containers/UnrealString.h"
-#include "CoreTypes.h"
-#include "GameFramework/Actor.h"
-#include "GameFramework/CheatManager.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/Pawn.h"
-#include "GameplayTagContainer.h"
-#include "GenericTeamAgentInterface.h"
-#include "Logging/LogCategory.h"
-#include "Logging/LogMacros.h"
 #include "UltraLogChannels.h"
 #include "UltraTeamAgentInterface.h"
 #include "UltraTeamCheats.h"
 #include "UltraTeamPrivateInfo.h"
 #include "UltraTeamPublicInfo.h"
-#include "Misc/AssertionMacros.h"
 #include "Player/UltraPlayerState.h"
-#include "System/GameplayTagStack.h"
 #include "Teams/UltraTeamInfoBase.h"
-#include "Templates/Casts.h"
-#include "Templates/Tuple.h"
-#include "Trace/Detail/Channel.h"
-#include "UObject/UObjectBaseUtility.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraTeamSubsystem)
 
@@ -102,24 +88,47 @@ void UUltraTeamSubsystem::Deinitialize()
 	Super::Deinitialize();
 }
 
-void UUltraTeamSubsystem::RegisterTeamInfo(AUltraTeamInfoBase* TeamInfo)
+bool UUltraTeamSubsystem::RegisterTeamInfo(AUltraTeamInfoBase* TeamInfo)
 {
-	check(TeamInfo);
-	const int32 TeamId = TeamInfo->GetTeamId();
-	check(TeamId != INDEX_NONE);
+	if (!ensure(TeamInfo))
+	{
+		return false;
+	}
 
-	FUltraTeamTrackingInfo& Entry = TeamMap.FindOrAdd(TeamId);
-	Entry.SetTeamInfo(TeamInfo);
+	const int32 TeamId = TeamInfo->GetTeamId();
+	if (ensure(TeamId != INDEX_NONE))
+	{
+		FUltraTeamTrackingInfo& Entry = TeamMap.FindOrAdd(TeamId);
+		Entry.SetTeamInfo(TeamInfo);
+
+		return true;
+	}
+
+	return false;
 }
 
-void UUltraTeamSubsystem::UnregisterTeamInfo(AUltraTeamInfoBase* TeamInfo)
+bool UUltraTeamSubsystem::UnregisterTeamInfo(AUltraTeamInfoBase* TeamInfo)
 {
-	check(TeamInfo);
-	const int32 TeamId = TeamInfo->GetTeamId();
-	check(TeamId != INDEX_NONE);
+	if (!ensure(TeamInfo))
+	{
+		return false;
+	}
 
-	FUltraTeamTrackingInfo& Entry = TeamMap.FindChecked(TeamId);
-	Entry.RemoveTeamInfo(TeamInfo);
+	const int32 TeamId = TeamInfo->GetTeamId();
+	if (ensure(TeamId != INDEX_NONE))
+	{
+		FUltraTeamTrackingInfo* Entry = TeamMap.Find(TeamId);
+
+		// If it couldn't find the entry, this is probably a leftover actor from a previous world, ignore it
+		if (Entry)
+		{
+			Entry->RemoveTeamInfo(TeamInfo);
+
+			return true;
+		}
+	}
+
+	return false;
 }
 
 bool UUltraTeamSubsystem::ChangeTeamForActor(AActor* ActorToChange, int32 NewTeamIndex)

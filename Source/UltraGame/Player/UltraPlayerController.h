@@ -4,15 +4,11 @@
 
 #include "Camera/UltraCameraAssistInterface.h"
 #include "CommonPlayerController.h"
-#include "Containers/Set.h"
-#include "Containers/UnrealString.h"
-#include "Engine/EngineTypes.h"
-#include "GenericTeamAgentInterface.h"
-#include "Math/UnrealMathSSE.h"
 #include "Teams/UltraTeamAgentInterface.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraPlayerController.generated.h"
+
+struct FGenericTeamId;
 
 class AUltraHUD;
 class AUltraPlayerState;

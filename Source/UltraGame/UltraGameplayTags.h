@@ -2,93 +2,59 @@
 
 #pragma once
 
-#include "Containers/Map.h"
-#include "Containers/UnrealString.h"
-#include "GameplayTagContainer.h"
-#include "HAL/Platform.h"
+#include "NativeGameplayTags.h"
 
-class UGameplayTagsManager;
-
-/**
- * FUltraGameplayTags
- *
- *	Singleton containing native gameplay tags.
- */
-struct FUltraGameplayTags
+namespace UltraGameplayTags
 {
-public:
+	ULTRAGAME_API	FGameplayTag FindTagByString(const FString& TagString, bool bMatchPartialString = false);
 
-	static const FUltraGameplayTags& Get() { return GameplayTags; }
+	// Declare all of the custom native tags that Ultra will use
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_ActivateFail_IsDespawned);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_ActivateFail_Cooldown);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_ActivateFail_Cost);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_ActivateFail_TagsBlocked);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_ActivateFail_TagsMissing);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_ActivateFail_Networking);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_ActivateFail_ActivationGroup);
 
-	static void InitializeNativeTags();
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Behavior_SurvivesDespawn);
 
-	static FGameplayTag FindTagByString(FString TagString, bool bMatchPartialString = false);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Move);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_MoveVertical);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Look_Mouse);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Look_Stick);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Crouch);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_AutoRun);
 
-public:
-	
-	FGameplayTag Ability_ActivateFail_IsDespawned;
-	FGameplayTag Ability_ActivateFail_Cooldown;
-	FGameplayTag Ability_ActivateFail_Cost;
-	FGameplayTag Ability_ActivateFail_TagsBlocked;
-	FGameplayTag Ability_ActivateFail_TagsMissing;
-	FGameplayTag Ability_ActivateFail_Networking;
-	FGameplayTag Ability_ActivateFail_ActivationGroup;
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(InitState_Spawned);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(InitState_DataAvailable);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(InitState_DataInitialized);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(InitState_GameplayReady);
 
-	FGameplayTag Ability_Behavior_SurvivesDespawn;
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayEvent_Despawn);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayEvent_Reset);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayEvent_RequestReset);
 
-	FGameplayTag InputTag_Move;
-	FGameplayTag InputTag_MoveVertical;
-	FGameplayTag InputTag_Look_Mouse;
-	FGameplayTag InputTag_Look_Stick;
-	FGameplayTag InputTag_Crouch;
-	FGameplayTag InputTag_AutoRun;
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Hit);
 
-	// Initialization states for the GameFrameworkComponentManager, these are registered in order by UltraGameInstance and some actors will skip right to GameplayReady
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cheat_GodMode);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cheat_UnlimitedHealth);
 
-	/** Actor/component has initially spawned and can be extended */
-	FGameplayTag InitState_Spawned;
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_Crouching);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_AutoRunning);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_Despawn);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_Despawn_Despawning);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_Despawn_Despawned);
 
-	/** All required data has been loaded/replicated and is ready for initialization */
-	FGameplayTag InitState_DataAvailable;
+	// These are mappings from MovementMode enums to GameplayTags associated with those enums (below)
+	ULTRAGAME_API	extern const TMap<uint8, FGameplayTag> MovementModeTagMap;
+	ULTRAGAME_API	extern const TMap<uint8, FGameplayTag> CustomMovementModeTagMap;
 
-	/** The available data has been initialized for this actor/component, but it is not ready for full gameplay */
-	FGameplayTag InitState_DataInitialized;
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Movement_Mode_Walking);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Movement_Mode_NavWalking);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Movement_Mode_Falling);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Movement_Mode_Swimming);
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Movement_Mode_Flying);
 
-	/** The actor/component is fully ready for active gameplay */
-	FGameplayTag InitState_GameplayReady;
-
-	FGameplayTag GameplayEvent_Despawn;
-	FGameplayTag GameplayEvent_Reset;
-	FGameplayTag GameplayEvent_RequestReset;
-
-	FGameplayTag SetByCaller_Hit;
-
-	FGameplayTag Status_Crouching;
-	FGameplayTag Status_AutoRunning;
-	FGameplayTag Status_Despawn;
-	FGameplayTag Status_Despawn_Despawning;
-	FGameplayTag Status_Despawn_Despawned;
-
-	FGameplayTag Movement_Mode_Walking;
-	FGameplayTag Movement_Mode_NavWalking;
-	FGameplayTag Movement_Mode_Falling;
-	FGameplayTag Movement_Mode_Swimming;
-	FGameplayTag Movement_Mode_Flying;
-	FGameplayTag Movement_Mode_Custom;
-		FGameplayTag Movement_Mode_Custom_Fly;
-		FGameplayTag Movement_Mode_Custom_Dash;
-
-	TMap<uint8, FGameplayTag> MovementModeTagMap;
-	TMap<uint8, FGameplayTag> CustomMovementModeTagMap;
-
-protected:
-
-	void AddAllTags(UGameplayTagsManager& Manager);
-	void AddTag(FGameplayTag& OutTag, const ANSICHAR* TagName, const ANSICHAR* TagComment);
-	void AddMovementModeTag(FGameplayTag& OutTag, const ANSICHAR* TagName, uint8 MovementMode);
-	void AddCustomMovementModeTag(FGameplayTag& OutTag, const ANSICHAR* TagName, uint8 CustomMovementMode);
-
-private:
-
-	static FUltraGameplayTags GameplayTags;
+	ULTRAGAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Movement_Mode_Custom);
 };

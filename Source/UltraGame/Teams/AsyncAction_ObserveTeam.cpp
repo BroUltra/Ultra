@@ -2,7 +2,6 @@
 
 #include "Teams/AsyncAction_ObserveTeam.h"
 
-#include "CoreTypes.h"
 #include "Teams/UltraTeamAgentInterface.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AsyncAction_ObserveTeam)

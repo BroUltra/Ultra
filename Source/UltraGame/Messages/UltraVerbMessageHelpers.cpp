@@ -2,20 +2,11 @@
 
 #include "UltraVerbMessageHelpers.h"
 
-#include "Containers/UnrealString.h"
-#include "GameFramework/Actor.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerState.h"
-#include "GameplayTagContainer.h"
+#include "GameplayEffectTypes.h"
 #include "Messages/UltraVerbMessage.h"
-#include "Templates/Casts.h"
-#include "UObject/Class.h"
-#include "UObject/Object.h"
-#include "UObject/ObjectPtr.h"
-#include "UObject/PropertyPortFlags.h"
-#include "UObject/WeakObjectPtr.h"
-#include "UObject/WeakObjectPtrTemplates.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraVerbMessageHelpers)
 

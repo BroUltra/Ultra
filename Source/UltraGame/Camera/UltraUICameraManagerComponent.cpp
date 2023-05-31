@@ -2,13 +2,9 @@
 
 #include "UltraUICameraManagerComponent.h"
 
-#include "Delegates/Delegate.h"
 #include "GameFramework/HUD.h"
 #include "GameFramework/PlayerController.h"
 #include "UltraPlayerCameraManager.h"
-#include "Misc/CoreMisc.h"
-#include "Templates/Casts.h"
-#include "Templates/UnrealTemplate.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraUICameraManagerComponent)
 

@@ -2,12 +2,7 @@
 
 #include "UltraGameSettingRegistry.h"
 
-#include "GameSetting.h"
-#include "GameSettingValueDiscreteDynamic.h"
-#include "GameSettingValueScalar.h"
-#include "GameSettingValueScalarDynamic.h"
 #include "GameSettingCollection.h"
-#include "GameSettingAction.h"
 #include "EditCondition/WhenPlayingAsPrimaryPlayer.h"
 #include "CustomSettings/UltraSettingValueDiscrete_Language.h"
 #include "Player/UltraLocalPlayer.h"

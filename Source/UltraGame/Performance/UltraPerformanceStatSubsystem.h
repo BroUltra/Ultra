@@ -3,12 +3,11 @@
 #pragma once
 
 #include "ChartCreation.h"
-#include "UltraPerformanceStatTypes.h"
 #include "Subsystems/GameInstanceSubsystem.h"
-#include "Templates/SharedPointer.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraPerformanceStatSubsystem.generated.h"
+
+enum class EUltraDisplayablePerformanceStat : uint8;
 
 class FSubsystemCollectionBase;
 class UUltraPerformanceStatSubsystem;

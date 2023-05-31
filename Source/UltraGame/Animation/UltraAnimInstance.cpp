@@ -1,7 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "UltraAnimInstance.h"
-#include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "Character/UltraCharacter.h"
 #include "Character/UltraCharacterMovementComponent.h"

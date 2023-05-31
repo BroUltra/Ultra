@@ -3,11 +3,8 @@
 #include "CustomSettings/UltraSettingValueDiscrete_PerfStat.h"
 #include "EditCondition/WhenPlayingAsPrimaryPlayer.h"
 #include "GameSettingCollection.h"
-#include "HAL/Platform.h"
-#include "Internationalization/Internationalization.h"
 #include "UltraGameSettingRegistry.h"
 #include "Performance/UltraPerformanceStatTypes.h"
-#include "UObject/UObjectGlobals.h"
 
 class UUltraLocalPlayer;
 

@@ -31,7 +31,7 @@ void UGameFeatureAction_SplitscreenConfig::OnGameFeatureDeactivating(FGameFeatur
 		{
 			if (!Context.ShouldApplyToWorldContext(*WorldContext))
 			{
-				// Wrong context so ignore it, dead objects count as part of this context
+				// Wrong context so ignore it, despawned objects count as part of this context
 				continue;
 			}
 		}

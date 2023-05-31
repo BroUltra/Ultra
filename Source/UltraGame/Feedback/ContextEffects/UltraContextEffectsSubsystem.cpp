@@ -3,12 +3,11 @@
 
 #include "UltraContextEffectsSubsystem.h"
 
-#include "Engine/EngineTypes.h"
 #include "Feedback/ContextEffects/UltraContextEffectsLibrary.h"
-#include "GameplayTagContainer.h"
+#include "Feedback/ContextEffects/UltraContextEffectsSubsystem.h"
 #include "Kismet/GameplayStatics.h"
-#include "NiagaraCommon.h"
 #include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraContextEffectsSubsystem)
 

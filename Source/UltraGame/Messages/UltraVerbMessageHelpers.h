@@ -2,12 +2,12 @@
 
 #pragma once
 
-#include "GameplayEffectTypes.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "UltraVerbMessage.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraVerbMessageHelpers.generated.h"
+
+struct FGameplayCueParameters;
+struct FUltraVerbMessage;
 
 class APlayerController;
 class APlayerState;

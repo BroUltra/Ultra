@@ -1,18 +1,11 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "UltraHotfixManager.h"
-#include "Misc/AES.h"
-#include "Misc/Base64.h"
-#include "Misc/CoreDelegates.h"
 #include "UObject/UObjectIterator.h"
 #include "Engine/NetDriver.h"
-#include "Engine/GameEngine.h"
-#include "Misc/FileHelper.h"
-#include "Misc/CString.h"
 #include "DeviceProfiles/DeviceProfileManager.h"
 #include "DeviceProfiles/DeviceProfile.h"
 #include "Settings/UltraSettingsLocal.h"
-#include "TimerManager.h"
 #include "HAL/MemoryMisc.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraHotfixManager)
@@ -155,12 +148,6 @@ void UUltraHotfixManager::PatchAssetsFromIniFiles()
 {
 #if ENABLE_SHARED_MEMORY_TRACKER
 	FSharedMemoryTracker::PrintMemoryDiff(TEXT("Start - PatchAssetsFromIniFiles"));
-#endif
-
-	Super::PatchAssetsFromIniFiles();
-
-#if ENABLE_SHARED_MEMORY_TRACKER
-	FSharedMemoryTracker::PrintMemoryDiff(TEXT("End - PatchAssetsFromIniFiles"));
 #endif
 }
 

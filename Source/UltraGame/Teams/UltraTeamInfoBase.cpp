@@ -2,13 +2,9 @@
 
 #include "UltraTeamInfoBase.h"
 
-#include "Containers/Array.h"
-#include "CoreTypes.h"
 #include "Engine/World.h"
-#include "Misc/AssertionMacros.h"
 #include "Net/UnrealNetwork.h"
 #include "Teams/UltraTeamSubsystem.h"
-#include "UObject/CoreNetTypes.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraTeamInfoBase)
 
@@ -44,7 +40,11 @@ void AUltraTeamInfoBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	if (TeamId != INDEX_NONE)
 	{
 		UUltraTeamSubsystem* TeamSubsystem = GetWorld()->GetSubsystem<UUltraTeamSubsystem>();
-		TeamSubsystem->UnregisterTeamInfo(this);
+		if (TeamSubsystem)
+		{
+			// EndPlay can happen at weird times where the subsystem has already been destroyed
+			TeamSubsystem->UnregisterTeamInfo(this);
+		}
 	}
 
 	Super::EndPlay(EndPlayReason);
@@ -60,7 +60,10 @@ void AUltraTeamInfoBase::TryRegisterWithTeamSubsystem()
 	if (TeamId != INDEX_NONE)
 	{
 		UUltraTeamSubsystem* TeamSubsystem = GetWorld()->GetSubsystem<UUltraTeamSubsystem>();
-		RegisterWithTeamSubsystem(TeamSubsystem);
+		if (ensure(TeamSubsystem))
+		{
+			RegisterWithTeamSubsystem(TeamSubsystem);
+		}
 	}
 }
 

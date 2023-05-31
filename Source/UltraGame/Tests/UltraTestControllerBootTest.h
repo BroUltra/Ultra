@@ -3,7 +3,6 @@
 #pragma once
 
 #include "GauntletTestControllerBootTest.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraTestControllerBootTest.generated.h"
 

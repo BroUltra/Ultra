@@ -1,13 +1,13 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "UltraPlayerController.h"
+#include "CommonInputTypeEnum.h"
+#include "Components/PrimitiveComponent.h"
 #include "UltraLogChannels.h"
-#include "GameModes/UltraGameMode.h"
 #include "UltraCheatManager.h"
 #include "UltraPlayerState.h"
 #include "Camera/UltraPlayerCameraManager.h"
 #include "UI/UltraHUD.h"
-#include "Character/UltraPawnData.h"
 #include "AbilitySystem/UltraAbilitySystemComponent.h"
 #include "EngineUtils.h"
 #include "UltraGameplayTags.h"
@@ -281,7 +281,7 @@ bool AUltraPlayerController::GetIsAutoRunning() const
 	bool bIsAutoRunning = false;
 	if (const UUltraAbilitySystemComponent* UltraASC = GetUltraAbilitySystemComponent())
 	{
-		bIsAutoRunning = UltraASC->GetTagCount(FUltraGameplayTags::Get().Status_AutoRunning) > 0;
+		bIsAutoRunning = UltraASC->GetTagCount(UltraGameplayTags::Status_AutoRunning) > 0;
 	}
 	return bIsAutoRunning;
 }
@@ -290,7 +290,7 @@ void AUltraPlayerController::OnStartAutoRun()
 {
 	if (UUltraAbilitySystemComponent* UltraASC = GetUltraAbilitySystemComponent())
 	{
-		UltraASC->SetLooseGameplayTagCount(FUltraGameplayTags::Get().Status_AutoRunning, 1);
+		UltraASC->SetLooseGameplayTagCount(UltraGameplayTags::Status_AutoRunning, 1);
 		K2_OnStartAutoRun();
 	}	
 }
@@ -299,7 +299,7 @@ void AUltraPlayerController::OnEndAutoRun()
 {
 	if (UUltraAbilitySystemComponent* UltraASC = GetUltraAbilitySystemComponent())
 	{
-		UltraASC->SetLooseGameplayTagCount(FUltraGameplayTags::Get().Status_AutoRunning, 0);
+		UltraASC->SetLooseGameplayTagCount(UltraGameplayTags::Status_AutoRunning, 0);
 		K2_OnEndAutoRun();
 	}
 }

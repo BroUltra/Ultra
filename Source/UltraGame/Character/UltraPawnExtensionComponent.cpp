@@ -2,30 +2,15 @@
 
 #include "UltraPawnExtensionComponent.h"
 
-#include "Abilities/GameplayAbilityTypes.h"
 #include "AbilitySystem/UltraAbilitySystemComponent.h"
+#include "Components/GameFrameworkComponentDelegates.h"
 #include "Components/GameFrameworkComponentManager.h"
-#include "Containers/Array.h"
-#include "Containers/Set.h"
-#include "Containers/UnrealString.h"
-#include "Engine/EngineBaseTypes.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/Pawn.h"
-#include "GameplayTagContainer.h"
-#include "HAL/Platform.h"
-#include "Logging/LogCategory.h"
-#include "Logging/LogMacros.h"
 #include "UltraGameplayTags.h"
 #include "UltraLogChannels.h"
 #include "UltraPawnData.h"
-#include "Misc/AssertionMacros.h"
 #include "Net/UnrealNetwork.h"
-#include "Templates/SharedPointer.h"
-#include "Trace/Detail/Channel.h"
-#include "UObject/UObjectBaseUtility.h"
-#include "UObject/UnrealNames.h"
-#include "UObject/WeakObjectPtr.h"
-#include "UObject/WeakObjectPtrTemplates.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraPawnExtensionComponent)
 
@@ -76,7 +61,7 @@ void UUltraPawnExtensionComponent::BeginPlay()
 	BindOnActorInitStateChanged(NAME_None, FGameplayTag(), false);
 	
 	// Notifies state manager that we have spawned, then try rest of default initialization
-	ensure(TryToChangeInitState(FUltraGameplayTags::Get().InitState_Spawned));
+	ensure(TryToChangeInitState(UltraGameplayTags::InitState_Spawned));
 	CheckDefaultInitialization();
 }
 
@@ -144,7 +129,7 @@ void UUltraPawnExtensionComponent::InitializeAbilitySystem(UUltraAbilitySystemCo
 		UE_LOG(LogUltra, Log, TEXT("Existing avatar (authority=%d)"), ExistingAvatar->HasAuthority() ? 1 : 0);
 
 		// There is already a pawn acting as the ASC's avatar, so we need to kick it out
-		// This can happen on clients if they're lagged: their new pawn is spawned + possessed before the dead one is removed
+		// This can happen on clients if they're lagged: their new pawn is spawned + possessed before the despawned one is removed
 		ensure(!ExistingAvatar->HasAuthority());
 
 		if (UUltraPawnExtensionComponent* OtherExtensionComponent = FindPawnExtensionComponent(ExistingAvatar))
@@ -175,7 +160,7 @@ void UUltraPawnExtensionComponent::UninitializeAbilitySystem()
 	if (AbilitySystemComponent->GetAvatarActor() == GetOwner())
 	{
 		FGameplayTagContainer AbilityTypesToIgnore;
-		AbilityTypesToIgnore.AddTag(FUltraGameplayTags::Get().Ability_Behavior_SurvivesDespawn);
+		AbilityTypesToIgnore.AddTag(UltraGameplayTags::Ability_Behavior_SurvivesDespawn);
 
 		AbilitySystemComponent->CancelAbilities(nullptr, &AbilityTypesToIgnore);
 		AbilitySystemComponent->ClearAbilityInput();
@@ -229,9 +214,8 @@ void UUltraPawnExtensionComponent::CheckDefaultInitialization()
 {
 	// Before checking our progress, try progressing any other features we might depend on
 	CheckDefaultInitializationForImplementers();
-
-	const FUltraGameplayTags& InitTags = FUltraGameplayTags::Get();
-	static const TArray<FGameplayTag> StateChain = { InitTags.InitState_Spawned, InitTags.InitState_DataAvailable, InitTags.InitState_DataInitialized, InitTags.InitState_GameplayReady };
+	
+	static const TArray<FGameplayTag> StateChain = { UltraGameplayTags::InitState_Spawned, UltraGameplayTags::InitState_DataAvailable, UltraGameplayTags::InitState_DataInitialized, UltraGameplayTags::InitState_GameplayReady };
 
 	// This will try to progress from spawned (which is only set in BeginPlay) through the data initialization stages until it gets to gameplay ready
 	ContinueInitStateChain(StateChain);
@@ -242,9 +226,7 @@ bool UUltraPawnExtensionComponent::CanChangeInitState(UGameFrameworkComponentMan
 	check(Manager);
 
 	APawn* Pawn = GetPawn<APawn>();
-	const FUltraGameplayTags& InitTags = FUltraGameplayTags::Get();
-
-	if (!CurrentState.IsValid() && DesiredState == InitTags.InitState_Spawned)
+	if (!CurrentState.IsValid() && DesiredState == UltraGameplayTags::InitState_Spawned)
 	{
 		// As long as we are on a valid pawn, we count as spawned
 		if (Pawn)
@@ -252,7 +234,7 @@ bool UUltraPawnExtensionComponent::CanChangeInitState(UGameFrameworkComponentMan
 			return true;
 		}
 	}
-	if (CurrentState == InitTags.InitState_Spawned && DesiredState == InitTags.InitState_DataAvailable)
+	if (CurrentState == UltraGameplayTags::InitState_Spawned && DesiredState == UltraGameplayTags::InitState_DataAvailable)
 	{
 		// Pawn data is required.
 		if (!PawnData)
@@ -274,12 +256,12 @@ bool UUltraPawnExtensionComponent::CanChangeInitState(UGameFrameworkComponentMan
 
 		return true;
 	}
-	else if (CurrentState == InitTags.InitState_DataAvailable && DesiredState == InitTags.InitState_DataInitialized)
+	else if (CurrentState == UltraGameplayTags::InitState_DataAvailable && DesiredState == UltraGameplayTags::InitState_DataInitialized)
 	{
 		// Transition to initialize if all features have their data available
-		return Manager->HaveAllFeaturesReachedInitState(Pawn, InitTags.InitState_DataAvailable);
+		return Manager->HaveAllFeaturesReachedInitState(Pawn, UltraGameplayTags::InitState_DataAvailable);
 	}
-	else if (CurrentState == InitTags.InitState_DataInitialized && DesiredState == InitTags.InitState_GameplayReady)
+	else if (CurrentState == UltraGameplayTags::InitState_DataInitialized && DesiredState == UltraGameplayTags::InitState_GameplayReady)
 	{
 		return true;
 	}
@@ -289,7 +271,7 @@ bool UUltraPawnExtensionComponent::CanChangeInitState(UGameFrameworkComponentMan
 
 void UUltraPawnExtensionComponent::HandleChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState)
 {
-	if (DesiredState == FUltraGameplayTags::Get().InitState_DataInitialized)
+	if (DesiredState == UltraGameplayTags::InitState_DataInitialized)
 	{
 		// This is currently all handled by other components listening to this state change
 	}
@@ -300,8 +282,7 @@ void UUltraPawnExtensionComponent::OnActorInitStateChanged(const FActorInitState
 	// If another feature is now in DataAvailable, see if we should transition to DataInitialized
 	if (Params.FeatureName != NAME_ActorFeatureName)
 	{
-		const FUltraGameplayTags& InitTags = FUltraGameplayTags::Get();
-		if (Params.FeatureState == InitTags.InitState_DataAvailable)
+		if (Params.FeatureState == UltraGameplayTags::InitState_DataAvailable)
 		{
 			CheckDefaultInitialization();
 		}

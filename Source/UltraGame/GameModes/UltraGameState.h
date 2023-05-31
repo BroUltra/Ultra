@@ -3,12 +3,11 @@
 #pragma once
 
 #include "AbilitySystemInterface.h"
-#include "Engine/EngineTypes.h"
-#include "Messages/UltraVerbMessage.h"
 #include "ModularGameState.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraGameState.generated.h"
+
+struct FUltraVerbMessage;
 
 class APlayerState;
 class UAbilitySystemComponent;
@@ -42,6 +41,7 @@ public:
 	//~AGameStateBase interface
 	virtual void AddPlayerState(APlayerState* PlayerState) override;
 	virtual void RemovePlayerState(APlayerState* PlayerState) override;
+	virtual void SeamlessTravelTransitionCheckpoint(bool bToTransitionMap) override;
 	//~End of AGameStateBase interface
 
 	//~IAbilitySystemInterface

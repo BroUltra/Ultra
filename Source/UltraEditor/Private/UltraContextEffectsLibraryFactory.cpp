@@ -3,7 +3,6 @@
 #include "UltraContextEffectsLibraryFactory.h"
 
 #include "Feedback/ContextEffects/UltraContextEffectsLibrary.h"
-#include "Templates/SubclassOf.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraContextEffectsLibraryFactory)
 

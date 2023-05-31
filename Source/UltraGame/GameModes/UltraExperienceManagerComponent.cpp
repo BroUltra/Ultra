@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "UltraExperienceManagerComponent.h"
+#include "Engine/World.h"
 #include "Net/UnrealNetwork.h"
 #include "UltraExperienceDefinition.h"
 #include "UltraExperienceActionSet.h"
@@ -52,8 +53,7 @@ UUltraExperienceManagerComponent::UUltraExperienceManagerComponent(const FObject
 	SetIsReplicatedByDefault(true);
 }
 
-#if WITH_SERVER_CODE
-void UUltraExperienceManagerComponent::ServerSetCurrentExperience(FPrimaryAssetId ExperienceId)
+void UUltraExperienceManagerComponent::SetCurrentExperience(FPrimaryAssetId ExperienceId)
 {
 	UUltraAssetManager& AssetManager = UUltraAssetManager::Get();
 	FSoftObjectPath AssetPath = AssetManager.GetPrimaryAssetPath(ExperienceId);
@@ -66,7 +66,6 @@ void UUltraExperienceManagerComponent::ServerSetCurrentExperience(FPrimaryAssetI
 	CurrentExperience = Experience;
 	StartExperienceLoad();
 }
-#endif
 
 void UUltraExperienceManagerComponent::CallOrRegister_OnExperienceLoaded_HighPriority(FOnUltraExperienceLoaded::FDelegate&& Delegate)
 {
@@ -164,8 +163,17 @@ void UUltraExperienceManagerComponent::StartExperienceLoad()
 		BundlesToLoad.Add(UGameFeaturesSubsystemSettings::LoadStateServer);
 	}
 
-	const TSharedPtr<FStreamableHandle> BundleLoadHandle = AssetManager.ChangeBundleStateForPrimaryAssets(BundleAssetList.Array(), BundlesToLoad, {}, false, FStreamableDelegate(), FStreamableManager::AsyncLoadHighPriority);
-	const TSharedPtr<FStreamableHandle> RawLoadHandle = AssetManager.LoadAssetList(RawAssetList.Array(), FStreamableDelegate(), FStreamableManager::AsyncLoadHighPriority, TEXT("StartExperienceLoad()"));
+	TSharedPtr<FStreamableHandle> BundleLoadHandle = nullptr;
+	if (BundleAssetList.Num() > 0)
+	{
+		BundleLoadHandle = AssetManager.ChangeBundleStateForPrimaryAssets(BundleAssetList.Array(), BundlesToLoad, {}, false, FStreamableDelegate(), FStreamableManager::AsyncLoadHighPriority);
+	}
+
+	TSharedPtr<FStreamableHandle> RawLoadHandle = nullptr;
+	if (RawAssetList.Num() > 0)
+	{
+		RawLoadHandle = AssetManager.LoadAssetList(RawAssetList.Array(), FStreamableDelegate(), FStreamableManager::AsyncLoadHighPriority, TEXT("StartExperienceLoad()"));
+	}
 
 	// If both async loads are running, combine them
 	TSharedPtr<FStreamableHandle> Handle = nullptr;

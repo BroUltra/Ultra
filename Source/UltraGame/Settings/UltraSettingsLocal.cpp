@@ -1404,7 +1404,7 @@ void UUltraSettingsLocal::AddOrUpdateCustomKeyboardBindings(const FName MappingN
 	// Tell the enhanced input subsystem for this local player that we should remap some input! Woo
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
 	{
-		Subsystem->AddPlayerMappedKey(MappingName, NewKey);
+		Subsystem->AddPlayerMappedKeyInSlot(MappingName, NewKey);
 	}
 }
 
@@ -1412,7 +1412,7 @@ void UUltraSettingsLocal::ResetKeybindingToDefault(const FName MappingName, UUlt
 {
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
 	{
-		Subsystem->RemovePlayerMappedKey(MappingName);
+		Subsystem->RemovePlayerMappedKeyInSlot(MappingName);
 	}
 }
 

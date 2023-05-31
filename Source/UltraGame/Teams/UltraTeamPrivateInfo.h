@@ -3,7 +3,6 @@
 #pragma once
 
 #include "UltraTeamInfoBase.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraTeamPrivateInfo.generated.h"
 

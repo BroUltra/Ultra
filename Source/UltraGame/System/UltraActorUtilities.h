@@ -2,9 +2,7 @@
 
 #pragma once
 
-#include "HAL/Platform.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraActorUtilities.generated.h"
 

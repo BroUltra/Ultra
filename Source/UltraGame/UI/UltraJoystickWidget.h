@@ -2,10 +2,7 @@
 
 #pragma once
 
-#include "Input/Reply.h"
-#include "Math/Vector2D.h"
 #include "UI/UltraSimulatedInputWidget.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraJoystickWidget.generated.h"
 

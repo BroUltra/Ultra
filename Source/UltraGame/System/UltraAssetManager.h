@@ -2,11 +2,12 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Engine/AssetManager.h"
-#include "Engine/DataAsset.h"
 #include "UltraAssetManagerStartupJob.h"
+#include "Templates/SubclassOf.h"
 #include "UltraAssetManager.generated.h"
+
+class UPrimaryDataAsset;
 
 class UUltraGameData;
 class UUltraPawnData;

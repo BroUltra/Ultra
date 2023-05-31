@@ -1,12 +1,16 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "UltraCameraMode_ThirdPerson.h"
+#include "Camera/UltraCameraMode.h"
+#include "Components/PrimitiveComponent.h"
+#include "Camera/UltraPenetrationAvoidanceFeeler.h"
 #include "Curves/CurveVector.h"
 #include "Engine/Canvas.h"
 #include "GameFramework/CameraBlockingVolume.h"
 #include "UltraCameraAssistInterface.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/Character.h"
+#include "Math/RotationMatrix.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraCameraMode_ThirdPerson)
 

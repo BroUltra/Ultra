@@ -2,10 +2,8 @@
 
 #include "UltraSettingValueDiscrete_MobileFPSType.h"
 
-#include "Internationalization/Internationalization.h"
 #include "Performance/UltraPerformanceSettings.h"
 #include "Settings/UltraSettingsLocal.h"
-#include "Templates/Less.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraSettingValueDiscrete_MobileFPSType)
 

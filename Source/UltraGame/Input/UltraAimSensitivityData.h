@@ -2,12 +2,11 @@
 
 #pragma once
 
-#include "Containers/Map.h"
 #include "Engine/DataAsset.h"
-#include "Settings/UltraSettingsShared.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraAimSensitivityData.generated.h"
+
+enum class EUltraGamepadSensitivity : uint8;
 
 class UObject;
 

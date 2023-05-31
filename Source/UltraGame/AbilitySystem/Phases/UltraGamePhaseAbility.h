@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/UltraGameplayAbility.h"
 #include "UltraGamePhaseAbility.generated.h"
 

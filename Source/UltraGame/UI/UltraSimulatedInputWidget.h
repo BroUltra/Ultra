@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "CommonUserWidget.h"
 #include "UltraSimulatedInputWidget.generated.h"
 

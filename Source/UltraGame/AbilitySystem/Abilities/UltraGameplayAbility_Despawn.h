@@ -2,9 +2,7 @@
 
 #pragma once
 
-#include "GameplayAbilitySpec.h"
 #include "UltraGameplayAbility.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraGameplayAbility_Despawn.generated.h"
 
@@ -30,8 +28,6 @@ public:
 	UUltraGameplayAbility_Despawn(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
-
-	void DoneAddingNativeTags();
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;

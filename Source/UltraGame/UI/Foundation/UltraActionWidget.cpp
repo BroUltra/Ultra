@@ -2,7 +2,9 @@
 
 #include "UltraActionWidget.h"
 
+#include "CommonInputBaseTypes.h"
 #include "CommonInputSubsystem.h"
+#include "Engine/LocalPlayer.h"
 #include "EnhancedInputSubsystems.h"
 
 FSlateBrush UUltraActionWidget::GetIcon() const

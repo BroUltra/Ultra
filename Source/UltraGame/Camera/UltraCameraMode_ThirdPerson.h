@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "UltraCameraMode.h"
 #include "Curves/CurveFloat.h"
 #include "UltraPenetrationAvoidanceFeeler.h"

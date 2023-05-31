@@ -2,13 +2,14 @@
 
 #pragma once
 
-#include "GameplayAbilitySpec.h"
 #include "GameplayTagContainer.h"
 #include "UltraAbilityCost.h"
 #include "ScalableFloat.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraAbilityCost_PlayerTagStack.generated.h"
+
+struct FGameplayAbilityActivationInfo;
+struct FGameplayAbilitySpecHandle;
 
 class UUltraGameplayAbility;
 class UObject;

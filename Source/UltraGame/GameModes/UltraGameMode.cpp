@@ -1,7 +1,11 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "UltraGameMode.h"
+#include "AssetRegistry/AssetData.h"
+#include "Engine/GameInstance.h"
+#include "Engine/World.h"
 #include "UltraLogChannels.h"
+#include "Misc/CommandLine.h"
 #include "System/UltraAssetManager.h"
 #include "UltraGameState.h"
 #include "System/UltraGameSession.h"
@@ -15,10 +19,14 @@
 #include "GameModes/UltraWorldSettings.h"
 #include "GameModes/UltraExperienceDefinition.h"
 #include "GameModes/UltraExperienceManagerComponent.h"
+#include "GameModes/UltraUserFacingExperienceDefinition.h"
 #include "Kismet/GameplayStatics.h"
 #include "Development/UltraDeveloperSettings.h"
 #include "Player/UltraPlayerSpawningManagerComponent.h"
+#include "CommonUserSubsystem.h"
+#include "CommonSessionSubsystem.h"
 #include "TimerManager.h"
+#include "GameMapsSettings.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraGameMode)
 
@@ -73,7 +81,7 @@ void AUltraGameMode::InitGame(const FString& MapName, const FString& Options, FS
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
 
-	//@TODO: Eventually only do this for PIE/auto
+	// Wait for the next frame to give time to initialize startup settings
 	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ThisClass::HandleMatchAssignmentIfNotExpectingOne);
 }
 
@@ -88,6 +96,7 @@ void AUltraGameMode::HandleMatchAssignmentIfNotExpectingOne()
 	//  - Developer Settings (PIE only)
 	//  - Command Line override
 	//  - World Settings
+	//  - Dedicated server
 	//  - Default experience
 
 	UWorld* World = GetWorld();
@@ -112,6 +121,10 @@ void AUltraGameMode::HandleMatchAssignmentIfNotExpectingOne()
 		if (FParse::Value(FCommandLine::Get(), TEXT("Experience="), ExperienceFromCommandLine))
 		{
 			ExperienceId = FPrimaryAssetId::ParseTypeAndName(ExperienceFromCommandLine);
+			if (!ExperienceId.PrimaryAssetType.IsValid())
+			{
+				ExperienceId = FPrimaryAssetId(FPrimaryAssetType(UUltraExperienceDefinition::StaticClass()->GetFName()), FName(*ExperienceFromCommandLine));
+			}
 			ExperienceIdSource = TEXT("CommandLine");
 		}
 	}
@@ -137,6 +150,12 @@ void AUltraGameMode::HandleMatchAssignmentIfNotExpectingOne()
 	// Final fallback to the default experience
 	if (!ExperienceId.IsValid())
 	{
+		if (TryDedicatedServerLogin())
+		{
+			// This will start to host as a dedicated server
+			return;
+		}
+		
 		//@TODO: Pull this from a config setting or something
 		ExperienceId = FPrimaryAssetId(FPrimaryAssetType("UltraExperienceDefinition"), FName("B_UltraDefaultExperience"));
 		ExperienceIdSource = TEXT("Default");
@@ -145,22 +164,144 @@ void AUltraGameMode::HandleMatchAssignmentIfNotExpectingOne()
 	OnMatchAssignmentGiven(ExperienceId, ExperienceIdSource);
 }
 
+bool AUltraGameMode::TryDedicatedServerLogin()
+{
+	// Some basic code to register as an active dedicated server, this would be heavily modified by the game
+	FString DefaultMap = UGameMapsSettings::GetGameDefaultMap();
+	UWorld* World = GetWorld();
+	UGameInstance* GameInstance = GetGameInstance();
+	if (GameInstance && World && World->GetNetMode() == NM_DedicatedServer && World->URL.Map == DefaultMap)
+	{
+		// Only register if this is the default map on a dedicated server
+		UCommonUserSubsystem* UserSubsystem = GameInstance->GetSubsystem<UCommonUserSubsystem>();
+
+		// Dedicated servers may need to do an online login
+		UserSubsystem->OnUserInitializeComplete.AddDynamic(this, &AUltraGameMode::OnUserInitializedForDedicatedServer);
+
+		// There are no local users on dedicated server, but index 0 means the default platform user which is handled by the online login code
+		if (!UserSubsystem->TryToLoginForOnlinePlay(0))
+		{
+			OnUserInitializedForDedicatedServer(nullptr, false, FText(), ECommonUserPrivilege::CanPlayOnline, ECommonUserOnlineContext::Default);
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+void AUltraGameMode::HostDedicatedServerMatch(ECommonSessionOnlineMode OnlineMode)
+{
+	FPrimaryAssetType UserExperienceType = UUltraUserFacingExperienceDefinition::StaticClass()->GetFName();
+	
+	// Figure out what UserFacingExperience to load
+	FPrimaryAssetId UserExperienceId;
+	FString UserExperienceFromCommandLine;
+	if (FParse::Value(FCommandLine::Get(), TEXT("UserExperience="), UserExperienceFromCommandLine) ||
+		FParse::Value(FCommandLine::Get(), TEXT("Playlist="), UserExperienceFromCommandLine))
+	{
+		UserExperienceId = FPrimaryAssetId::ParseTypeAndName(UserExperienceFromCommandLine);
+		if (!UserExperienceId.PrimaryAssetType.IsValid())
+		{
+			UserExperienceId = FPrimaryAssetId(FPrimaryAssetType(UserExperienceType), FName(*UserExperienceFromCommandLine));
+		}
+	}
+
+	// Search for the matching experience, it's fine to force load them because we're in dedicated server startup
+	UUltraAssetManager& AssetManager = UUltraAssetManager::Get();
+	TSharedPtr<FStreamableHandle> Handle = AssetManager.LoadPrimaryAssetsWithType(UserExperienceType);
+	if (ensure(Handle.IsValid()))
+	{
+		Handle->WaitUntilComplete();
+	}
+
+	TArray<UObject*> UserExperiences;
+	AssetManager.GetPrimaryAssetObjectList(UserExperienceType, UserExperiences);
+	UUltraUserFacingExperienceDefinition* FoundExperience = nullptr;
+	UUltraUserFacingExperienceDefinition* DefaultExperience = nullptr;
+
+	for (UObject* Object : UserExperiences)
+	{
+		UUltraUserFacingExperienceDefinition* UserExperience = Cast<UUltraUserFacingExperienceDefinition>(Object);
+		if (ensure(UserExperience))
+		{
+			if (UserExperience->GetPrimaryAssetId() == UserExperienceId)
+			{
+				FoundExperience = UserExperience;
+				break;
+			}
+			
+			if (UserExperience->bIsDefaultExperience && DefaultExperience == nullptr)
+			{
+				DefaultExperience = UserExperience;
+			}
+		}
+	}
+
+	if (FoundExperience == nullptr)
+	{
+		FoundExperience = DefaultExperience;
+	}
+	
+	UGameInstance* GameInstance = GetGameInstance();
+	if (ensure(FoundExperience && GameInstance))
+	{
+		// Actually host the game
+		UCommonSession_HostSessionRequest* HostRequest = FoundExperience->CreateHostingRequest();
+		if (ensure(HostRequest))
+		{
+			HostRequest->OnlineMode = OnlineMode;
+
+			// TODO override other parameters?
+
+			UCommonSessionSubsystem* SessionSubsystem = GameInstance->GetSubsystem<UCommonSessionSubsystem>();
+			SessionSubsystem->HostSession(nullptr, HostRequest);
+			
+			// This will handle the map travel
+		}
+	}
+
+}
+
+void AUltraGameMode::OnUserInitializedForDedicatedServer(const UCommonUserInfo* UserInfo, bool bSuccess, FText Error, ECommonUserPrivilege RequestedPrivilege, ECommonUserOnlineContext OnlineContext)
+{
+	UGameInstance* GameInstance = GetGameInstance();
+	if (GameInstance)
+	{
+		// Unbind
+		UCommonUserSubsystem* UserSubsystem = GameInstance->GetSubsystem<UCommonUserSubsystem>();
+		UserSubsystem->OnUserInitializeComplete.RemoveDynamic(this, &AUltraGameMode::OnUserInitializedForDedicatedServer);
+
+		if (bSuccess)
+		{
+			// Online login worked, start a full online game
+			UE_LOG(LogUltraExperience, Log, TEXT("Dedicated server online login succeeded, starting online server"));
+			HostDedicatedServerMatch(ECommonSessionOnlineMode::Online);
+		}
+		else
+		{
+			// Go ahead and try to host anyway, but without online support
+			// This behavior is fairly game specific, but this behavior provides the most flexibility for testing
+			UE_LOG(LogUltraExperience, Log, TEXT("Dedicated server online login failed, starting LAN-only server"));
+			HostDedicatedServerMatch(ECommonSessionOnlineMode::LAN);
+		}
+	}
+}
+
 void AUltraGameMode::OnMatchAssignmentGiven(FPrimaryAssetId ExperienceId, const FString& ExperienceIdSource)
 {
-#if WITH_SERVER_CODE
 	if (ExperienceId.IsValid())
 	{
 		UE_LOG(LogUltraExperience, Log, TEXT("Identified experience %s (Source: %s)"), *ExperienceId.ToString(), *ExperienceIdSource);
 
 		UUltraExperienceManagerComponent* ExperienceComponent = GameState->FindComponentByClass<UUltraExperienceManagerComponent>();
 		check(ExperienceComponent);
-		ExperienceComponent->ServerSetCurrentExperience(ExperienceId);
+		ExperienceComponent->SetCurrentExperience(ExperienceId);
 	}
 	else
 	{
 		UE_LOG(LogUltraExperience, Error, TEXT("Failed to identify experience, loading screen will stay up forever"));
 	}
-#endif
 }
 
 void AUltraGameMode::OnExperienceLoaded(const UUltraExperienceDefinition* CurrentExperience)
@@ -320,11 +461,11 @@ void AUltraGameMode::InitGameState()
 	ExperienceComponent->CallOrRegister_OnExperienceLoaded(FOnUltraExperienceLoaded::FDelegate::CreateUObject(this, &ThisClass::OnExperienceLoaded));
 }
 
-void AUltraGameMode::OnPostLogin(AController* NewPlayer)
+void AUltraGameMode::GenericPlayerInitialization(AController* NewPlayer)
 {
-	Super::OnPostLogin(NewPlayer);
+	Super::GenericPlayerInitialization(NewPlayer);
 
-	OnGameModeCombinedPostLoginDelegate.Broadcast(this, NewPlayer);
+	OnGameModePlayerInitialized.Broadcast(this, NewPlayer);
 }
 
 void AUltraGameMode::RequestPlayerRestartNextFrame(AController* Controller, bool bForceReset)

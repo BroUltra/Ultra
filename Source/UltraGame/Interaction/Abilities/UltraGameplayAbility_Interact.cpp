@@ -2,12 +2,7 @@
 
 #include "UltraGameplayAbility_Interact.h"
 
-#include "Abilities/GameplayAbilityTypes.h"
 #include "AbilitySystemComponent.h"
-#include "Containers/EnumAsByte.h"
-#include "Engine/EngineTypes.h"
-#include "GameFramework/Actor.h"
-#include "GameplayTagContainer.h"
 #include "Interaction/IInteractableTarget.h"
 #include "Interaction/InteractionStatics.h"
 #include "Interaction/Tasks/AbilityTask_GrantNearbyInteraction.h"
@@ -15,9 +10,6 @@
 #include "Player/UltraPlayerController.h"
 #include "UI/IndicatorSystem/IndicatorDescriptor.h"
 #include "UI/IndicatorSystem/UltraIndicatorManagerComponent.h"
-#include "UObject/NameTypes.h"
-#include "UObject/ObjectPtr.h"
-#include "UObject/ScriptInterface.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraGameplayAbility_Interact)
 

@@ -3,7 +3,6 @@
 #pragma once
 
 #include "Camera/PlayerCameraManager.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraPlayerCameraManager.generated.h"
 
@@ -12,7 +11,7 @@ class UCanvas;
 class UObject;
 
 
-#define ULTRA_CAMERA_DEFAULT_FOV			(80.0f)
+#define ULTRA_CAMERA_DEFAULT_FOV		(80.0f)
 #define ULTRA_CAMERA_DEFAULT_PITCH_MIN	(-89.0f)
 #define ULTRA_CAMERA_DEFAULT_PITCH_MAX	(89.0f)
 

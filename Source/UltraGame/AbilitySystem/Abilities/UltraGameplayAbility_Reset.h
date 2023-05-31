@@ -3,8 +3,6 @@
 #pragma once
 
 #include "AbilitySystem/Abilities/UltraGameplayAbility.h"
-#include "GameplayAbilitySpec.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraGameplayAbility_Reset.generated.h"
 
@@ -28,8 +26,6 @@ public:
 	UUltraGameplayAbility_Reset(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
-	
-	void DoneAddingNativeTags();
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 };

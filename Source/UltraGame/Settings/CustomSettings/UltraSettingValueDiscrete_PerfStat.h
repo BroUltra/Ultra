@@ -2,14 +2,12 @@
 
 #pragma once
 
-#include "Containers/Array.h"
 #include "GameSettingValueDiscrete.h"
-#include "HAL/Platform.h"
-#include "Internationalization/Text.h"
-#include "Performance/UltraPerformanceStatTypes.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraSettingValueDiscrete_PerfStat.generated.h"
+
+enum class EUltraDisplayablePerformanceStat : uint8;
+enum class EUltraStatDisplayMode : uint8;
 
 class UObject;
 

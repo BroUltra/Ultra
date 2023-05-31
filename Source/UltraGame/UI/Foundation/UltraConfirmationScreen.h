@@ -2,10 +2,13 @@
 
 #pragma once
 
-#include "CommonActivatableWidget.h"
+#include "Engine/DataTable.h"
 #include "Messaging/CommonGameDialog.h"
 
+#include "Messaging/CommonMessagingSubsystem.h"
 #include "UltraConfirmationScreen.generated.h"
+
+class IWidgetCompilerLog;
 
 class UCommonTextBlock;
 class UCommonRichTextBlock;

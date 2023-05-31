@@ -2,9 +2,7 @@
 
 #pragma once
 
-#include "Input/Reply.h"
 #include "UI/UltraSimulatedInputWidget.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraTouchRegion.generated.h"
 

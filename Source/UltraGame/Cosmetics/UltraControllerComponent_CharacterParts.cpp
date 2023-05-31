@@ -1,10 +1,11 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Cosmetics/UltraControllerComponent_CharacterParts.h"
+#include "Cosmetics/UltraCharacterPartTypes.h"
 #include "Cosmetics/UltraPawnComponent_CharacterParts.h"
-#include "GameFramework/Controller.h"
+#include "GameFramework/CheatManagerDefines.h"
 #include "UltraCosmeticDeveloperSettings.h"
-#include "GameFramework/CheatManager.h"
+#include "GameFramework/Pawn.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraControllerComponent_CharacterParts)
 

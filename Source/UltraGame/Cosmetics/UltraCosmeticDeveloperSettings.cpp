@@ -1,14 +1,13 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "UltraCosmeticDeveloperSettings.h"
+#include "Cosmetics/UltraCharacterPartTypes.h"
 #include "Misc/App.h"
 #include "Widgets/Notifications/SNotificationList.h"
 #include "Framework/Notifications/NotificationManager.h"
 #include "System/UltraDevelopmentStatics.h"
-#include "Engine/World.h"
 #include "TimerManager.h"
 #include "Engine/Engine.h"
-#include "GameFramework/PlayerController.h"
 #include "UltraControllerComponent_CharacterParts.h"
 #include "EngineUtils.h"
 

@@ -2,12 +2,9 @@
 
 #include "UltraAbilityCost_PlayerTagStack.h"
 
-#include "Abilities/GameplayAbilityTypes.h"
 #include "GameFramework/Controller.h"
 #include "UltraGameplayAbility.h"
-#include "Math/UnrealMathSSE.h"
 #include "Player/UltraPlayerState.h"
-#include "Templates/Casts.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraAbilityCost_PlayerTagStack)
 

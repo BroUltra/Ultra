@@ -1,0 +1,16 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "c:\\users\\ultrabro\\documents\\unreal projects\\ultra 5.2\\plugins\\gamefeatures\\ultracore\\source\\ultracoreruntime\\private\\ultracoreruntimesettings.cpp",
+        "ProvidedModule": "",
+        "PCH": "c:\\users\\ultrabro\\documents\\unreal projects\\ultra 5.2\\intermediate\\build\\win64\\x64\\ultraeditor\\development\\engine\\sharedpch.engine.shadowerrors.h.pch",
+        "Includes": [
+            "c:\\users\\ultrabro\\documents\\unreal projects\\ultra 5.2\\plugins\\gamefeatures\\ultracore\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\ultracoreruntime\\definitions.ultracoreruntime.h",
+            "c:\\users\\ultrabro\\documents\\unreal projects\\ultra 5.2\\plugins\\gamefeatures\\ultracore\\source\\ultracoreruntime\\public\\ultracoreruntimesettings.h",
+            "c:\\users\\ultrabro\\documents\\unreal projects\\ultra 5.2\\plugins\\gamefeatures\\ultracore\\intermediate\\build\\win64\\unrealeditor\\inc\\ultracoreruntime\\uht\\ultracoreruntimesettings.generated.h",
+            "c:\\users\\ultrabro\\documents\\unreal projects\\ultra 5.2\\plugins\\gamefeatures\\ultracore\\intermediate\\build\\win64\\unrealeditor\\inc\\ultracoreruntime\\uht\\ultracoreruntimesettings.gen.cpp"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

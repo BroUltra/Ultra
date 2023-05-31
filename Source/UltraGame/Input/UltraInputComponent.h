@@ -2,14 +2,8 @@
 
 #pragma once
 
-#include "Containers/Array.h"
 #include "EnhancedInputComponent.h"
-#include "GameplayTagContainer.h"
-#include "HAL/Platform.h"
-#include "InputTriggers.h"
 #include "UltraInputConfig.h"
-#include "Misc/AssertionMacros.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraInputComponent.generated.h"
 

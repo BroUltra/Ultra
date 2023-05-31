@@ -1,9 +1,10 @@
 ﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "UltraCharacterComponent.h"
+#include "Components/GameFrameworkComponentDelegates.h"
+#include "Logging/MessageLog.h"
+#include "Input/UltraMappableConfigPair.h"
 #include "UltraLogChannels.h"
-#include "GameFramework/Pawn.h"
-#include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Player/UltraPlayerController.h"
 #include "Player/UltraPlayerState.h"
@@ -16,10 +17,7 @@
 #include "Input/UltraInputComponent.h"
 #include "Camera/UltraCameraComponent.h"
 #include "UltraGameplayTags.h"
-#include "Engine/LocalPlayer.h"
 #include "Components/GameFrameworkComponentManager.h"
-#include "Settings/UltraSettingsLocal.h"
-#include "System/UltraAssetManager.h"
 #include "PlayerMappableInputConfig.h"
 #include "Camera/UltraCameraMode.h"
 
@@ -77,11 +75,10 @@ void UUltraCharacterComponent::OnRegister()
 bool UUltraCharacterComponent::CanChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState) const
 {
 	check(Manager);
-
-	const FUltraGameplayTags& InitTags = FUltraGameplayTags::Get();
+	
 	APawn* Pawn = GetPawn<APawn>();
 
-	if (!CurrentState.IsValid() && DesiredState == InitTags.InitState_Spawned)
+	if (!CurrentState.IsValid() && DesiredState == UltraGameplayTags::InitState_Spawned)
 	{
 		// As long as we have a real pawn, let us transition
 		if (Pawn)
@@ -89,7 +86,7 @@ bool UUltraCharacterComponent::CanChangeInitState(UGameFrameworkComponentManager
 			return true;
 		}
 	}
-	else if (CurrentState == InitTags.InitState_Spawned && DesiredState == InitTags.InitState_DataAvailable)
+	else if (CurrentState == UltraGameplayTags::InitState_Spawned && DesiredState == UltraGameplayTags::InitState_DataAvailable)
 	{
 		// The player state is required.
 		if (!GetPlayerState<AUltraPlayerState>())
@@ -128,14 +125,14 @@ bool UUltraCharacterComponent::CanChangeInitState(UGameFrameworkComponentManager
 
 		return true;
 	}
-	else if (CurrentState == InitTags.InitState_DataAvailable && DesiredState == InitTags.InitState_DataInitialized)
+	else if (CurrentState == UltraGameplayTags::InitState_DataAvailable && DesiredState == UltraGameplayTags::InitState_DataInitialized)
 	{
 		// Wait for player state and extension component
 		AUltraPlayerState* UltraPS = GetPlayerState<AUltraPlayerState>();
 
-		return UltraPS && Manager->HasFeatureReachedInitState(Pawn, UUltraPawnExtensionComponent::NAME_ActorFeatureName, InitTags.InitState_DataInitialized);
+		return UltraPS && Manager->HasFeatureReachedInitState(Pawn, UUltraPawnExtensionComponent::NAME_ActorFeatureName, UltraGameplayTags::InitState_DataInitialized);
 	}
-	else if (CurrentState == InitTags.InitState_DataInitialized && DesiredState == InitTags.InitState_GameplayReady)
+	else if (CurrentState == UltraGameplayTags::InitState_DataInitialized && DesiredState == UltraGameplayTags::InitState_GameplayReady)
 	{
 		// TODO add ability initialization checks?
 		return true;
@@ -146,8 +143,7 @@ bool UUltraCharacterComponent::CanChangeInitState(UGameFrameworkComponentManager
 
 void UUltraCharacterComponent::HandleChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState)
 {
-	const FUltraGameplayTags& InitTags = FUltraGameplayTags::Get();
-	if (CurrentState == FUltraGameplayTags::Get().InitState_DataAvailable && DesiredState == FUltraGameplayTags::Get().InitState_DataInitialized)
+	if (CurrentState == UltraGameplayTags::InitState_DataAvailable && DesiredState == UltraGameplayTags::InitState_DataInitialized)
 	{
 		APawn* Pawn = GetPawn<APawn>();
 		AUltraPlayerState* UltraPS = GetPlayerState<AUltraPlayerState>();
@@ -190,7 +186,7 @@ void UUltraCharacterComponent::OnActorInitStateChanged(const FActorInitStateChan
 {
 	if (Params.FeatureName == UUltraPawnExtensionComponent::NAME_ActorFeatureName)
 	{
-		if (Params.FeatureState == FUltraGameplayTags::Get().InitState_DataInitialized)
+		if (Params.FeatureState == UltraGameplayTags::InitState_DataInitialized)
 		{
 			// If the extension component says all all other components are initialized, try to progress to next state
 			CheckDefaultInitialization();
@@ -200,8 +196,7 @@ void UUltraCharacterComponent::OnActorInitStateChanged(const FActorInitStateChan
 
 void UUltraCharacterComponent::CheckDefaultInitialization()
 {
-	const FUltraGameplayTags& InitTags = FUltraGameplayTags::Get();
-	static const TArray<FGameplayTag> StateChain = { InitTags.InitState_Spawned, InitTags.InitState_DataAvailable, InitTags.InitState_DataInitialized, InitTags.InitState_GameplayReady };
+	static const TArray<FGameplayTag> StateChain = { UltraGameplayTags::InitState_Spawned, UltraGameplayTags::InitState_DataAvailable, UltraGameplayTags::InitState_DataInitialized, UltraGameplayTags::InitState_GameplayReady };
 
 	// This will try to progress from spawned (which is only set in BeginPlay) through the data initialization stages until it gets to gameplay ready
 	ContinueInitStateChain(StateChain);
@@ -215,7 +210,7 @@ void UUltraCharacterComponent::BeginPlay()
 	BindOnActorInitStateChanged(UUltraPawnExtensionComponent::NAME_ActorFeatureName, FGameplayTag(), false);
 
 	// Notifies that we are done spawning, then try the rest of initialization
-	ensure(TryToChangeInitState(FUltraGameplayTags::Get().InitState_Spawned));
+	ensure(TryToChangeInitState(UltraGameplayTags::InitState_Spawned));
 	CheckDefaultInitialization();
 }
 
@@ -253,8 +248,6 @@ void UUltraCharacterComponent::InitializePlayerInput(UInputComponent* PlayerInpu
 		{
 			if (const UUltraInputConfig* InputConfig = PawnData->InputConfig)
 			{
-				const FUltraGameplayTags& GameplayTags = FUltraGameplayTags::Get();
-	
 				// Register any default input configs with the settings so that they will be applied to the player during AddInputMappings
 				for (const FMappableConfigPair& Pair : DefaultInputConfigs)
 				{
@@ -267,18 +260,27 @@ void UUltraCharacterComponent::InitializePlayerInput(UInputComponent* PlayerInpu
 					}
 				}
 				
-				UUltraInputComponent* UltraIC = CastChecked<UUltraInputComponent>(PlayerInputComponent);
-				UltraIC->AddInputMappings(InputConfig, Subsystem);
+				// The Ultra Input Component has some additional functions to map Gameplay Tags to an Input Action.
+				// If you want this functionality but still want to change your input component class, make it a subclass
+				// of the UUltraInputComponent or modify this component accordingly.
+				UUltraInputComponent* UltraIC = Cast<UUltraInputComponent>(PlayerInputComponent);
+				if (ensureMsgf(UltraIC, TEXT("Unexpected Input Component class! The Gameplay Abilities will not be bound to their inputs. Change the input component to UUltraInputComponent or a subclass of it.")))
+				{
+					// Add the key mappings that may have been set by the player
+					UltraIC->AddInputMappings(InputConfig, Subsystem);
 
-				TArray<uint32> BindHandles;
-				UltraIC->BindAbilityActions(InputConfig, this, &ThisClass::Input_AbilityInputTagPressed, &ThisClass::Input_AbilityInputTagReleased, /*out*/ BindHandles);
+					// This is where we actually bind and input action to a gameplay tag, which means that Gameplay Ability Blueprints will
+					// be triggered directly by these input actions Triggered events. 
+					TArray<uint32> BindHandles;
+					UltraIC->BindAbilityActions(InputConfig, this, &ThisClass::Input_AbilityInputTagPressed, &ThisClass::Input_AbilityInputTagReleased, /*out*/ BindHandles);
 
-				UltraIC->BindNativeAction(InputConfig, GameplayTags.InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move, /*bLogIfNotFound=*/ false);
-				UltraIC->BindNativeAction(InputConfig, GameplayTags.InputTag_MoveVertical, ETriggerEvent::Triggered, this, &ThisClass::Input_MoveVertical, /*bLogIfNotFound=*/ false);
-				UltraIC->BindNativeAction(InputConfig, GameplayTags.InputTag_Look_Mouse, ETriggerEvent::Triggered, this, &ThisClass::Input_LookMouse, /*bLogIfNotFound=*/ false);
-				UltraIC->BindNativeAction(InputConfig, GameplayTags.InputTag_Look_Stick, ETriggerEvent::Triggered, this, &ThisClass::Input_LookStick, /*bLogIfNotFound=*/ false);
-				UltraIC->BindNativeAction(InputConfig, GameplayTags.InputTag_Crouch, ETriggerEvent::Triggered, this, &ThisClass::Input_Crouch, /*bLogIfNotFound=*/ false);
-				UltraIC->BindNativeAction(InputConfig, GameplayTags.InputTag_AutoRun, ETriggerEvent::Triggered, this, &ThisClass::Input_AutoRun, /*bLogIfNotFound=*/ false);
+					UltraIC->BindNativeAction(InputConfig, UltraGameplayTags::InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move, /*bLogIfNotFound=*/ false);
+					UltraIC->BindNativeAction(InputConfig, UltraGameplayTags::InputTag_MoveVertical, ETriggerEvent::Triggered, this, &ThisClass::Input_MoveVertical, /*bLogIfNotFound=*/ false);
+					UltraIC->BindNativeAction(InputConfig, UltraGameplayTags::InputTag_Look_Mouse, ETriggerEvent::Triggered, this, &ThisClass::Input_LookMouse, /*bLogIfNotFound=*/ false);
+					UltraIC->BindNativeAction(InputConfig, UltraGameplayTags::InputTag_Look_Stick, ETriggerEvent::Triggered, this, &ThisClass::Input_LookStick, /*bLogIfNotFound=*/ false);
+					UltraIC->BindNativeAction(InputConfig, UltraGameplayTags::InputTag_Crouch, ETriggerEvent::Triggered, this, &ThisClass::Input_Crouch, /*bLogIfNotFound=*/ false);
+					UltraIC->BindNativeAction(InputConfig, UltraGameplayTags::InputTag_AutoRun, ETriggerEvent::Triggered, this, &ThisClass::Input_AutoRun, /*bLogIfNotFound=*/ false);
+				}
 			}
 		}
 	}
@@ -302,9 +304,6 @@ void UUltraCharacterComponent::AddAdditionalInputConfig(const UUltraInputConfig*
 		return;
 	}
 
-	UUltraInputComponent* UltraIC = Pawn->FindComponentByClass<UUltraInputComponent>();
-	check(UltraIC);
-
 	const APlayerController* PC = GetController<APlayerController>();
 	check(PC);
 
@@ -316,7 +315,11 @@ void UUltraCharacterComponent::AddAdditionalInputConfig(const UUltraInputConfig*
 
 	if (const UUltraPawnExtensionComponent* PawnExtComp = UUltraPawnExtensionComponent::FindPawnExtensionComponent(Pawn))
 	{
-		UltraIC->BindAbilityActions(InputConfig, this, &ThisClass::Input_AbilityInputTagPressed, &ThisClass::Input_AbilityInputTagReleased, /*out*/ BindHandles);
+		UUltraInputComponent* UltraIC = Pawn->FindComponentByClass<UUltraInputComponent>();
+		if (ensureMsgf(UltraIC, TEXT("Unexpected Input Component class! The Gameplay Abilities will not be bound to their inputs. Change the input component to UUltraInputComponent or a subclass of it.")))
+		{
+			UltraIC->BindAbilityActions(InputConfig, this, &ThisClass::Input_AbilityInputTagPressed, &ThisClass::Input_AbilityInputTagReleased, /*out*/ BindHandles);
+		}
 	}
 }
 
@@ -380,13 +383,13 @@ void UUltraCharacterComponent::Input_Move(const FInputActionValue& InputActionVa
 
 		if (Value.X != 0.0f)
 		{
-			const FVector MovementDirection = MovementRotation2D.RotateVector(FVector::RightVector);
+			const FVector MovementDirection = MovementRotation.RotateVector(FVector::RightVector);
 			Pawn->AddMovementInput(MovementDirection, Value.X);
 		}
 
 		if (Value.Y != 0.0f)
 		{
-			const FVector MovementDirection = MovementRotation.RotateVector(FVector::ForwardVector);
+			const FVector MovementDirection = MovementRotation2D.RotateVector(FVector::ForwardVector);
 			Pawn->AddMovementInput(MovementDirection, Value.Y);
 		}
 	}

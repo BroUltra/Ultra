@@ -2,8 +2,7 @@
 
 #include "UltraAimSensitivityData.h"
 
-#include "Containers/Set.h"
-#include "initializer_list"
+#include "Settings/UltraSettingsShared.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraAimSensitivityData)
 

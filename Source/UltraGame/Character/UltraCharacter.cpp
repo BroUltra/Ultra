@@ -2,46 +2,20 @@
 
 #include "UltraCharacter.h"
 
-#include "AI/Navigation/NavigationTypes.h"
 #include "AbilitySystem/UltraAbilitySystemComponent.h"
-#include "AbilitySystemComponent.h"
 #include "Camera/UltraCameraComponent.h"
 #include "Character/UltraDespawnComponent.h"
 #include "Character/UltraPawnExtensionComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "Containers/EnumAsByte.h"
-#include "Containers/Map.h"
-#include "Containers/UnrealString.h"
-#include "Delegates/Delegate.h"
-#include "Engine/EngineBaseTypes.h"
-#include "Engine/World.h"
-#include "GameFramework/Character.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/Controller.h"
-#include "GameplayTagContainer.h"
-#include "Logging/LogCategory.h"
-#include "Logging/LogMacros.h"
 #include "UltraCharacterMovementComponent.h"
 #include "UltraGameplayTags.h"
 #include "UltraLogChannels.h"
-#include "Math/Rotator.h"
-#include "Math/UnrealMathSSE.h"
-#include "Math/Vector.h"
-#include "Misc/AssertionMacros.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/UltraPlayerController.h"
 #include "Player/UltraPlayerState.h"
-#include "SignificanceManager.h"
 #include "System/UltraSignificanceManager.h"
-#include "Templates/Casts.h"
 #include "TimerManager.h"
-#include "Trace/Detail/Channel.h"
-#include "UObject/CoreNetTypes.h"
-#include "UObject/NameTypes.h"
-#include "UObject/Object.h"
-#include "UObject/ObjectPtr.h"
-#include "UObject/UObjectBaseUtility.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraCharacter)
 
@@ -293,9 +267,7 @@ void AUltraCharacter::InitializeGameplayTags()
 	// Clear tags that may be lingering on the ability system from the previous pawn.
 	if (UUltraAbilitySystemComponent* UltraASC = GetUltraAbilitySystemComponent())
 	{
-		const FUltraGameplayTags& GameplayTags = FUltraGameplayTags::Get();
-
-		for (const TPair<uint8, FGameplayTag>& TagMapping : GameplayTags.MovementModeTagMap)
+		for (const TPair<uint8, FGameplayTag>& TagMapping : UltraGameplayTags::MovementModeTagMap)
 		{
 			if (TagMapping.Value.IsValid())
 			{
@@ -303,7 +275,7 @@ void AUltraCharacter::InitializeGameplayTags()
 			}
 		}
 
-		for (const TPair<uint8, FGameplayTag>& TagMapping : GameplayTags.CustomMovementModeTagMap)
+		for (const TPair<uint8, FGameplayTag>& TagMapping : UltraGameplayTags::CustomMovementModeTagMap)
 		{
 			if (TagMapping.Value.IsValid())
 			{
@@ -424,16 +396,14 @@ void AUltraCharacter::SetMovementModeTag(EMovementMode MovementMode, uint8 Custo
 {
 	if (UUltraAbilitySystemComponent* UltraASC = GetUltraAbilitySystemComponent())
 	{
-		const FUltraGameplayTags& GameplayTags = FUltraGameplayTags::Get();
 		const FGameplayTag* MovementModeTag = nullptr;
-
 		if (MovementMode == MOVE_Custom)
 		{
-			MovementModeTag = GameplayTags.CustomMovementModeTagMap.Find(CustomMovementMode);
+			MovementModeTag = UltraGameplayTags::CustomMovementModeTagMap.Find(CustomMovementMode);
 		}
 		else
 		{
-			MovementModeTag = GameplayTags.MovementModeTagMap.Find(MovementMode);
+			MovementModeTag = UltraGameplayTags::MovementModeTagMap.Find(MovementMode);
 		}
 
 		if (MovementModeTag && MovementModeTag->IsValid())
@@ -461,7 +431,7 @@ void AUltraCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeig
 {
 	if (UUltraAbilitySystemComponent* UltraASC = GetUltraAbilitySystemComponent())
 	{
-		UltraASC->SetLooseGameplayTagCount(FUltraGameplayTags::Get().Status_Crouching, 1);
+		UltraASC->SetLooseGameplayTagCount(UltraGameplayTags::Status_Crouching, 1);
 	}
 	
 	Super::OnStartCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
@@ -471,7 +441,7 @@ void AUltraCharacter::OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeight
 {
 	if (UUltraAbilitySystemComponent* UltraASC = GetUltraAbilitySystemComponent())
 	{
-		UltraASC->SetLooseGameplayTagCount(FUltraGameplayTags::Get().Status_Crouching, 0);
+		UltraASC->SetLooseGameplayTagCount(UltraGameplayTags::Status_Crouching, 0);
 	}
 
 	Super::OnEndCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
@@ -541,4 +511,161 @@ void AUltraCharacter::OnControllerChangedTeam(UObject* TeamAgent, int32 OldTeam,
 void AUltraCharacter::OnRep_MyTeamID(FGenericTeamId OldTeamID)
 {
 	ConditionalBroadcastTeamChanged(this, OldTeamID, MyTeamID);
+}
+
+bool AUltraCharacter::UpdateSharedReplication()
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		FSharedRepMovement SharedMovement;
+		if (SharedMovement.FillForCharacter(this))
+		{
+			// Only call FastSharedReplication if data has changed since the last frame.
+			// Skipping this call will cause replication to reuse the same bunch that we previously
+			// produced, but not send it to clients that already received. (But a new client who has not received
+			// it, will get it this frame)
+			if (!SharedMovement.Equals(LastSharedReplication, this))
+			{
+				LastSharedReplication = SharedMovement;
+				ReplicatedMovementMode = SharedMovement.RepMovementMode;
+
+				FastSharedReplication(SharedMovement);
+			}
+			return true;
+		}
+	}
+
+	// We cannot fastrep right now. Don't send anything.
+	return false;
+}
+
+void AUltraCharacter::FastSharedReplication_Implementation(const FSharedRepMovement& SharedRepMovement)
+{
+	if (GetWorld()->IsPlayingReplay())
+	{
+		return;
+	}
+
+	// Timestamp is checked to reject old moves.
+	if (GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		// Timestamp
+		ReplicatedServerLastTransformUpdateTimeStamp = SharedRepMovement.RepTimeStamp;
+
+		// Movement mode
+		if (ReplicatedMovementMode != SharedRepMovement.RepMovementMode)
+		{
+			ReplicatedMovementMode = SharedRepMovement.RepMovementMode;
+			GetCharacterMovement()->bNetworkMovementModeChanged = true;
+			GetCharacterMovement()->bNetworkUpdateReceived = true;
+		}
+
+		// Location, Rotation, Velocity, etc.
+		FRepMovement& MutableRepMovement = GetReplicatedMovement_Mutable();
+		MutableRepMovement = SharedRepMovement.RepMovement;
+
+		// This also sets LastRepMovement
+		OnRep_ReplicatedMovement();
+
+		// Jump force
+		bProxyIsJumpForceApplied = SharedRepMovement.bProxyIsJumpForceApplied;
+
+		// Crouch
+		if (bIsCrouched != SharedRepMovement.bIsCrouched)
+		{
+			bIsCrouched = SharedRepMovement.bIsCrouched;
+			OnRep_IsCrouched();
+		}
+	}
+}
+
+FSharedRepMovement::FSharedRepMovement()
+{
+	RepMovement.LocationQuantizationLevel = EVectorQuantization::RoundTwoDecimals;
+}
+
+bool FSharedRepMovement::FillForCharacter(ACharacter* Character)
+{
+	if (USceneComponent* PawnRootComponent = Character->GetRootComponent())
+	{
+		UCharacterMovementComponent* CharacterMovement = Character->GetCharacterMovement();
+
+		RepMovement.Location = FRepMovement::RebaseOntoZeroOrigin(PawnRootComponent->GetComponentLocation(), Character);
+		RepMovement.Rotation = PawnRootComponent->GetComponentRotation();
+		RepMovement.LinearVelocity = CharacterMovement->Velocity;
+		RepMovementMode = CharacterMovement->PackNetworkMovementMode();
+		bProxyIsJumpForceApplied = Character->bProxyIsJumpForceApplied || (Character->JumpForceTimeRemaining > 0.0f);
+		bIsCrouched = Character->bIsCrouched;
+
+		// Timestamp is sent as zero if unused
+		if ((CharacterMovement->NetworkSmoothingMode == ENetworkSmoothingMode::Linear) || CharacterMovement->bNetworkAlwaysReplicateTransformUpdateTimestamp)
+		{
+			RepTimeStamp = CharacterMovement->GetServerLastTransformUpdateTimeStamp();
+		}
+		else
+		{
+			RepTimeStamp = 0.f;
+		}
+
+		return true;
+	}
+	return false;
+}
+
+bool FSharedRepMovement::Equals(const FSharedRepMovement& Other, ACharacter* Character) const
+{
+	if (RepMovement.Location != Other.RepMovement.Location)
+	{
+		return false;
+	}
+
+	if (RepMovement.Rotation != Other.RepMovement.Rotation)
+	{
+		return false;
+	}
+
+	if (RepMovement.LinearVelocity != Other.RepMovement.LinearVelocity)
+	{
+		return false;
+	}
+
+	if (RepMovementMode != Other.RepMovementMode)
+	{
+		return false;
+	}
+
+	if (bProxyIsJumpForceApplied != Other.bProxyIsJumpForceApplied)
+	{
+		return false;
+	}
+
+	if (bIsCrouched != Other.bIsCrouched)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool FSharedRepMovement::NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
+{
+	bOutSuccess = true;
+	RepMovement.NetSerialize(Ar, Map, bOutSuccess);
+	Ar << RepMovementMode;
+	Ar << bProxyIsJumpForceApplied;
+	Ar << bIsCrouched;
+
+	// Timestamp, if non-zero.
+	uint8 bHasTimeStamp = (RepTimeStamp != 0.f);
+	Ar.SerializeBits(&bHasTimeStamp, 1);
+	if (bHasTimeStamp)
+	{
+		Ar << RepTimeStamp;
+	}
+	else
+	{
+		RepTimeStamp = 0.f;
+	}
+
+	return true;
 }

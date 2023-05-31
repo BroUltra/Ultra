@@ -4,7 +4,6 @@
 #include "UltraLogChannels.h"
 #include "AbilitySystem/UltraAbilitySystemComponent.h"
 #include "AbilitySystemLog.h"
-#include "HAL/PlatformStackWalk.h"
 #include "Player/UltraPlayerController.h"
 #include "Character/UltraCharacter.h"
 #include "UltraGameplayTags.h"
@@ -18,7 +17,6 @@
 #include "AbilitySystem/UltraGameplayEffectContext.h"
 #include "Physics/PhysicalMaterialWithTags.h"
 #include "GameFramework/PlayerState.h"
-#include "HAL/PlatformStackWalk.h"
 #include "Camera/UltraCameraMode.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraGameplayAbility)
@@ -141,20 +139,18 @@ bool UUltraGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle 
 		return false;
 	}
 
-	UUltraAbilitySystemComponent* UltraASC = CastChecked<UUltraAbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
-	const FUltraGameplayTags& GameplayTags = FUltraGameplayTags::Get();
-
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{
 		return false;
 	}
 
 	//@TODO Possibly remove after setting up tag relationships
+	UUltraAbilitySystemComponent* UltraASC = CastChecked<UUltraAbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
 	if (UltraASC->IsActivationGroupBlocked(ActivationGroup))
 	{
 		if (OptionalRelevantTags)
 		{
-			OptionalRelevantTags->AddTag(GameplayTags.Ability_ActivateFail_ActivationGroup);
+			OptionalRelevantTags->AddTag(UltraGameplayTags::Ability_ActivateFail_ActivationGroup);
 		}
 		return false;
 	}
@@ -197,32 +193,6 @@ void UUltraGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Han
 
 void UUltraGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-#if !UE_BUILD_SHIPPING
-	if (bWasCancelled && bLogCancelation)
-	{
-		UE_LOG(LogUltraAbilitySystem, Warning, TEXT("========  (%s) canceled with EndAbility (locally controlled? %i) ========"), *GetName(), IsLocallyControlled());
-
-		if (APlayerState* PS = Cast<APlayerState>(GetOwningActorFromActorInfo()))
-		{
-			UE_LOG(LogUltraAbilitySystem, Log, TEXT("Player Name: %s"), *PS->GetPlayerName());
-		}
-
-		PrintScriptCallstack();
-
-		const SIZE_T StackTraceSize = 65535;
-		ANSICHAR* StackTrace = (ANSICHAR*)FMemory::SystemMalloc(StackTraceSize);
-		if (StackTrace != nullptr)
-		{
-			StackTrace[0] = 0;
-			// Walk the stack and dump it to the allocated memory.
-			FPlatformStackWalk::StackWalkAndDump(StackTrace, StackTraceSize, 1);
-			UE_LOG(LogUltraAbilitySystem, Log, TEXT("Call Stack:\n%s"), ANSI_TO_TCHAR(StackTrace));
-			FMemory::SystemFree(StackTrace);
-		}
-	}
-#endif // !UE_BUILD_SHIPPING
-
-
 	ClearCameraMode();
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
@@ -344,7 +314,7 @@ void UUltraGameplayAbility::ApplyAbilityTagsToGameplayEffectSpec(FGameplayEffect
 
 bool UUltraGameplayAbility::DoesAbilitySatisfyTagRequirements(const UAbilitySystemComponent& AbilitySystemComponent, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
-	// Specialized version to handle death exclusion and AbilityTags expansion via ASC
+	// Specialized version to handle despawn exclusion and AbilityTags expansion via ASC
 
 	bool bBlocked = false;
 	bool bMissing = false;
@@ -382,6 +352,12 @@ bool UUltraGameplayAbility::DoesAbilitySatisfyTagRequirements(const UAbilitySyst
 
 		if (AbilitySystemComponentTags.HasAny(AllBlockedTags))
 		{
+			if (OptionalRelevantTags && AbilitySystemComponentTags.HasTag(UltraGameplayTags::Status_Despawn))
+			{
+				// If player is despawned and was rejected due to blocking tags, give that feedback
+				OptionalRelevantTags->AddTag(UltraGameplayTags::Ability_ActivateFail_IsDespawned);
+			}
+
 			bBlocked = true;
 		}
 

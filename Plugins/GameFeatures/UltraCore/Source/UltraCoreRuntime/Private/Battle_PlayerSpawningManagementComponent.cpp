@@ -2,16 +2,11 @@
 
 #include "Battle_PlayerSpawningManagementComponent.h"
 
-#include "CoreTypes.h"
 #include "Engine/World.h"
-#include "GameFramework/Controller.h"
-#include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerState.h"
 #include "GameModes/UltraGameState.h"
-#include "Misc/AssertionMacros.h"
 #include "Player/UltraPlayerStart.h"
 #include "Teams/UltraTeamSubsystem.h"
-#include "UObject/ObjectPtr.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(Battle_PlayerSpawningManagementComponent)
 
@@ -25,6 +20,11 @@ UBattle_PlayerSpawningManagementComponent::UBattle_PlayerSpawningManagementCompo
 AActor* UBattle_PlayerSpawningManagementComponent::OnChoosePlayerStart(AController* Player, TArray<AUltraPlayerStart*>& PlayerStarts)
 {
 	UUltraTeamSubsystem* TeamSubsystem = GetWorld()->GetSubsystem<UUltraTeamSubsystem>();
+	if (!ensure(TeamSubsystem))
+	{
+		return nullptr;
+	}
+
 	const int32 PlayerTeamId = TeamSubsystem->FindTeamFromObject(Player);
 
 	// We should have a TeamId by now, but early login stuff before post login can try to do stuff, ignore it.

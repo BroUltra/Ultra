@@ -2,13 +2,10 @@
 
 #pragma once
 
-#include "Containers/UnrealString.h"
-#include "Delegates/Delegate.h"
 #include "GameFramework/SaveGame.h"
-#include "HAL/Platform.h"
 #include "SubtitleDisplayOptions.h"
-#include "UObject/UObjectGlobals.h"
 
+#include "UObject/UObjectGlobals.h"
 #include "UltraSettingsShared.generated.h"
 
 class UObject;

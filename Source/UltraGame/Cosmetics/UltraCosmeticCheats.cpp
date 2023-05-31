@@ -1,9 +1,9 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "UltraCosmeticCheats.h"
-#include "Engine/World.h"
-#include "GameFramework/GameStateBase.h"
+#include "Cosmetics/UltraCharacterPartTypes.h"
 #include "UltraControllerComponent_CharacterParts.h"
+#include "GameFramework/CheatManagerDefines.h"
 #include "System/UltraDevelopmentStatics.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraCosmeticCheats)

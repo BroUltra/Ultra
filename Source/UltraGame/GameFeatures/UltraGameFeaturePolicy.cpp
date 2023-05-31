@@ -3,17 +3,8 @@
 #include "GameFeatures/UltraGameFeaturePolicy.h"
 
 #include "AbilitySystem/UltraGameplayCueManager.h"
-#include "GameFeatureAction.h"
 #include "GameFeatureData.h"
-#include "GameFeaturesSubsystem.h"
 #include "GameplayCueSet.h"
-#include "HAL/Platform.h"
-#include "Misc/AssertionMacros.h"
-#include "Misc/CoreMisc.h"
-#include "OnlineHotfixManager.h"
-#include "ProfilingDebugging/CpuProfilerTrace.h"
-#include "Templates/Casts.h"
-#include "UObject/SoftObjectPath.h"
 
 UUltraGameFeaturePolicy::UUltraGameFeaturePolicy(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

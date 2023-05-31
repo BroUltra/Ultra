@@ -3,7 +3,6 @@
 #pragma once
 
 #include "Character/UltraCharacter.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraCharacterWithAbilities.generated.h"
 

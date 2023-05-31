@@ -3,12 +3,10 @@
 #pragma once
 
 #include "Components/GameFrameworkComponent.h"
-#include "Delegates/Delegate.h"
-#include "GameFramework/Actor.h"
-#include "HAL/Platform.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraDespawnComponent.generated.h"
+
+class UUltraHealthComponent;
 
 class UUltraAbilitySystemComponent;
 class UObject;

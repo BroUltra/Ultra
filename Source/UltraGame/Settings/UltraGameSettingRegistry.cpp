@@ -2,13 +2,10 @@
 
 #include "UltraGameSettingRegistry.h"
 
-#include "Engine/LocalPlayer.h"
 #include "GameSettingCollection.h"
-#include "HAL/Platform.h"
 #include "UltraSettingsLocal.h"
 #include "UltraSettingsShared.h"
 #include "Player/UltraLocalPlayer.h"
-#include "Templates/Casts.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraGameSettingRegistry)
 

@@ -3,7 +3,6 @@
 #pragma once
 
 #include "GameFramework/GameSession.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraGameSession.generated.h"
 
@@ -21,6 +20,9 @@ public:
 
 protected:
 
+	/** Override to disable the default behavior */
+	virtual bool ProcessAutoLogin() override;
+	
 	virtual void HandleMatchHasStarted() override;
 	virtual void HandleMatchHasEnded() override;
 };

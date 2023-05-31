@@ -2,14 +2,9 @@
 
 #include "UltraInputComponent.h"
 
-#include "Containers/Map.h"
 #include "EnhancedInputSubsystems.h"
-#include "Input/UltraMappableConfigPair.h"
-#include "InputCoreTypes.h"
 #include "Player/UltraLocalPlayer.h"
 #include "Settings/UltraSettingsLocal.h"
-#include "UObject/NameTypes.h"
-#include "UObject/UnrealNames.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraInputComponent)
 
@@ -35,7 +30,7 @@ void UUltraInputComponent::AddInputMappings(const UUltraInputConfig* InputConfig
 		{
 			if (Pair.Key != NAME_None && Pair.Value.IsValid())
 			{
-				InputSubsystem->AddPlayerMappedKey(Pair.Key, Pair.Value);
+				InputSubsystem->AddPlayerMappedKeyInSlot(Pair.Key, Pair.Value);
 			}
 		}
 	}
@@ -61,7 +56,7 @@ void UUltraInputComponent::RemoveInputMappings(const UUltraInputConfig* InputCon
 		// Clear any player mapped keys from enhanced input
 		for (const TPair<FName, FKey>& Pair : LocalSettings->GetCustomPlayerInputConfig())
 		{
-			InputSubsystem->RemovePlayerMappedKey(Pair.Key);
+			InputSubsystem->RemovePlayerMappedKeyInSlot(Pair.Key);
 		}
 	}
 }

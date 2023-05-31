@@ -10,6 +10,12 @@ AUltraGameSession::AUltraGameSession(const FObjectInitializer& ObjectInitializer
 {
 }
 
+bool AUltraGameSession::ProcessAutoLogin()
+{
+	// This is actually handled in UltraGameMode::TryDedicatedServerLogin
+	return true;
+}
+
 void AUltraGameSession::HandleMatchHasStarted()
 {
 	Super::HandleMatchHasStarted();

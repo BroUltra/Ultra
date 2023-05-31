@@ -4,14 +4,12 @@
 #include "UltraGameMode.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerState.h"
-#include "GameModes/UltraExperienceDefinition.h"
 #include "GameModes/UltraExperienceManagerComponent.h"
 #include "Development/UltraDeveloperSettings.h"
-#include "Player/UltraPlayerState.h"
-#include "GameFramework/PlayerController.h"
 #include "Character/UltraPawnExtensionComponent.h"
 #include "AIController.h"
 #include "Kismet/GameplayStatics.h"
+#include "Character/UltraDespawnComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraBotCreationComponent)
 

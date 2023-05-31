@@ -2,9 +2,7 @@
 
 #include "UltraIndicatorManagerComponent.h"
 
-#include "GameFramework/Controller.h"
 #include "IndicatorDescriptor.h"
-#include "Misc/AssertionMacros.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraIndicatorManagerComponent)
 

@@ -2,16 +2,12 @@
 
 #pragma once
 
-#include "AudioMixerBlueprintLibrary.h"
 #include "CommonLocalPlayer.h"
-#include "Containers/UnrealString.h"
-#include "GenericTeamAgentInterface.h"
-#include "HAL/Platform.h"
 #include "Teams/UltraTeamAgentInterface.h"
-#include "UObject/UObjectGlobals.h"
-#include "UObject/WeakObjectPtrTemplates.h"
 
 #include "UltraLocalPlayer.generated.h"
+
+struct FGenericTeamId;
 
 class APlayerController;
 class UInputMappingContext;

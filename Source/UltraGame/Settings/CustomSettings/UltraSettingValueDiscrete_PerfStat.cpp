@@ -3,16 +3,9 @@
 #include "UltraSettingValueDiscrete_PerfStat.h"
 
 #include "CommonUIVisibilitySubsystem.h"
-#include "Containers/Set.h"
-#include "Containers/UnrealString.h"
-#include "GameSettingFilterState.h"
-#include "GameplayTagContainer.h"
-#include "Internationalization/Internationalization.h"
 #include "Performance/UltraPerformanceSettings.h"
+#include "Performance/UltraPerformanceStatTypes.h"
 #include "Settings/UltraSettingsLocal.h"
-#include "Templates/SharedPointer.h"
-#include "Templates/UnrealTemplate.h"
-#include "UObject/NameTypes.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraSettingValueDiscrete_PerfStat)
 

@@ -3,11 +3,7 @@
 #pragma once
 
 #include "AbilitySystem/Abilities/UltraGameplayAbility.h"
-#include "Containers/Array.h"
-#include "GameplayAbilitySpec.h"
 #include "Interaction/InteractionOption.h"
-#include "UObject/SoftObjectPtr.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraGameplayAbility_Interact.generated.h"
 

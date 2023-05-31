@@ -3,7 +3,6 @@
 #pragma once
 
 #include "GameFramework/CheatManager.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraBotCheats.generated.h"
 

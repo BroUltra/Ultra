@@ -1104,7 +1104,7 @@ void UCommonSessionSubsystem::OnJoinSessionComplete(FName SessionName, EOnJoinSe
 // 		if (Sessions.IsValid() && LocalPlayers[1]->GetPreferredUniqueNetId().IsValid())
 // 		{
 // 			Sessions->RegisterLocalPlayer(*LocalPlayers[1]->GetPreferredUniqueNetId(), NAME_GameSession,
-// 				FOnRegisterLocalPlayerCompleteDelegate::CreateUObject(this, &UShooterGameInstance::OnRegisterJoiningLocalPlayerComplete));
+// 				FOnRegisterLocalPlayerCompleteDelegate::CreateUObject(this, &UUltraGameInstance::OnRegisterJoiningLocalPlayerComplete));
 // 		}
 // 	}
 // 	else

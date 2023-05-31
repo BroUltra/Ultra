@@ -1,11 +1,11 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "UltraCheatManager.h"
+#include "GameFramework/Pawn.h"
 #include "UltraPlayerController.h"
 #include "UltraDebugCameraController.h"
 #include "Engine/Engine.h"
 #include "Engine/GameViewportClient.h"
-#include "Engine/World.h"
 #include "Engine/Console.h"
 #include "GameFramework/HUD.h"
 #include "System/UltraAssetManager.h"
@@ -240,7 +240,7 @@ void UUltraCheatManager::CancelActivatedAbilities()
 
 void UUltraCheatManager::AddTagToSelf(FString TagName)
 {
-	FGameplayTag Tag = FUltraGameplayTags::FindTagByString(TagName, true);
+	FGameplayTag Tag = UltraGameplayTags::FindTagByString(TagName, true);
 	if (Tag.IsValid())
 	{
 		if (UUltraAbilitySystemComponent* UltraASC = GetPlayerAbilitySystemComponent())
@@ -256,7 +256,7 @@ void UUltraCheatManager::AddTagToSelf(FString TagName)
 
 void UUltraCheatManager::RemoveTagFromSelf(FString TagName)
 {
-	FGameplayTag Tag = FUltraGameplayTags::FindTagByString(TagName, true);
+	FGameplayTag Tag = UltraGameplayTags::FindTagByString(TagName, true);
 	if (Tag.IsValid())
 	{
 		if (UUltraAbilitySystemComponent* UltraASC = GetPlayerAbilitySystemComponent())
@@ -279,7 +279,7 @@ void UUltraCheatManager::ApplySetByCallerHit(UUltraAbilitySystemComponent* Ultra
 
 	if (SpecHandle.IsValid())
 	{
-		SpecHandle.Data->SetSetByCallerMagnitude(FUltraGameplayTags::Get().SetByCaller_Hit, HitAmount);
+		SpecHandle.Data->SetSetByCallerMagnitude(UltraGameplayTags::SetByCaller_Hit, HitAmount);
 		UltraASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 	}
 }

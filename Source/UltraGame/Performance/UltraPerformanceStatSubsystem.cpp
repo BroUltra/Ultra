@@ -6,12 +6,9 @@
 #include "Engine/GameInstance.h"
 #include "Engine/NetConnection.h"
 #include "Engine/World.h"
-#include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerState.h"
 #include "GameModes/UltraGameState.h"
-#include "HAL/Platform.h"
 #include "Performance/UltraPerformanceStatTypes.h"
-#include "Templates/Casts.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraPerformanceStatSubsystem)
 

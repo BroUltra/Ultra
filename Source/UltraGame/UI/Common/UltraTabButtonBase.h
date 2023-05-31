@@ -4,8 +4,6 @@
 
 #include "UltraTabListWidgetBase.h"
 #include "UI/Foundation/UltraButtonBase.h"
-#include "UObject/SoftObjectPtr.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraTabButtonBase.generated.h"
 

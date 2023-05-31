@@ -2,12 +2,11 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "CommonUserWidget.h"
-#include "GameplayTagContainer.h"
 #include "CommonActivatableWidget.h"
 
 #include "UltraActivatableWidget.generated.h"
+
+struct FUIInputConfig;
 
 UENUM(BlueprintType)
 enum class EUltraWidgetInputMode : uint8

@@ -4,7 +4,6 @@
 
 #include "CommonUserWidget.h"
 #include "Performance/UltraPerformanceStatTypes.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraPerfStatContainerBase.generated.h"
 

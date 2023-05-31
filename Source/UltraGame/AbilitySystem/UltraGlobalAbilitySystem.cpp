@@ -2,15 +2,7 @@
 
 #include "UltraGlobalAbilitySystem.h"
 
-#include "Abilities/GameplayAbility.h"
 #include "AbilitySystem/UltraAbilitySystemComponent.h"
-#include "GameplayAbilitySpec.h"
-#include "GameplayEffect.h"
-#include "GameplayEffectTypes.h"
-#include "Misc/AssertionMacros.h"
-#include "Templates/ChooseClass.h"
-#include "Templates/Tuple.h"
-#include "Templates/TypeHash.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraGlobalAbilitySystem)
 

@@ -3,11 +3,10 @@
 #pragma once
 
 #include "Camera/PlayerCameraManager.h"
-#include "Components/ActorComponent.h"
-#include "Misc/AssertionMacros.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraUICameraManagerComponent.generated.h"
+
+class AUltraPlayerCameraManager;
 
 class AActor;
 class AHUD;

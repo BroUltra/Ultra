@@ -7,7 +7,6 @@
 #include "PlayerMappableInputConfig.h"
 #include "Settings/UltraSettingsLocal.h"
 #include "System/UltraAssetManager.h"
-#include "Templates/Casts.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraMappableConfigPair)
 
@@ -59,4 +58,3 @@ void FMappableConfigPair::UnregisterPair(const FMappableConfigPair& Pair)
 		}
 	}
 }
-

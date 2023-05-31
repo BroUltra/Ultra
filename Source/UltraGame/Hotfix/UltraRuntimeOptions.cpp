@@ -2,8 +2,7 @@
 
 #include "UltraRuntimeOptions.h"
 
-#include "Containers/UnrealString.h"
-#include "HAL/Platform.h"
+#include "UObject/Class.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraRuntimeOptions)
 

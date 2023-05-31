@@ -2,11 +2,12 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Engine/DeveloperSettingsBackedByCVars.h"
-#include "Cosmetics/UltraCharacterPartTypes.h"
 
 #include "UltraCosmeticDeveloperSettings.generated.h"
+
+struct FUltraCharacterPart;
+struct FPropertyChangedEvent;
 
 class UUltraExperienceDefinition;
 

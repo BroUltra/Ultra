@@ -1,9 +1,15 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "UltraDevelopmentStatics.h"
+#include "AssetRegistry/ARFilter.h"
+#include "AssetRegistry/AssetData.h"
 #include "Development/UltraDeveloperSettings.h"
+#include "Engine/Blueprint.h"
 #include "Engine/Engine.h"
 #include "AssetRegistry/AssetRegistryModule.h"
+#include "Engine/World.h"
+#include "Misc/PackageName.h"
+#include "Modules/ModuleManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraDevelopmentStatics)
 

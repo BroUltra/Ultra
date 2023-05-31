@@ -2,10 +2,7 @@
 
 #pragma once
 
-#include "Containers/Array.h"
-#include "HAL/Platform.h"
 #include "UltraNumberPopComponent.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraNumberPopComponent_NiagaraText.generated.h"
 

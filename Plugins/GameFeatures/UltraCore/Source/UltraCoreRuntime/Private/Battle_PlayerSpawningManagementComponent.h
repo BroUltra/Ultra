@@ -2,10 +2,7 @@
 
 #pragma once
 
-#include "Containers/Array.h"
-#include "Math/Rotator.h"
 #include "Player/UltraPlayerSpawningManagerComponent.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "Battle_PlayerSpawningManagementComponent.generated.h"
 

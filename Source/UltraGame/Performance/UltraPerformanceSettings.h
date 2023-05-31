@@ -2,18 +2,13 @@
 
 #pragma once
 
-#include "Containers/Array.h"
-#include "Containers/Set.h"
-#include "Containers/UnrealString.h"
 #include "Engine/DeveloperSettingsBackedByCVars.h"
 #include "Engine/PlatformSettings.h"
 #include "GameplayTagContainer.h"
-#include "HAL/Platform.h"
-#include "Internationalization/Text.h"
-#include "Performance/UltraPerformanceStatTypes.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraPerformanceSettings.generated.h"
+
+enum class EUltraDisplayablePerformanceStat : uint8;
 
 class UObject;
 

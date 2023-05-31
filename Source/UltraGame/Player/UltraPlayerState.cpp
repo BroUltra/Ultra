@@ -4,34 +4,18 @@
 
 #include "AbilitySystem/UltraAbilitySet.h"
 #include "AbilitySystem/UltraAbilitySystemComponent.h"
-#include "AbilitySystemComponent.h"
 #include "Character/UltraPawnData.h"
 #include "Character/UltraPawnExtensionComponent.h"
 #include "Components/GameFrameworkComponentManager.h"
-#include "Containers/Array.h"
-#include "Containers/UnrealString.h"
-#include "CoreTypes.h"
-#include "Delegates/Delegate.h"
-#include "Engine/EngineBaseTypes.h"
-#include "Engine/EngineTypes.h"
 #include "Engine/World.h"
-#include "GameFramework/GameStateBase.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
-#include "GameFramework/Pawn.h"
 #include "GameModes/UltraExperienceManagerComponent.h"
 //@TODO: Would like to isolate this a bit better to get the pawn data in here without this having to know about other stuff
 #include "GameModes/UltraGameMode.h"
-#include "GameplayTagContainer.h"
-#include "Logging/LogCategory.h"
-#include "Logging/LogMacros.h"
 #include "UltraLogChannels.h"
 #include "UltraPlayerController.h"
-#include "Misc/AssertionMacros.h"
-#include "Net/Core/PushModel/PushModel.h"
+#include "Messages/UltraVerbMessage.h"
 #include "Net/UnrealNetwork.h"
-#include "Trace/Detail/Channel.h"
-#include "UObject/NameTypes.h"
-#include "UObject/UObjectBaseUtility.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraPlayerState)
 
@@ -163,7 +147,8 @@ void AUltraPlayerState::PostInitializeComponents()
 	check(AbilitySystemComponent);
 	AbilitySystemComponent->InitAbilityActorInfo(this, GetPawn());
 
-	if (GetNetMode() != NM_Client)
+	UWorld* World = GetWorld();
+	if (World && World->IsGameWorld() && World->GetNetMode() != NM_Client)
 	{
 		AGameStateBase* GameState = GetWorld()->GetGameState();
 		check(GameState);

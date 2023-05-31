@@ -3,11 +3,10 @@
 #pragma once
 
 #include "CommonUserWidget.h"
-#include "Performance/UltraPerformanceStatTypes.h"
-#include "UObject/ObjectPtr.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraPerfStatWidgetBase.generated.h"
+
+enum class EUltraDisplayablePerformanceStat : uint8;
 
 class UUltraPerformanceStatSubsystem;
 class UObject;

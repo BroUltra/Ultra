@@ -2,11 +2,7 @@
 
 #include "UltraAssetManagerStartupJob.h"
 
-#include "HAL/Platform.h"
-#include "Logging/LogCategory.h"
-#include "Logging/LogMacros.h"
 #include "UltraLogChannels.h"
-#include "Trace/Detail/Channel.h"
 
 TSharedPtr<FStreamableHandle> FUltraAssetManagerStartupJob::DoJob() const
 {

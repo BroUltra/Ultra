@@ -3,11 +3,7 @@
 #pragma once
 
 #include "Components/ControllerComponent.h"
-#include "Containers/Array.h"
-#include "Engine/EngineTypes.h"
-#include "HAL/Platform.h"
 #include "UltraCharacterPartTypes.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraControllerComponent_CharacterParts.generated.h"
 

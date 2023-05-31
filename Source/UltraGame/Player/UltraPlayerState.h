@@ -3,16 +3,13 @@
 #pragma once
 
 #include "AbilitySystemInterface.h"
-#include "GenericTeamAgentInterface.h"
-#include "HAL/Platform.h"
-#include "Messages/UltraVerbMessage.h"
 #include "ModularPlayerState.h"
 #include "System/GameplayTagStack.h"
 #include "Teams/UltraTeamAgentInterface.h"
-#include "Templates/Casts.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraPlayerState.generated.h"
+
+struct FUltraVerbMessage;
 
 class AController;
 class AUltraPlayerController;

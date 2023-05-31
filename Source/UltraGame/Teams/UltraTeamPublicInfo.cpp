@@ -2,10 +2,8 @@
 
 #include "UltraTeamPublicInfo.h"
 
-#include "Containers/Array.h"
-#include "Misc/AssertionMacros.h"
 #include "Net/UnrealNetwork.h"
-#include "UObject/CoreNetTypes.h"
+#include "Teams/UltraTeamInfoBase.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraTeamPublicInfo)
 

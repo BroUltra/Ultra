@@ -3,25 +3,16 @@
 #pragma once
 
 #include "Components/PawnComponent.h"
-#include "Containers/Array.h"
-#include "Containers/ArrayView.h"
-#include "Containers/Map.h"
-#include "Containers/Set.h"
-#include "Containers/SparseArray.h"
-#include "Containers/UnrealString.h"
-#include "CoreTypes.h"
 #include "Cosmetics/UltraCosmeticAnimationTypes.h"
-#include "Delegates/Delegate.h"
-#include "Engine/EngineTypes.h"
-#include "GameplayTagContainer.h"
 #include "UltraCharacterPartTypes.h"
 #include "Net/Serialization/FastArraySerializer.h"
-#include "Templates/UnrealTemplate.h"
-#include "UObject/Class.h"
-#include "UObject/ObjectPtr.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraPawnComponent_CharacterParts.generated.h"
+
+class UUltraPawnComponent_CharacterParts;
+namespace EEndPlayReason { enum Type : int; }
+struct FGameplayTag;
+struct FUltraCharacterPartList;
 
 class AActor;
 class UChildActorComponent;

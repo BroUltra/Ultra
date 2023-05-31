@@ -6,10 +6,12 @@
 #include "UltraGameData.h"
 #include "AbilitySystemGlobals.h"
 #include "Character/UltraPawnData.h"
+#include "Misc/App.h"
 #include "Stats/StatsMisc.h"
 #include "Engine/Engine.h"
 #include "AbilitySystem/UltraGameplayCueManager.h"
 #include "Misc/ScopedSlowTask.h"
+#include "System/UltraAssetManagerStartupJob.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraAssetManager)
 
@@ -123,8 +125,6 @@ void UUltraAssetManager::StartInitialLoading()
 void UUltraAssetManager::InitializeAbilitySystem()
 {
 	SCOPED_BOOT_TIMING("UUltraAssetManager::InitializeAbilitySystem");
-
-	FUltraGameplayTags::InitializeNativeTags();
 
 	UAbilitySystemGlobals::Get().InitGlobalData();
 }

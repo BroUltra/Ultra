@@ -3,8 +3,6 @@
 #pragma once
 
 #include "UltraActivatableWidget.h"
-#include "UObject/SoftObjectPtr.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraHUDLayout.generated.h"
 

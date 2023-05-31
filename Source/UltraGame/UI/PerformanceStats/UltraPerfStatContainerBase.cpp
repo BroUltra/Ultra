@@ -3,14 +3,8 @@
 #include "UltraPerfStatContainerBase.h"
 
 #include "Blueprint/WidgetTree.h"
-#include "Components/SlateWrapperTypes.h"
-#include "Components/Widget.h"
-#include "Delegates/Delegate.h"
 #include "UltraPerfStatWidgetBase.h"
-#include "Misc/AssertionMacros.h"
 #include "Settings/UltraSettingsLocal.h"
-#include "Templates/Casts.h"
-#include "UObject/ObjectPtr.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraPerfStatContainerBase)
 

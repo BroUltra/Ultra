@@ -1,15 +1,10 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "UltraTeamCreationComponent.h"
-#include "Net/UnrealNetwork.h"
-#include "GameModes/UltraExperienceDefinition.h"
 #include "GameModes/UltraExperienceManagerComponent.h"
 #include "UltraTeamPublicInfo.h"
 #include "UltraTeamPrivateInfo.h"
-#include "GameFramework/PlayerState.h"
 #include "Player/UltraPlayerState.h"
-#include "GameFramework/PlayerController.h"
-#include "GameFramework/GameModeBase.h"
 #include "Engine/World.h"
 #include "GameModes/UltraGameMode.h"
 
@@ -82,7 +77,7 @@ void UUltraTeamCreationComponent::ServerAssignPlayersToTeams()
 	AUltraGameMode* GameMode = Cast<AUltraGameMode>(GameState->AuthorityGameMode);
 	check(GameMode);
 
-	GameMode->OnGameModeCombinedPostLogin().AddUObject(this, &ThisClass::OnPostLogin);
+	GameMode->OnGameModePlayerInitialized.AddUObject(this, &ThisClass::OnPlayerInitialized);
 }
 
 void UUltraTeamCreationComponent::ServerChooseTeamForPlayer(AUltraPlayerState* PS)
@@ -98,7 +93,7 @@ void UUltraTeamCreationComponent::ServerChooseTeamForPlayer(AUltraPlayerState* P
 	}
 }
 
-void UUltraTeamCreationComponent::OnPostLogin(AGameModeBase* GameMode, AController* NewPlayer)
+void UUltraTeamCreationComponent::OnPlayerInitialized(AGameModeBase* GameMode, AController* NewPlayer)
 {
 	check(NewPlayer);
 	check(NewPlayer->PlayerState);

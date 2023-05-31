@@ -2,12 +2,9 @@
 
 #include "UltraSettingScreen.h"
 
-#include "Containers/Array.h"
-#include "Delegates/Delegate.h"
 #include "Input/CommonUIInputTypes.h"
 #include "Player/UltraLocalPlayer.h"
 #include "Settings/UltraGameSettingRegistry.h"
-#include "Templates/Casts.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraSettingScreen)
 

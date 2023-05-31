@@ -2,20 +2,15 @@
 
 #pragma once
 
-#include "CommonInputBaseTypes.h"
-#include "Containers/Array.h"
-#include "Containers/Map.h"
-#include "Containers/UnrealString.h"
-#include "Delegates/Delegate.h"
 #include "GameFramework/GameUserSettings.h"
 #include "Input/UltraMappableConfigPair.h"
 #include "InputCoreTypes.h"
-#include "Performance/UltraPerformanceStatTypes.h"
-#include "Scalability.h"
-#include "UObject/NameTypes.h"
-#include "UObject/UObjectGlobals.h"
 
 #include "UltraSettingsLocal.generated.h"
+
+enum class ECommonInputType : uint8;
+enum class EUltraDisplayablePerformanceStat : uint8;
+enum class EUltraStatDisplayMode : uint8;
 
 class UUltraLocalPlayer;
 class UObject;
