@@ -5,6 +5,7 @@
 #include "Engine/EngineTypes.h"
 #include "GameplayTagsManager.h"
 #include "UltraLogChannels.h"
+#include "Character/UltraCharacterMovementComponent.h"
 
 namespace UltraGameplayTags
 {
@@ -34,7 +35,7 @@ namespace UltraGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayEvent_Reset, "GameplayEvent.Reset", "Event that fires once a player reset is executed.");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayEvent_RequestReset, "GameplayEvent.RequestReset", "Event to request a player's pawn to be instantly replaced with a new one at a valid spawn location.");
 
-	UE_DEFINE_GAMEPLAY_TAG_COMMENT(SetByCaller_Hit, "SetByCaller.Hit", "SetByCaller tag used by hit gameplay effects.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(SetByCaller_Score, "SetByCaller.Score", "SetByCaller tag used by score gameplay effects.");
 
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Cheat_GodMode, "Cheat.GodMode", "GodMode cheat is active on the owner.");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Cheat_UnlimitedHealth, "Cheat.UnlimitedHealth", "UnlimitedHealth cheat is active on the owner.");
@@ -54,6 +55,8 @@ namespace UltraGameplayTags
 
 	// When extending Ultra, you can create your own movement modes but you need to update GetCustomMovementModeTagMap()
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Movement_Mode_Custom, "Movement.Mode.Custom", "This is invalid and should be replaced with custom tags.  See UltraGameplayTags::CustomMovementModeTagMap.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Movement_Mode_Custom_Fly, "Movement.Mode.Custom.Fly", "Custom flight movement tag");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Movement_Mode_Custom_Dash, "Movement.Mode.Custom.Dash", "Dash movement tag");
 
 	// Unreal Movement Modes
 	const TMap<uint8, FGameplayTag> MovementModeTagMap =
@@ -70,6 +73,8 @@ namespace UltraGameplayTags
 	const TMap<uint8, FGameplayTag> CustomMovementModeTagMap =
 	{
 		// Fill these in with your custom modes
+		{ CMOVE_CustomFly, Movement_Mode_Custom_Fly },
+		{ CMOVE_Dash, Movement_Mode_Custom_Dash }
 	};
 
 	FGameplayTag FindTagByString(const FString& TagString, bool bMatchPartialString)

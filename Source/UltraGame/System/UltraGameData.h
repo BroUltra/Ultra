@@ -28,9 +28,9 @@ public:
 
 public:
 
-	// Gameplay effect used to apply hit.  Uses SetByCaller for the hit magnitude.
-	UPROPERTY(EditDefaultsOnly, Category = "Default Gameplay Effects", meta = (DisplayName = "Hit Gameplay Effect (SetByCaller)"))
-	TSoftClassPtr<UGameplayEffect> HitGameplayEffect_SetByCaller;
+	// Gameplay effect used to apply hit.  Uses SetByCaller for the score magnitude.
+	UPROPERTY(EditDefaultsOnly, Category = "Default Gameplay Effects", meta = (DisplayName = "Score Gameplay Effect (SetByCaller)"))
+	TSoftClassPtr<UGameplayEffect> ScoreGameplayEffect_SetByCaller;
 
 	// Gameplay effect used to add and remove dynamic tags.
 	UPROPERTY(EditDefaultsOnly, Category = "Default Gameplay Effects")

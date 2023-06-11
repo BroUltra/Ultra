@@ -45,8 +45,9 @@ AUltraCharacter::AUltraCharacter(const FObjectInitializer& ObjectInitializer)
 	check(MeshComp);
 	MeshComp->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));  // Rotate mesh to be X forward since it is exported as Y forward.
 	MeshComp->SetCollisionProfileName(NAME_UltraCharacterCollisionProfile_Mesh);
-
+	
 	UUltraCharacterMovementComponent* UltraMoveComp = CastChecked<UUltraCharacterMovementComponent>(GetCharacterMovement());
+	
 	UltraMoveComp->GravityScale = 1.0f;
 	UltraMoveComp->MaxAcceleration = 2400.0f;
 	UltraMoveComp->BrakingFrictionFactor = 1.0f;
@@ -207,7 +208,7 @@ void AUltraCharacter::OnAbilitySystemUninitialized()
 void AUltraCharacter::PossessedBy(AController* NewController)
 {
 	const FGenericTeamId OldTeamID = MyTeamID;
-
+	
 	Super::PossessedBy(NewController);
 
 	PawnExtComponent->HandleControllerChanged();

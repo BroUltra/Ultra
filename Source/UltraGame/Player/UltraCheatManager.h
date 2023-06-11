@@ -67,6 +67,16 @@ public:
 	UFUNCTION(Exec, BlueprintAuthorityOnly)
 	virtual void RemoveTagFromSelf(FString TagName);
 
+	// Applies the specified score amount to the owning player.
+	UFUNCTION(Exec, BlueprintAuthorityOnly)
+	virtual void ScoreSelf(float ScoreAmount);
+
+	// Applies the specified score amount to the actor that the player is looking at.
+	virtual void ScoreTarget(float ScoreAmount);
+
+	// Prevents the owning player from taking any score.
+	virtual void God() override;
+
 protected:
 
 	virtual void EnableDebugCamera() override;
@@ -77,7 +87,7 @@ protected:
 	virtual void DisableFixedCamera();
 	bool InFixedCamera() const;
 
-	void ApplySetByCallerHit(UUltraAbilitySystemComponent* UltraASC, float HitAmount);
+	void ApplySetByCallerScore(UUltraAbilitySystemComponent* UltraASC, float ScoreAmount);
 
 	UUltraAbilitySystemComponent* GetPlayerAbilitySystemComponent() const;
 };

@@ -270,16 +270,45 @@ void UUltraCheatManager::RemoveTagFromSelf(FString TagName)
 	}
 }
 
-void UUltraCheatManager::ApplySetByCallerHit(UUltraAbilitySystemComponent* UltraASC, float HitAmount)
+void UUltraCheatManager::ScoreSelf(float ScoreAmount)
+{
+	if (UUltraAbilitySystemComponent* UltraASC = GetPlayerAbilitySystemComponent())
+	{
+		ApplySetByCallerScore(UltraASC, ScoreAmount);
+	}
+}
+
+void UUltraCheatManager::ScoreTarget(float ScoreAmount)
+{
+	if (AUltraPlayerController* UltraPC = Cast<AUltraPlayerController>(GetOuterAPlayerController()))
+	{
+		if (UltraPC->GetNetMode() == NM_Client)
+		{
+			// Automatically send cheat to server for convenience.
+			UltraPC->ServerCheat(FString::Printf(TEXT("ScoreTarget %.2f"), ScoreAmount));
+			return;
+		}
+
+		FHitResult TargetHitResult;
+		AActor* TargetActor = GetTarget(UltraPC, TargetHitResult);
+
+		if (UUltraAbilitySystemComponent* UltraTargetASC = Cast<UUltraAbilitySystemComponent>(UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor)))
+		{
+			ApplySetByCallerScore(UltraTargetASC, ScoreAmount);
+		}
+	}
+}
+
+void UUltraCheatManager::ApplySetByCallerScore(UUltraAbilitySystemComponent* UltraASC, float ScoreAmount)
 {
 	check(UltraASC);
 
-	TSubclassOf<UGameplayEffect> HitGE = UUltraAssetManager::GetSubclass(UUltraGameData::Get().HitGameplayEffect_SetByCaller);
-	FGameplayEffectSpecHandle SpecHandle = UltraASC->MakeOutgoingSpec(HitGE, 1.0f, UltraASC->MakeEffectContext());
+	TSubclassOf<UGameplayEffect> ScoreGE = UUltraAssetManager::GetSubclass(UUltraGameData::Get().ScoreGameplayEffect_SetByCaller);
+	FGameplayEffectSpecHandle SpecHandle = UltraASC->MakeOutgoingSpec(ScoreGE, 1.0f, UltraASC->MakeEffectContext());
 
 	if (SpecHandle.IsValid())
 	{
-		SpecHandle.Data->SetSetByCallerMagnitude(UltraGameplayTags::SetByCaller_Hit, HitAmount);
+		SpecHandle.Data->SetSetByCallerMagnitude(UltraGameplayTags::SetByCaller_Score, ScoreAmount);
 		UltraASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 	}
 }
@@ -293,3 +322,30 @@ UUltraAbilitySystemComponent* UUltraCheatManager::GetPlayerAbilitySystemComponen
 	return nullptr;
 }
 
+void UUltraCheatManager::God()
+{
+	if (AUltraPlayerController* UltraPC = Cast<AUltraPlayerController>(GetOuterAPlayerController()))
+	{
+		if (UltraPC->GetNetMode() == NM_Client)
+		{
+			// Automatically send cheat to server for convenience.
+			UltraPC->ServerCheat(FString::Printf(TEXT("God")));
+			return;
+		}
+
+		if (UUltraAbilitySystemComponent* UltraASC = UltraPC->GetUltraAbilitySystemComponent())
+		{
+			const FGameplayTag Tag = UltraGameplayTags::Cheat_GodMode;
+			const bool bHasTag = UltraASC->HasMatchingGameplayTag(Tag);
+
+			if (bHasTag)
+			{
+				UltraASC->RemoveDynamicTagGameplayEffect(Tag);
+			}
+			else
+			{
+				UltraASC->AddDynamicTagGameplayEffect(Tag);
+			}
+		}
+	}
+}

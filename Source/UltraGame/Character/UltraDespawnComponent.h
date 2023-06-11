@@ -6,7 +6,7 @@
 
 #include "UltraDespawnComponent.generated.h"
 
-class UUltraHealthComponent;
+class UUltraDespawnComponent;
 
 class UUltraAbilitySystemComponent;
 class UObject;

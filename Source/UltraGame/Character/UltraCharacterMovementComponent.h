@@ -11,11 +11,9 @@ class UObject;
 struct FFrame;
 
 ULTRAGAME_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Gameplay_MovementStopped);
-ULTRAGAME_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Gameplay_StartCustomFly);
-ULTRAGAME_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Gameplay_StartDash);
 
 UENUM(BlueprintType)
-enum ECustomMovementMode
+enum ECustomMovementMode : uint8
 {
 	CMOVE_None			UMETA(Hidden),
 	CMOVE_CustomFly		UMETA(DisplayName = "Custom flight"),

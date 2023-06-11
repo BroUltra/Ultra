@@ -4,6 +4,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
+#include "UltraGameplayTags.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/Character.h"
@@ -12,8 +13,6 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraCharacterMovementComponent)
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Gameplay_MovementStopped, "Gameplay.MovementStopped");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Gameplay_StartCustomFly, "Gameplay.StartCustomFly");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Gameplay_StartDash, "Gameplay.StartDash");
 
 namespace UltraCharacter
 {
@@ -57,7 +56,7 @@ void UUltraCharacterMovementComponent::InitializeComponent()
 void UUltraCharacterMovementComponent::PhysCustom(float DeltaTime, int32 Iterations)
 {
 	Super::PhysCustom(DeltaTime, Iterations);
-
+	
 	switch (CustomMovementMode)
 	{
 	case CMOVE_CustomFly:
@@ -67,10 +66,12 @@ void UUltraCharacterMovementComponent::PhysCustom(float DeltaTime, int32 Iterati
 		PhysDash(DeltaTime, Iterations);
 		break;
 	default:
-		UE_LOG(LogTemp, Fatal, TEXT("Invalid Movement Mode"))
+		UE_LOG(LogTemp, Warning, TEXT("%s has unsupported movement mode %d"), *CharacterOwner->GetName(), int32(MovementMode));
+		SetMovementMode(MOVE_None);
 	}
 }
 
+// Custom flight movement mode
 void UUltraCharacterMovementComponent::PhysCustomFly(float DeltaTime, int32 Iterations)
 {
 	if (DeltaTime < MIN_TICK_TIME)
@@ -131,6 +132,7 @@ void UUltraCharacterMovementComponent::PhysCustomFly(float DeltaTime, int32 Iter
 	}
 }
 
+// Dash movement mode
 void UUltraCharacterMovementComponent::PhysDash(float DeltaTime, int32 Iterations)
 {
 	if (DeltaTime < MIN_TICK_TIME)
@@ -266,12 +268,12 @@ float UUltraCharacterMovementComponent::GetMaxSpeed() const
 			return 0;
 		}
 		
-		if (ASC->HasMatchingGameplayTag(TAG_Gameplay_StartCustomFly))
+		if (ASC->HasMatchingGameplayTag(UltraGameplayTags::Movement_Mode_Custom_Fly))
 		{
 			return MaxCustomFlySpeed;
 		}
 
-		if (ASC->HasMatchingGameplayTag(TAG_Gameplay_StartDash))
+		if (ASC->HasMatchingGameplayTag(UltraGameplayTags::Movement_Mode_Custom_Dash))
 		{
 			return MaxDashSpeed;
 		}
@@ -289,12 +291,12 @@ float UUltraCharacterMovementComponent::GetMaxAcceleration() const
 			return 0;
 		}
 
-		if (ASC->HasMatchingGameplayTag(TAG_Gameplay_StartCustomFly))
+		if (ASC->HasMatchingGameplayTag(UltraGameplayTags::Movement_Mode_Custom_Fly))
 		{
 			return AccelerationCustomFly;
 		}
 
-		if (ASC->HasMatchingGameplayTag(TAG_Gameplay_StartDash))
+		if (ASC->HasMatchingGameplayTag(UltraGameplayTags::Movement_Mode_Custom_Dash))
 		{
 			return AccelerationDash;
 		}
@@ -312,12 +314,12 @@ float UUltraCharacterMovementComponent::GetMaxBrakingDeceleration() const
 			return 0;
 		}
 
-		if (ASC->HasMatchingGameplayTag(TAG_Gameplay_StartCustomFly))
+		if (ASC->HasMatchingGameplayTag(UltraGameplayTags::Movement_Mode_Custom_Fly))
 		{
 			return BrakingDecelerationCustomFly;
 		}
 
-		if (ASC->HasMatchingGameplayTag(TAG_Gameplay_StartDash))
+		if (ASC->HasMatchingGameplayTag(UltraGameplayTags::Movement_Mode_Custom_Dash))
 		{
 			return BrakingDecelerationDash;
 		}

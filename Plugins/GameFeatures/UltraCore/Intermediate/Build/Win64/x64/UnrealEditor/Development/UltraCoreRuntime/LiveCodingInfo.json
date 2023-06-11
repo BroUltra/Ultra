@@ -3,8 +3,8 @@
 	{
 		"Module.UltraCoreRuntime.cpp.obj": [
 			"UltraCoreRuntime.init.gen.cpp.obj",
-			"UltraCoreRuntimeModule.cpp.obj",
 			"Battle_PlayerSpawningManagementComponent.cpp.obj",
+			"UltraCoreRuntimeModule.cpp.obj",
 			"UltraCoreRuntimeSettings.cpp.obj"
 		]
 	}
