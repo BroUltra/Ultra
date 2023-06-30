@@ -10,7 +10,7 @@
 class UObject;
 
 /**
- * An widget in a layout that has been tagged (can be hidden or shown via tags on the owning player)
+ * A widget in a layout that has been tagged (can be hidden or shown via tags on the owning player)
  */
 UCLASS(Abstract, Blueprintable)
 class UUltraTaggedWidget : public UCommonUserWidget
