@@ -7,15 +7,18 @@ public class UltraEditorTarget : TargetRules
 {
 	public UltraEditorTarget(TargetInfo Target) : base(Target)
 	{
-		Type = TargetType.Editor;
-		DefaultBuildSettings = BuildSettingsVersion.V2;
-		IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
+        Type = TargetType.Editor;
 
-		ExtraModuleNames.AddRange(new string[] { "UltraGame", "UltraEditor" });
+        ExtraModuleNames.AddRange(new string[] { "UltraGame", "UltraEditor" });
 
-		UltraGameTarget.ApplySharedUltraTargetSettings(this);
+        if (!bBuildAllModules)
+        {
+            NativePointerMemberBehaviorOverride = PointerMemberBehavior.Disallow;
+        }
 
-		// This is used for touch screen development along with the "Unreal Remote 2" app
-		EnablePlugins.Add("RemoteSession");
-	}
+        UltraGameTarget.ApplySharedUltraTargetSettings(this);
+
+        // This is used for touch screen development along with the "Unreal Remote 2" app
+        EnablePlugins.Add("RemoteSession");
+    }
 }

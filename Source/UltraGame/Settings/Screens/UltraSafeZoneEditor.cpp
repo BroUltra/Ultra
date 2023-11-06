@@ -18,14 +18,14 @@ struct FGeometry;
 namespace SafeZoneEditor
 {
 	const float JoystickDeadZone = 0.2f;
-	const float SafeZoneChangeSpeed = 0.1f;	
+	const float SafeZoneChangeSpeed = 0.1f;
 }
 
 UUltraSafeZoneEditor::UUltraSafeZoneEditor(const FObjectInitializer& Initializer)
 	: Super(Initializer)
 {
 	SetVisibility(ESlateVisibility::Visible);
-	bIsFocusable = true;
+	SetIsFocusable(true);
 }
 
 void UUltraSafeZoneEditor::NativeOnInitialized()
@@ -39,10 +39,10 @@ void UUltraSafeZoneEditor::NativeOnActivated()
 	Super::NativeOnActivated();
 
 	SSafeZone::SetGlobalSafeZoneScale(UUltraSettingsLocal::Get()->GetSafeZone());
-	
+
 	Button_Done->OnClicked().AddUObject(this, &UUltraSafeZoneEditor::HandleDoneClicked);
 
-	Button_Back->SetVisibility((bCanCancel)? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+	Button_Back->SetVisibility((bCanCancel) ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
 	if (bCanCancel)
 	{
 		Button_Back->OnClicked().AddUObject(this, &UUltraSafeZoneEditor::HandleBackClicked);
@@ -66,7 +66,7 @@ FReply UUltraSafeZoneEditor::NativeOnAnalogValueChanged(const FGeometry& InGeome
 	{
 		const float SafeZoneMultiplier = FMath::Clamp(SSafeZone::GetGlobalSafeZoneScale().Get(1.0f) + InAnalogEvent.GetAnalogValue() * SafeZoneEditor::SafeZoneChangeSpeed, 0.0f, 1.0f);
 		SSafeZone::SetGlobalSafeZoneScale(SafeZoneMultiplier >= 0 ? SafeZoneMultiplier : 0);
-		
+
 		return FReply::Handled();
 	}
 	return Super::NativeOnAnalogValueChanged(InGeometry, InAnalogEvent);

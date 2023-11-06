@@ -92,7 +92,7 @@ void UUltraTeamDisplayAsset::ApplyToActor(AActor* TargetActor, bool bIncludeChil
 {
 	if (TargetActor != nullptr)
 	{
-		TargetActor->ForEachComponent(bIncludeChildActors, [=](UActorComponent* InComponent)
+		TargetActor->ForEachComponent(bIncludeChildActors, [this](UActorComponent* InComponent)
 		{
 			if (UMeshComponent* MeshComponent = Cast<UMeshComponent>(InComponent))
 			{

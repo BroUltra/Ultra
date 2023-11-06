@@ -41,24 +41,33 @@ void EmptyLinkFunctionForGeneratedCodeUltraCoreRuntimeSettings() {}
 		(UObject* (*)())Z_Construct_UClass_UDeveloperSettings,
 		(UObject* (*)())Z_Construct_UPackage__Script_UltraCoreRuntime,
 	};
+	static_assert(UE_ARRAY_COUNT(Z_Construct_UClass_UUltraCoreRuntimeSettings_Statics::DependentSingletons) < 16);
 #if WITH_METADATA
 	const UECodeGen_Private::FMetaDataPairParam Z_Construct_UClass_UUltraCoreRuntimeSettings_Statics::Class_MetaDataParams[] = {
+#if !UE_BUILD_SHIPPING
 		{ "Comment", "/** Runtime settings specific to the UltraCoreRuntime plugin */" },
+#endif
 		{ "IncludePath", "UltraCoreRuntimeSettings.h" },
 		{ "ModuleRelativePath", "Public/UltraCoreRuntimeSettings.h" },
 		{ "ObjectInitializerConstructorDeclared", "" },
+#if !UE_BUILD_SHIPPING
 		{ "ToolTip", "Runtime settings specific to the UltraCoreRuntime plugin" },
+#endif
 	};
 #endif
 #if WITH_METADATA
 	const UECodeGen_Private::FMetaDataPairParam Z_Construct_UClass_UUltraCoreRuntimeSettings_Statics::NewProp_AimAssistCollisionChannel_MetaData[] = {
 		{ "Category", "Aim Assist" },
+#if !UE_BUILD_SHIPPING
 		{ "Comment", "/**\n\x09 * What trace channel should be used to find available targets for Aim Assist.\n\x09 * @see UAimAssistTargetManagerComponent::GetVisibleTargets\n\x09 */" },
+#endif
 		{ "ModuleRelativePath", "Public/UltraCoreRuntimeSettings.h" },
+#if !UE_BUILD_SHIPPING
 		{ "ToolTip", "What trace channel should be used to find available targets for Aim Assist.\n@see UAimAssistTargetManagerComponent::GetVisibleTargets" },
+#endif
 	};
 #endif
-	const UECodeGen_Private::FBytePropertyParams Z_Construct_UClass_UUltraCoreRuntimeSettings_Statics::NewProp_AimAssistCollisionChannel = { "AimAssistCollisionChannel", nullptr, (EPropertyFlags)0x0040000000004001, UECodeGen_Private::EPropertyGenFlags::Byte, RF_Public|RF_Transient|RF_MarkAsNative, 1, nullptr, nullptr, STRUCT_OFFSET(UUltraCoreRuntimeSettings, AimAssistCollisionChannel), Z_Construct_UEnum_Engine_ECollisionChannel, METADATA_PARAMS(Z_Construct_UClass_UUltraCoreRuntimeSettings_Statics::NewProp_AimAssistCollisionChannel_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_UUltraCoreRuntimeSettings_Statics::NewProp_AimAssistCollisionChannel_MetaData)) }; // 727872708
+	const UECodeGen_Private::FBytePropertyParams Z_Construct_UClass_UUltraCoreRuntimeSettings_Statics::NewProp_AimAssistCollisionChannel = { "AimAssistCollisionChannel", nullptr, (EPropertyFlags)0x0040000000004001, UECodeGen_Private::EPropertyGenFlags::Byte, RF_Public|RF_Transient|RF_MarkAsNative, nullptr, nullptr, 1, STRUCT_OFFSET(UUltraCoreRuntimeSettings, AimAssistCollisionChannel), Z_Construct_UEnum_Engine_ECollisionChannel, METADATA_PARAMS(UE_ARRAY_COUNT(Z_Construct_UClass_UUltraCoreRuntimeSettings_Statics::NewProp_AimAssistCollisionChannel_MetaData), Z_Construct_UClass_UUltraCoreRuntimeSettings_Statics::NewProp_AimAssistCollisionChannel_MetaData) }; // 1822723181
 	const UECodeGen_Private::FPropertyParamsBase* const Z_Construct_UClass_UUltraCoreRuntimeSettings_Statics::PropPointers[] = {
 		(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_UUltraCoreRuntimeSettings_Statics::NewProp_AimAssistCollisionChannel,
 	};
@@ -78,8 +87,9 @@ void EmptyLinkFunctionForGeneratedCodeUltraCoreRuntimeSettings() {}
 		UE_ARRAY_COUNT(Z_Construct_UClass_UUltraCoreRuntimeSettings_Statics::PropPointers),
 		0,
 		0x000000A6u,
-		METADATA_PARAMS(Z_Construct_UClass_UUltraCoreRuntimeSettings_Statics::Class_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UClass_UUltraCoreRuntimeSettings_Statics::Class_MetaDataParams))
+		METADATA_PARAMS(UE_ARRAY_COUNT(Z_Construct_UClass_UUltraCoreRuntimeSettings_Statics::Class_MetaDataParams), Z_Construct_UClass_UUltraCoreRuntimeSettings_Statics::Class_MetaDataParams)
 	};
+	static_assert(UE_ARRAY_COUNT(Z_Construct_UClass_UUltraCoreRuntimeSettings_Statics::PropPointers) < 2048);
 	UClass* Z_Construct_UClass_UUltraCoreRuntimeSettings()
 	{
 		if (!Z_Registration_Info_UClass_UUltraCoreRuntimeSettings.OuterSingleton)
@@ -94,15 +104,15 @@ void EmptyLinkFunctionForGeneratedCodeUltraCoreRuntimeSettings() {}
 	}
 	DEFINE_VTABLE_PTR_HELPER_CTOR(UUltraCoreRuntimeSettings);
 	UUltraCoreRuntimeSettings::~UUltraCoreRuntimeSettings() {}
-	struct Z_CompiledInDeferFile_FID_Users_UltraBro_Documents_Unreal_Projects_Ultra_5_2_Plugins_GameFeatures_UltraCore_Source_UltraCoreRuntime_Public_UltraCoreRuntimeSettings_h_Statics
+	struct Z_CompiledInDeferFile_FID_Users_UltraBro_Documents_Unreal_Projects_Ultra_5_3_Plugins_GameFeatures_UltraCore_Source_UltraCoreRuntime_Public_UltraCoreRuntimeSettings_h_Statics
 	{
 		static const FClassRegisterCompiledInInfo ClassInfo[];
 	};
-	const FClassRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_UltraBro_Documents_Unreal_Projects_Ultra_5_2_Plugins_GameFeatures_UltraCore_Source_UltraCoreRuntime_Public_UltraCoreRuntimeSettings_h_Statics::ClassInfo[] = {
-		{ Z_Construct_UClass_UUltraCoreRuntimeSettings, UUltraCoreRuntimeSettings::StaticClass, TEXT("UUltraCoreRuntimeSettings"), &Z_Registration_Info_UClass_UUltraCoreRuntimeSettings, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(UUltraCoreRuntimeSettings), 178073741U) },
+	const FClassRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_UltraBro_Documents_Unreal_Projects_Ultra_5_3_Plugins_GameFeatures_UltraCore_Source_UltraCoreRuntime_Public_UltraCoreRuntimeSettings_h_Statics::ClassInfo[] = {
+		{ Z_Construct_UClass_UUltraCoreRuntimeSettings, UUltraCoreRuntimeSettings::StaticClass, TEXT("UUltraCoreRuntimeSettings"), &Z_Registration_Info_UClass_UUltraCoreRuntimeSettings, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(UUltraCoreRuntimeSettings), 2269182464U) },
 	};
-	static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_UltraBro_Documents_Unreal_Projects_Ultra_5_2_Plugins_GameFeatures_UltraCore_Source_UltraCoreRuntime_Public_UltraCoreRuntimeSettings_h_2841828998(TEXT("/Script/UltraCoreRuntime"),
-		Z_CompiledInDeferFile_FID_Users_UltraBro_Documents_Unreal_Projects_Ultra_5_2_Plugins_GameFeatures_UltraCore_Source_UltraCoreRuntime_Public_UltraCoreRuntimeSettings_h_Statics::ClassInfo, UE_ARRAY_COUNT(Z_CompiledInDeferFile_FID_Users_UltraBro_Documents_Unreal_Projects_Ultra_5_2_Plugins_GameFeatures_UltraCore_Source_UltraCoreRuntime_Public_UltraCoreRuntimeSettings_h_Statics::ClassInfo),
+	static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_UltraBro_Documents_Unreal_Projects_Ultra_5_3_Plugins_GameFeatures_UltraCore_Source_UltraCoreRuntime_Public_UltraCoreRuntimeSettings_h_2408936698(TEXT("/Script/UltraCoreRuntime"),
+		Z_CompiledInDeferFile_FID_Users_UltraBro_Documents_Unreal_Projects_Ultra_5_3_Plugins_GameFeatures_UltraCore_Source_UltraCoreRuntime_Public_UltraCoreRuntimeSettings_h_Statics::ClassInfo, UE_ARRAY_COUNT(Z_CompiledInDeferFile_FID_Users_UltraBro_Documents_Unreal_Projects_Ultra_5_3_Plugins_GameFeatures_UltraCore_Source_UltraCoreRuntime_Public_UltraCoreRuntimeSettings_h_Statics::ClassInfo),
 		nullptr, 0,
 		nullptr, 0);
 PRAGMA_ENABLE_DEPRECATION_WARNINGS

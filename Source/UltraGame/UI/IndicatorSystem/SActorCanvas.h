@@ -24,7 +24,7 @@ public:
 	/** ActorCanvas-specific slot class */
 	class FSlot : public TSlotBase<FSlot>
 	{
-	public: 
+	public:
 
 		FSlot(UIndicatorDescriptor* InIndicator)
 			: TSlotBase<FSlot>()
@@ -151,9 +151,9 @@ public:
 		uint8 bInFrontOfCamera : 1;
 		uint8 bHasValidScreenPosition : 1;
 		uint8 bDirty : 1;
-		
-		/** 
-		 * Cached & frame-deferred value of whether the indicator was visually screen clamped last frame or not; 
+
+		/**
+		 * Cached & frame-deferred value of whether the indicator was visually screen clamped last frame or not;
 		 * Semi-hacky mutable implementation as it is cached during a const paint operation
 		 */
 		mutable uint8 bWasIndicatorClamped : 1;
@@ -169,13 +169,13 @@ public:
 
 	/** Begin the arguments for this slate widget */
 	SLATE_BEGIN_ARGS(SActorCanvas) {
-		_Visibility = EVisibility::HitTestInvisible;
-	}
+			_Visibility = EVisibility::HitTestInvisible;
+		}
 
 		/** Indicates that we have a slot that this widget supports */
 		SLATE_SLOT_ARGUMENT(SActorCanvas::FSlot, Slots)
-	
-	/** This always goes at the end */
+
+		/** This always goes at the end */
 	SLATE_END_ARGS()
 
 	SActorCanvas()
@@ -190,7 +190,7 @@ public:
 	void Construct(const FArguments& InArgs, const FLocalPlayerContext& InCtx, const FSlateBrush* ActorCanvasArrowBrush);
 
 	// SWidget Interface
-	virtual void OnArrangeChildren( const FGeometry& AllottedGeometry, FArrangedChildren& ArrangedChildren ) const override;
+	virtual void OnArrangeChildren(const FGeometry& AllottedGeometry, FArrangedChildren& ArrangedChildren) const override;
 	virtual FVector2D ComputeDesiredSize(float) const override { return FVector2D::ZeroVector; }
 	virtual FChildren* GetChildren() override { return &AllChildren; }
 	virtual int32 OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const;
@@ -199,8 +199,8 @@ public:
 	void SetDrawElementsInOrder(bool bInDrawElementsInOrder) { bDrawElementsInOrder = bInDrawElementsInOrder; }
 
 	virtual FString GetReferencerName() const override;
-	virtual void AddReferencedObjects( FReferenceCollector& Collector ) override;
-	
+	virtual void AddReferencedObjects(FReferenceCollector& Collector) override;
+
 private:
 	void OnIndicatorAdded(UIndicatorDescriptor* Indicator);
 	void OnIndicatorRemoved(UIndicatorDescriptor* Indicator);
@@ -217,7 +217,7 @@ private:
 
 	/** Helper function for calculating the offset */
 	void GetOffsetAndSize(const UIndicatorDescriptor* Indicator,
-		FVector2D& OutSize, 
+		FVector2D& OutSize,
 		FVector2D& OutOffset,
 		FVector2D& OutPaddingMin,
 		FVector2D& OutPaddingMax) const;
@@ -225,9 +225,9 @@ private:
 	void UpdateActiveTimer();
 
 private:
-	TArray<UIndicatorDescriptor*> AllIndicators;
+	TArray<TObjectPtr<UIndicatorDescriptor>> AllIndicators;
 	TArray<UIndicatorDescriptor*> InactiveIndicators;
-	
+
 	FLocalPlayerContext LocalPlayerContext;
 	TWeakObjectPtr<UUltraIndicatorManagerComponent> IndicatorComponentPtr;
 

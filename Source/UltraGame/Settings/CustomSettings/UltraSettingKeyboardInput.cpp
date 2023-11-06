@@ -2,9 +2,12 @@
 
 #include "UltraSettingKeyboardInput.h"
 
+#include "EnhancedInputSubsystems.h"
 #include "../UltraSettingsLocal.h"
 #include "Player/UltraLocalPlayer.h"
 #include "PlayerMappableInputConfig.h"
+#include "EnhancedInputSubsystems.h"
+#include "UserSettings/EnhancedInputUserSettings.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraSettingKeyboardInput)
 
@@ -12,128 +15,218 @@ class ULocalPlayer;
 
 #define LOCTEXT_NAMESPACE "UltraSettings"
 
-void FKeyboardOption::ResetToDefault()
+namespace Ultra::ErrorMessages
 {
-	if (OwningConfig)
-	{
-		InputMapping = OwningConfig->GetMappingByName(InputMapping.PlayerMappableOptions.Name);	
-	}
-	// If we don't have an owning config, then there is no default binding for this and it can simply be removed
-	else
-	{
-		InputMapping = FEnhancedActionKeyMapping();
-	}
+	static const FText UnknownMappingName = LOCTEXT("UltraErrors_UnknownMappingName", "Unknown Mapping");
 }
 
-void FKeyboardOption::SetInitialValue(FKey InKey)
-{
-	InitialMapping = InKey;
-}
 
 UUltraSettingKeyboardInput::UUltraSettingKeyboardInput()
 {
 	bReportAnalytics = false;
 }
 
+FText UUltraSettingKeyboardInput::GetSettingDisplayName() const
+{
+	if (const FKeyMappingRow* Row = FindKeyMappingRow())
+	{
+		if (Row->HasAnyMappings())
+		{
+			return Row->Mappings.begin()->GetDisplayName();
+		}
+	}
+
+	return Ultra::ErrorMessages::UnknownMappingName;
+}
+
+FText UUltraSettingKeyboardInput::GetSettingDisplayCategory() const
+{
+	if (const FKeyMappingRow* Row = FindKeyMappingRow())
+	{
+		if (Row->HasAnyMappings())
+		{
+			return Row->Mappings.begin()->GetDisplayCategory();
+		}
+	}
+
+	return Ultra::ErrorMessages::UnknownMappingName;
+}
+
+const FKeyMappingRow* UUltraSettingKeyboardInput::FindKeyMappingRow() const
+{
+	if (const UEnhancedPlayerMappableKeyProfile* Profile = FindMappableKeyProfile())
+	{
+		return Profile->FindKeyMappingRow(ActionMappingName);
+	}
+
+	ensure(false);
+	return nullptr;
+}
+
+UEnhancedPlayerMappableKeyProfile* UUltraSettingKeyboardInput::FindMappableKeyProfile() const
+{
+	if (UEnhancedInputUserSettings* Settings = GetUserSettings())
+	{
+		return Settings->GetKeyProfileWithIdentifier(ProfileIdentifier);
+	}
+
+	ensure(false);
+	return nullptr;
+}
+
+UEnhancedInputUserSettings* UUltraSettingKeyboardInput::GetUserSettings() const
+{
+	if (UUltraLocalPlayer* UltraLocalPlayer = Cast<UUltraLocalPlayer>(LocalPlayer))
+	{
+		// Map the key to the player key profile
+		if (UEnhancedInputLocalPlayerSubsystem* System = UltraLocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+		{
+			return System->GetUserSettings();
+		}
+	}
+
+	return nullptr;
+}
+
 void UUltraSettingKeyboardInput::OnInitialized()
 {
-	DynamicDetails = FGetGameSettingsDetails::CreateLambda([this](ULocalPlayer&) {
-		return FText::Format(LOCTEXT("DynamicDetails_KeyboardInputAction", "Bindings for {0}"), FirstMappableOption.InputMapping.PlayerMappableOptions.DisplayName);
-	});
+	DynamicDetails = FGetGameSettingsDetails::CreateLambda([this](ULocalPlayer&)
+		{
+			if (const FKeyMappingRow* Row = FindKeyMappingRow())
+			{
+				if (Row->HasAnyMappings())
+				{
+					return FText::Format(LOCTEXT("DynamicDetails_KeyboardInputAction", "Bindings for {0}"), Row->Mappings.begin()->GetDisplayName());
+				}
+			}
+			return FText::GetEmpty();
+		});
 
 	Super::OnInitialized();
 }
 
-void UUltraSettingKeyboardInput::SetInputData(FEnhancedActionKeyMapping& BaseMapping, const UPlayerMappableInputConfig* InOwningConfig, int32 InKeyBindSlot)
+void UUltraSettingKeyboardInput::InitializeInputData(const UEnhancedPlayerMappableKeyProfile* KeyProfile, const FKeyMappingRow& MappingData, const FPlayerMappableKeyQueryOptions& InQueryOptions)
 {
-	if (InKeyBindSlot == 0)
+	check(KeyProfile);
+
+	ProfileIdentifier = KeyProfile->GetProfileIdentifer();
+	QueryOptions = InQueryOptions;
+
+	for (const FPlayerKeyMapping& Mapping : MappingData.Mappings)
 	{
-		FirstMappableOption.InputMapping = BaseMapping;
-		FirstMappableOption.OwningConfig = InOwningConfig;
-		FirstMappableOption.SetInitialValue(BaseMapping.Key);
-	}
-	else if (InKeyBindSlot == 1)
-	{
-		SecondaryMappableOption.InputMapping = BaseMapping;
-		SecondaryMappableOption.OwningConfig = InOwningConfig;
-		SecondaryMappableOption.SetInitialValue(BaseMapping.Key);
-	}
-	else
-	{
-		ensureMsgf(false, TEXT("Invalid key bind slot provided!"));
+		// Only add mappings that pass the query filters that have been provided upon creation
+		if (!KeyProfile->DoesMappingPassQueryOptions(Mapping, QueryOptions))
+		{
+			continue;
+		}
+
+		ActionMappingName = Mapping.GetMappingName();
+		InitialKeyMappings.Add(Mapping.GetSlot(), Mapping.GetCurrentKey());
+		const FText& MappingDisplayName = Mapping.GetDisplayName();
+
+		if (!MappingDisplayName.IsEmpty())
+		{
+			SetDisplayName(MappingDisplayName);
+		}
 	}
 
-	ensure(FirstMappableOption.InputMapping.PlayerMappableOptions.Name != NAME_None && !FirstMappableOption.InputMapping.PlayerMappableOptions.DisplayName.IsEmpty());
-
-	const FString NameString = TEXT("KBM_Input_") + FirstMappableOption.InputMapping.PlayerMappableOptions.Name.ToString();
+	const FString NameString = TEXT("KBM_Input_") + ActionMappingName.ToString();
 	SetDevName(*NameString);
-	SetDisplayName(FirstMappableOption.InputMapping.PlayerMappableOptions.DisplayName);
 }
 
+FText UUltraSettingKeyboardInput::GetKeyTextFromSlot(const EPlayerMappableKeySlot InSlot) const
+{
+	if (const UEnhancedPlayerMappableKeyProfile* Profile = FindMappableKeyProfile())
+	{
+		FPlayerMappableKeyQueryOptions QueryOptionsForSlot = QueryOptions;
+		QueryOptionsForSlot.SlotToMatch = InSlot;
+
+		if (const FKeyMappingRow* Row = FindKeyMappingRow())
+		{
+			for (const FPlayerKeyMapping& Mapping : Row->Mappings)
+			{
+				if (Profile->DoesMappingPassQueryOptions(Mapping, QueryOptionsForSlot))
+				{
+					return Mapping.GetCurrentKey().GetDisplayName();
+				}
+			}
+		}
+	}
+
+	return EKeys::Invalid.GetDisplayName();
+}
+
+
+PRAGMA_DISABLE_DEPRECATION_WARNINGS
 FText UUltraSettingKeyboardInput::GetPrimaryKeyText() const
 {
-	return FirstMappableOption.InputMapping.Key.GetDisplayName();
+	return GetKeyTextFromSlot(EPlayerMappableKeySlot::First);
 }
 
 FText UUltraSettingKeyboardInput::GetSecondaryKeyText() const
 {
-	return SecondaryMappableOption.InputMapping.Key.GetDisplayName();
+	return GetKeyTextFromSlot(EPlayerMappableKeySlot::Second);
 }
+PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
 void UUltraSettingKeyboardInput::ResetToDefault()
 {
-	// Find the UPlayerMappableInputConfig that this came from and reset it to the value in there
-	FirstMappableOption.ResetToDefault();
-	SecondaryMappableOption.ResetToDefault();
+	if (UEnhancedInputUserSettings* Settings = GetUserSettings())
+	{
+		FMapPlayerKeyArgs Args = {};
+		Args.MappingName = ActionMappingName;
+
+		FGameplayTagContainer FailureReason;
+		Settings->ResetAllPlayerKeysInRow(Args, FailureReason);
+
+		NotifySettingChanged(EGameSettingChangeReason::Change);
+	}
 }
 
 void UUltraSettingKeyboardInput::StoreInitial()
 {
-	FirstMappableOption.SetInitialValue(FirstMappableOption.InputMapping.Key);
-	SecondaryMappableOption.SetInitialValue(SecondaryMappableOption.InputMapping.Key);
+	if (const UEnhancedPlayerMappableKeyProfile* Profile = FindMappableKeyProfile())
+	{
+		if (const FKeyMappingRow* Row = FindKeyMappingRow())
+		{
+			for (const FPlayerKeyMapping& Mapping : Row->Mappings)
+			{
+				if (Profile->DoesMappingPassQueryOptions(Mapping, QueryOptions))
+				{
+					ActionMappingName = Mapping.GetMappingName();
+					InitialKeyMappings.Add(Mapping.GetSlot(), Mapping.GetCurrentKey());
+				}
+			}
+		}
+	}
 }
 
 void UUltraSettingKeyboardInput::RestoreToInitial()
-{	
-	ChangeBinding(0, FirstMappableOption.GetInitialStoredValue());
-	ChangeBinding(1, SecondaryMappableOption.GetInitialStoredValue());
+{
+	for (TPair<EPlayerMappableKeySlot, FKey> Pair : InitialKeyMappings)
+	{
+		ChangeBinding((int32)Pair.Key, Pair.Value);
+	}
 }
 
 bool UUltraSettingKeyboardInput::ChangeBinding(int32 InKeyBindSlot, FKey NewKey)
 {
-	// Early out if they hit the same button that is already bound. This allows for them to exit binding if they made a mistake.
-	if ((InKeyBindSlot == 0 && FirstMappableOption.InputMapping.Key == NewKey) || (InKeyBindSlot == 1 && SecondaryMappableOption.InputMapping.Key == NewKey))
-	{
-		return false;
-	}
-
 	if (!NewKey.IsGamepadKey())
 	{
-		UUltraLocalPlayer* UltraLocalPlayer = CastChecked<UUltraLocalPlayer>(LocalPlayer);
-		UUltraSettingsLocal* LocalSettings = UltraLocalPlayer->GetLocalSettings();
-		if (InKeyBindSlot == 0)
-		{
-			LocalSettings->AddOrUpdateCustomKeyboardBindings(FirstMappableOption.InputMapping.PlayerMappableOptions.Name, NewKey, UltraLocalPlayer);
-			FirstMappableOption.InputMapping.Key = NewKey;
-		}
-		else if (InKeyBindSlot == 1)
-		{
-			// If there is no default secondary binding then we can create one based off of data from the primary binding
-			if (SecondaryMappableOption.InputMapping.PlayerMappableOptions.Name == NAME_None)
-			{
-				SecondaryMappableOption = FKeyboardOption(FirstMappableOption);
-			}
-			
-			LocalSettings->AddOrUpdateCustomKeyboardBindings(SecondaryMappableOption.InputMapping.PlayerMappableOptions.Name, NewKey, UltraLocalPlayer);
-			SecondaryMappableOption.InputMapping.Key = NewKey;
-		}
-		else
-		{
-			ensureMsgf(false, TEXT("Invalid key bind slot provided!"));
-		}
+		FMapPlayerKeyArgs Args = {};
+		Args.MappingName = ActionMappingName;
+		Args.Slot = (EPlayerMappableKeySlot)(static_cast<uint8>(InKeyBindSlot));
+		Args.NewKey = NewKey;
+		// If you want to, you can additionally specify this mapping to only be applied to a certain hardware device or key profile
+		//Args.ProfileId =
+		//Args.HardwareDeviceId =
 
-		// keybindings are never reset to default or initial
-		NotifySettingChanged(EGameSettingChangeReason::Change);
+		if (UEnhancedInputUserSettings* Settings = GetUserSettings())
+		{
+			FGameplayTagContainer FailureReason;
+			Settings->MapPlayerKey(Args, FailureReason);
+			NotifySettingChanged(EGameSettingChangeReason::Change);
+		}
 
 		return true;
 	}
@@ -143,26 +236,33 @@ bool UUltraSettingKeyboardInput::ChangeBinding(int32 InKeyBindSlot, FKey NewKey)
 
 void UUltraSettingKeyboardInput::GetAllMappedActionsFromKey(int32 InKeyBindSlot, FKey Key, TArray<FName>& OutActionNames) const
 {
-	if (InKeyBindSlot == 1)
+	if (const UEnhancedPlayerMappableKeyProfile* Profile = FindMappableKeyProfile())
 	{
-		if (SecondaryMappableOption.InputMapping.Key == Key)
-		{
-			return;
-		}
+		Profile->GetMappingNamesForKey(Key, OutActionNames);
 	}
-	else
+}
+
+bool UUltraSettingKeyboardInput::IsMappingCustomized() const
+{
+	bool bResult = false;
+
+	if (const UEnhancedPlayerMappableKeyProfile* Profile = FindMappableKeyProfile())
 	{
-		if (FirstMappableOption.InputMapping.Key == Key)
+		FPlayerMappableKeyQueryOptions QueryOptionsForSlot = QueryOptions;
+
+		if (const FKeyMappingRow* Row = FindKeyMappingRow())
 		{
-			return;
+			for (const FPlayerKeyMapping& Mapping : Row->Mappings)
+			{
+				if (Profile->DoesMappingPassQueryOptions(Mapping, QueryOptionsForSlot))
+				{
+					bResult |= Mapping.IsCustomized();
+				}
+			}
 		}
 	}
 
-	if (const UUltraLocalPlayer* UltraLocalPlayer = CastChecked<UUltraLocalPlayer>(LocalPlayer))
-	{
-		UUltraSettingsLocal* LocalSettings = UltraLocalPlayer->GetLocalSettings();
-		LocalSettings->GetAllMappingNamesFromKey(Key, OutActionNames);
-	}
+	return bResult;
 }
 
 #undef LOCTEXT_NAMESPACE

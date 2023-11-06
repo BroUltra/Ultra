@@ -27,44 +27,44 @@ DECLARE_DELEGATE_OneParam(FStreamableHandleDelegate, TSharedPtr<FStreamableHandl
 //};
 
 /**
- * The FAsyncMixin allows easier management of async loading requests, to ensure linear request handling, to make 
+ * The FAsyncMixin allows easier management of async loading requests, to ensure linear request handling, to make
  * writing code much easier.  The usage pattern is as follows,
  *
  * First - inherit from FAsyncMixin, even if you're a UObject, you can also inherit from FAsyncMixin.
  *
  * Then - you can make your async loads as follows.
- * 
+ *
  * CancelAsyncLoading();			// Some objects get reused like in lists, so it's important to cancel anything you had pending doesn't complete.
  * AsyncLoad(ItemOne, CallbackOne);
  * AsyncLoad(ItemTwo, CallbackTwo);
  * StartAsyncLoading();
- * 
+ *
  * You can also include the 'this' scope safely, one of the benefits of the mix-in, is that none of the callbacks
  * are ever out of scope of the host AsyncMixin derived object.
  * e.g.
  * AsyncLoad(SomeSoftObjectPtr, [this, ...]() {
- *    
+ *
  * });
- * 
+ *
  *
  * What will happen is first we cancel any existing one(s), e.g. perhaps we are a widget that just got told to represent
  * some new thing.  What will happen is we'll Load ItemOne and ItemTwo, *THEN* we'll call the callbacks in the order you
  * requested the async loads - even if ItemOne or ItemTwo was already loaded when you request it.
  *
  * When all the async loading requests complete, OnFinishedLoading will be called.
- * 
+ *
  * If you forget to call StartAsyncLoading(), we'll call it next frame, but you should remember to call it
  * when you're done with your setup, as maybe everything is already loaded, and it will avoid a single frame
  * of a loading indicator flash, which is annoying.
- * 
- * NOTE: The FAsyncMixin also makes it safe to pass [this] as a captured input into your lambda, because it handles 
+ *
+ * NOTE: The FAsyncMixin also makes it safe to pass [this] as a captured input into your lambda, because it handles
  * unhooking everything if either your owner class is destroyed, or you cancel everything.
  *
- * NOTE: FAsyncMixin doesn't add any additional memory to your class.  Several classes currently handling async loading 
- * internally allocate TSharedPtr<FStreamableHandle> members and tend to hold onto SoftObjectPaths temporary state.  The 
+ * NOTE: FAsyncMixin doesn't add any additional memory to your class.  Several classes currently handling async loading
+ * internally allocate TSharedPtr<FStreamableHandle> members and tend to hold onto SoftObjectPaths temporary state.  The
  * FAsyncMixin does all of this internally with a static TMap so that all of the async request memory is stored temporarily
  * and sparsely.
- * 
+ *
  * NOTE: For debugging and understanding what's going on, you should add -LogCmds="LogAsyncMixin Verbose" to the command line.
  */
 class ASYNCMIXIN_API FAsyncMixin : public FNoncopyable
@@ -96,7 +96,7 @@ protected:
 		AsyncLoad(SoftClass.ToSoftObjectPath(),
 			FSimpleDelegate::CreateLambda([SoftClass, UserCallback = MoveTemp(Callback)]() mutable {
 				UserCallback(SoftClass.Get());
-			})
+				})
 		);
 	}
 
@@ -121,7 +121,7 @@ protected:
 		AsyncLoad(SoftObject.ToSoftObjectPath(),
 			FSimpleDelegate::CreateLambda([SoftObject, UserCallback = MoveTemp(Callback)]() mutable {
 				UserCallback(SoftObject.Get());
-			})
+				})
 		);
 	}
 
@@ -170,7 +170,7 @@ protected:
 	void AsyncCondition(TSharedRef<FAsyncCondition> Condition, const FSimpleDelegate& Callback = FSimpleDelegate());
 
 	/**
-	 * Rather than load anything, this callback is just inserted into the callback sequence so that when async loading 
+	 * Rather than load anything, this callback is just inserted into the callback sequence so that when async loading
 	 * completes this event will be called at the same point in the sequence.  Super useful if you don't want a step to be
 	 * tied to a particular asset in case some of the assets are optional.
 	 */
@@ -238,7 +238,7 @@ private:
 		FAsyncMixin& OwnerRef;
 
 		/**
-		 * Did we need to pre-load bundles?  If we didn't pre-load bundles (which require you keep the streaming handle 
+		 * Did we need to pre-load bundles?  If we didn't pre-load bundles (which require you keep the streaming handle
 		 * around or they will be destroyed), then we can safely destroy the FLoadingState when everything is done loading.
 		 */
 		bool bPreloadedBundles = false;
@@ -285,7 +285,7 @@ private:
 	};
 
 	const FLoadingState& GetLoadingStateConst() const;
-	
+
 	FLoadingState& GetLoadingState();
 
 	bool HasLoadingState() const;
@@ -299,7 +299,7 @@ private:
 /**
  * Sometimes a mix-in just doesn't make sense.  Perhaps the object has to manage many different jobs
  * that each have their own async dependency chain/scope.  For those situations you can use the FAsyncScope.
- * 
+ *
  * This class is a standalone Async dependency handler so that you can fire off several load jobs and always handle them
  * in the proper order, just like with combining FAsyncMixin with your class.
  */

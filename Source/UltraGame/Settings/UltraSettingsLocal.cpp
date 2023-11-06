@@ -25,6 +25,7 @@
 #include "AudioModulationStatics.h"
 #include "Audio/UltraAudioSettings.h"
 #include "Audio/UltraAudioMixEffectsSubsystem.h"
+#include "EnhancedActionKeyMapping.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraSettingsLocal)
 
@@ -169,7 +170,7 @@ public:
 	T GetLowestValue(T DefaultIfNoPairs)
 	{
 		UpdateCache();
-		
+
 		T Result = DefaultIfNoPairs;
 		bool bFirstValue = true;
 		for (const FLimitPair& Pair : Thresholds)
@@ -184,7 +185,7 @@ public:
 				Result = FMath::Min(Result, Pair.Value);
 			}
 		}
-		
+
 		return Result;
 	}
 
@@ -217,7 +218,7 @@ private:
 				}
 				else
 				{
-				
+
 					UE_LOG(LogConsoleResponse, Error, TEXT("Malformed value for '%s'='%s', expecting a ':'"),
 						*IConsoleManager::Get().FindConsoleObjectName(WatchedVar.AsVariable()),
 						*LastSeenCVarString);
@@ -244,7 +245,7 @@ namespace UltraSettingsHelpers
 	{
 		static_assert(sizeof(Scalability::FQualityLevels) == 88, "This function may need to be updated to account for new members");
 
-		int32 MaxScalability =						ScalabilityQuality.ViewDistanceQuality;
+		int32 MaxScalability = ScalabilityQuality.ViewDistanceQuality;
 		MaxScalability = FMath::Max(MaxScalability, ScalabilityQuality.AntiAliasingQuality);
 		MaxScalability = FMath::Max(MaxScalability, ScalabilityQuality.ShadowQuality);
 		MaxScalability = FMath::Max(MaxScalability, ScalabilityQuality.GlobalIlluminationQuality);
@@ -305,16 +306,16 @@ namespace UltraSettingsHelpers
 
 		// Choose the closest frame rate (without going over) to the user preferred one that is supported and compatible with the desired overall quality
 		int32 LimitIndex = PossibleRates.FindLastByPredicate([=](const int32& TestRate)
-		{
-			const bool bAtOrBelowDesiredRate = (TestRate <= FrameRate);
+			{
+				const bool bAtOrBelowDesiredRate = (TestRate <= FrameRate);
 
-			const int32 LimitQuality = GetApplicableResolutionQualityLimit(TestRate);
-			const bool bQualityDoesntExceedLimit = (LimitQuality < 0) || (OverallQuality <= LimitQuality);
-			
-			const bool bIsSupported = UUltraSettingsLocal::IsSupportedMobileFramePace(TestRate);
+				const int32 LimitQuality = GetApplicableResolutionQualityLimit(TestRate);
+				const bool bQualityDoesntExceedLimit = (LimitQuality < 0) || (OverallQuality <= LimitQuality);
 
-			return bAtOrBelowDesiredRate && bQualityDoesntExceedLimit && bIsSupported;
-		});
+				const bool bIsSupported = UUltraSettingsLocal::IsSupportedMobileFramePace(TestRate);
+
+				return bAtOrBelowDesiredRate && bQualityDoesntExceedLimit && bIsSupported;
+			});
 
 		return PossibleRates.IsValidIndex(LimitIndex) ? PossibleRates[LimitIndex] : UUltraSettingsLocal::GetDefaultMobileFrameRate();
 	}
@@ -334,6 +335,7 @@ namespace UltraSettingsHelpers
 
 //////////////////////////////////////////////////////////////////////
 
+PRAGMA_DISABLE_DEPRECATION_WARNINGS
 UUltraSettingsLocal::UUltraSettingsLocal()
 {
 	if (!HasAnyFlags(RF_ClassDefaultObject) && FSlateApplication::IsInitialized())
@@ -343,6 +345,7 @@ UUltraSettingsLocal::UUltraSettingsLocal()
 
 	SetToDefaults();
 }
+PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
 void UUltraSettingsLocal::SetToDefaults()
 {
@@ -387,7 +390,7 @@ void UUltraSettingsLocal::LoadSettings(bool bForceReload)
 	DesiredMobileFrameRateLimit = MobileFrameRateLimit;
 	ClampMobileQuality();
 
-	
+
 	PerfStatSettingsChangedEvent.Broadcast();
 }
 
@@ -477,7 +480,7 @@ float UUltraSettingsLocal::GetEffectiveFrameRateLimit()
 		}
 	}
 
- 	return EffectiveFrameRateLimit;
+	return EffectiveFrameRateLimit;
 }
 
 int32 UUltraSettingsLocal::GetHighestLevelOfAnyScalabilityChannel() const
@@ -686,7 +689,7 @@ void UUltraSettingsLocal::ResetToMobileDeviceDefaults()
 	// Reset frame rate
 	DesiredMobileFrameRateLimit = GetDefaultMobileFrameRate();
 	MobileFrameRateLimit = DesiredMobileFrameRateLimit;
-	
+
 	// Reset scalability
 	Scalability::FQualityLevels DefaultLevels = Scalability::GetQualityLevels();
 	OverrideQualityLevelsToScalabilityMode(DeviceDefaultScalabilitySettings, DefaultLevels);
@@ -779,12 +782,12 @@ void UUltraSettingsLocal::ClampMobileQuality()
 
 		const int32 MaxMobileFrameRate = GetMaxMobileFrameRate();
 		const int32 DefaultMobileFrameRate = GetDefaultMobileFrameRate();
-		
+
 		ensureMsgf(DefaultMobileFrameRate <= MaxMobileFrameRate, TEXT("Default mobile frame rate (%d) is higher than the maximum mobile frame rate (%d)!"), DefaultMobileFrameRate, MaxMobileFrameRate);
 
 		// Choose the closest supported frame rate to the user desired setting without going over the device imposed limit
 		const TArray<int32>& PossibleRates = PlatformSettings->MobileFrameRateLimits;
-		const int32 LimitIndex = PossibleRates.FindLastByPredicate([=](const int32& TestRate) { return (TestRate <= DesiredMobileFrameRateLimit) && IsSupportedMobileFramePace(TestRate); });
+		const int32 LimitIndex = PossibleRates.FindLastByPredicate([this](const int32& TestRate) { return (TestRate <= DesiredMobileFrameRateLimit) && IsSupportedMobileFramePace(TestRate); });
 		const int32 ActualLimitFPS = PossibleRates.IsValidIndex(LimitIndex) ? PossibleRates[LimitIndex] : GetDefaultMobileFrameRate();
 
 		ClampMobileResolutionQuality(ActualLimitFPS);
@@ -917,7 +920,7 @@ bool UUltraSettingsLocal::ShouldRunAutoBenchmarkAtStartup() const
 void UUltraSettingsLocal::RunAutoBenchmark(bool bSaveImmediately)
 {
 	RunHardwareBenchmark();
-	
+
 	// Always apply, optionally save
 	ApplyScalabilitySettings();
 
@@ -1098,24 +1101,24 @@ void UUltraSettingsLocal::SetVolumeForControlBus(USoundControlBus* InSoundContro
 	// apply the settings to the cached User Control Bus Mix
 	if (GEngine && InSoundControlBus && bSoundControlBusMixLoaded)
 	{
-			if (const UWorld* AudioWorld = GEngine->GetCurrentPlayWorld())
-			{
-				ensureMsgf(ControlBusMix, TEXT("Control Bus Mix failed to load."));
+		if (const UWorld* AudioWorld = GEngine->GetCurrentPlayWorld())
+		{
+			ensureMsgf(ControlBusMix, TEXT("Control Bus Mix failed to load."));
 
-				// Create and set the Control Bus Mix Stage Parameters
-				FSoundControlBusMixStage UpdatedControlBusMixStage;
-				UpdatedControlBusMixStage.Bus = InSoundControlBus;
-				UpdatedControlBusMixStage.Value.TargetValue = InVolume;
-				UpdatedControlBusMixStage.Value.AttackTime = 0.01f;
-				UpdatedControlBusMixStage.Value.ReleaseTime = 0.01f;
+			// Create and set the Control Bus Mix Stage Parameters
+			FSoundControlBusMixStage UpdatedControlBusMixStage;
+			UpdatedControlBusMixStage.Bus = InSoundControlBus;
+			UpdatedControlBusMixStage.Value.TargetValue = InVolume;
+			UpdatedControlBusMixStage.Value.AttackTime = 0.01f;
+			UpdatedControlBusMixStage.Value.ReleaseTime = 0.01f;
 
-				// Add the Control Bus Mix Stage to an Array as the UpdateMix function requires
-				TArray<FSoundControlBusMixStage> UpdatedMixStageArray;
-				UpdatedMixStageArray.Add(UpdatedControlBusMixStage);
+			// Add the Control Bus Mix Stage to an Array as the UpdateMix function requires
+			TArray<FSoundControlBusMixStage> UpdatedMixStageArray;
+			UpdatedMixStageArray.Add(UpdatedControlBusMixStage);
 
-				// Modify the matching bus Mix Stage parameters on the User Control Bus Mix
-				UAudioModulationStatics::UpdateMix(AudioWorld, ControlBusMix, UpdatedMixStageArray);
-			}
+			// Modify the matching bus Mix Stage parameters on the User Control Bus Mix
+			UAudioModulationStatics::UpdateMix(AudioWorld, ControlBusMix, UpdatedMixStageArray);
+		}
 	}
 }
 
@@ -1193,7 +1196,7 @@ void UUltraSettingsLocal::ApplyNonResolutionSettings()
 	{
 		SetHeadphoneModeEnabled(bDesiredHeadphoneMode);
 	}
-	
+
 	if (DesiredUserChosenDeviceProfileSuffix != UserChosenDeviceProfileSuffix)
 	{
 		UserChosenDeviceProfileSuffix = DesiredUserChosenDeviceProfileSuffix;
@@ -1266,18 +1269,20 @@ FName UUltraSettingsLocal::GetControllerPlatform() const
 	return ControllerPlatform;
 }
 
+PRAGMA_DISABLE_DEPRECATION_WARNINGS
+
 void UUltraSettingsLocal::RegisterInputConfig(ECommonInputType Type, const UPlayerMappableInputConfig* NewConfig, const bool bIsActive)
 {
 	if (NewConfig)
 	{
-		const int32 ExistingConfigIdx = RegisteredInputConfigs.IndexOfByPredicate( [&NewConfig](const FLoadedMappableConfigPair& Pair) { return Pair.Config == NewConfig; } );
+		const int32 ExistingConfigIdx = RegisteredInputConfigs.IndexOfByPredicate([&NewConfig](const FLoadedMappableConfigPair& Pair) { return Pair.Config == NewConfig; });
 		if (ExistingConfigIdx == INDEX_NONE)
 		{
 			const int32 NumAdded = RegisteredInputConfigs.Add(FLoadedMappableConfigPair(NewConfig, Type, bIsActive));
 			if (NumAdded != INDEX_NONE)
 			{
 				OnInputConfigRegistered.Broadcast(RegisteredInputConfigs[NumAdded]);
-			}	
+			}
 		}
 	}
 }
@@ -1286,13 +1291,13 @@ int32 UUltraSettingsLocal::UnregisterInputConfig(const UPlayerMappableInputConfi
 {
 	if (ConfigToRemove)
 	{
-		const int32 Index = RegisteredInputConfigs.IndexOfByPredicate( [&ConfigToRemove](const FLoadedMappableConfigPair& Pair) { return Pair.Config == ConfigToRemove; } );
+		const int32 Index = RegisteredInputConfigs.IndexOfByPredicate([&ConfigToRemove](const FLoadedMappableConfigPair& Pair) { return Pair.Config == ConfigToRemove; });
 		if (Index != INDEX_NONE)
 		{
 			RegisteredInputConfigs.RemoveAt(Index);
 			return 1;
 		}
-			
+
 	}
 	return INDEX_NONE;
 }
@@ -1319,7 +1324,7 @@ void UUltraSettingsLocal::GetRegisteredInputConfigsOfType(ECommonInputType Type,
 		OutArray = RegisteredInputConfigs;
 		return;
 	}
-	
+
 	for (const FLoadedMappableConfigPair& Pair : RegisteredInputConfigs)
 	{
 		if (Pair.Type == Type)
@@ -1343,8 +1348,8 @@ void UUltraSettingsLocal::GetAllMappingNamesFromKey(const FKey InKey, TArray<FNa
 		{
 			for (const FEnhancedActionKeyMapping& Mapping : Pair.Config->GetPlayerMappableKeys())
 			{
-				FName MappingName(Mapping.PlayerMappableOptions.DisplayName.ToString());
-				FName ActionName = Mapping.PlayerMappableOptions.Name;
+				FName MappingName(Mapping.GetDisplayName().ToString());
+				FName ActionName = Mapping.GetMappingName();
 				// make sure it isn't custom bound as well
 				if (const FKey* MappingKey = CustomKeyboardConfig.Find(ActionName))
 				{
@@ -1371,7 +1376,7 @@ void UUltraSettingsLocal::AddOrUpdateCustomKeyboardBindings(const FName MappingN
 	{
 		return;
 	}
-	
+
 	if (InputConfigName != TEXT("Custom"))
 	{
 		// Copy Presets.
@@ -1381,15 +1386,15 @@ void UUltraSettingsLocal::AddOrUpdateCustomKeyboardBindings(const FName MappingN
 			{
 				// Make sure that the mapping has a valid name, its possible to have an empty name
 				// if someone has marked a mapping as "Player Mappable" but deleted the default field value
-				if (Mapping.PlayerMappableOptions.Name != NAME_None)
+				if (Mapping.GetMappingName() != NAME_None)
 				{
-					CustomKeyboardConfig.Add(Mapping.PlayerMappableOptions.Name, Mapping.Key);
+					CustomKeyboardConfig.Add(Mapping.GetMappingName(), Mapping.Key);
 				}
 			}
 		}
-		
+
 		InputConfigName = TEXT("Custom");
-	} 
+	}
 
 	if (FKey* ExistingMapping = CustomKeyboardConfig.Find(MappingName))
 	{
@@ -1412,7 +1417,7 @@ void UUltraSettingsLocal::ResetKeybindingToDefault(const FName MappingName, UUlt
 {
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
 	{
-		Subsystem->RemovePlayerMappedKeyInSlot(MappingName);
+		Subsystem->RemoveAllPlayerMappedKeysForMapping(MappingName);
 	}
 }
 
@@ -1423,6 +1428,8 @@ void UUltraSettingsLocal::ResetKeybindingsToDefault(UUltraLocalPlayer* LocalPlay
 		Subsystem->RemoveAllPlayerMappedKeys();
 	}
 }
+
+PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
 void UUltraSettingsLocal::LoadUserControlBusMix()
 {
@@ -1565,7 +1572,7 @@ void UUltraSettingsLocal::UpdateGameModeDeviceProfileAndFps()
 	// Make sure the chosen setting is supported for the current display, walking down the list to try fallbacks
 	const int32 PlatformMaxRefreshRate = FPlatformMisc::GetMaxRefreshRate();
 
-	int32 SuffixIndex = UserFacingVariants.IndexOfByPredicate([&](const FUltraQualityDeviceProfileVariant& Data){ return Data.DeviceProfileSuffix == UserChosenDeviceProfileSuffix; });
+	int32 SuffixIndex = UserFacingVariants.IndexOfByPredicate([&](const FUltraQualityDeviceProfileVariant& Data) { return Data.DeviceProfileSuffix == UserChosenDeviceProfileSuffix; });
 	while (UserFacingVariants.IsValidIndex(SuffixIndex))
 	{
 		if (PlatformMaxRefreshRate >= UserFacingVariants[SuffixIndex].MinRefreshRate)
@@ -1636,7 +1643,7 @@ void UUltraSettingsLocal::UpdateGameModeDeviceProfileAndFps()
 		}
 	}
 
-	UE_LOG(LogConsoleResponse, Log, TEXT("UpdateGameModeDeviceProfileAndFps MaxRefreshRate=%d, ExperienceSuffix='%s', UserPicked='%s'->'%s', PlatformBase='%s', AppliedActual='%s'"), 
+	UE_LOG(LogConsoleResponse, Log, TEXT("UpdateGameModeDeviceProfileAndFps MaxRefreshRate=%d, ExperienceSuffix='%s', UserPicked='%s'->'%s', PlatformBase='%s', AppliedActual='%s'"),
 		PlatformMaxRefreshRate, *ExperienceSuffix, *UserChosenDeviceProfileSuffix, *EffectiveUserSuffix, *BasePlatformName, *ActualProfileToApply);
 
 	// Apply the device profile if it's different to what we currently have
@@ -1740,7 +1747,7 @@ void UUltraSettingsLocal::UpdateMobileFramePacing()
 	// Choose the closest supported frame rate to the user desired setting without going over the device imposed limit
 	const UUltraPlatformSpecificRenderingSettings* PlatformSettings = UUltraPlatformSpecificRenderingSettings::Get();
 	const TArray<int32>& PossibleRates = PlatformSettings->MobileFrameRateLimits;
-	const int32 LimitIndex = PossibleRates.FindLastByPredicate([=](const int32& TestRate) { return (TestRate <= MobileFrameRateLimit) && IsSupportedMobileFramePace(TestRate); });
+	const int32 LimitIndex = PossibleRates.FindLastByPredicate([this](const int32& TestRate) { return (TestRate <= MobileFrameRateLimit) && IsSupportedMobileFramePace(TestRate); });
 	const int32 TargetFPS = PossibleRates.IsValidIndex(LimitIndex) ? PossibleRates[LimitIndex] : GetDefaultMobileFrameRate();
 
 	UE_LOG(LogConsoleResponse, Log, TEXT("Setting frame pace to %d Hz."), TargetFPS);

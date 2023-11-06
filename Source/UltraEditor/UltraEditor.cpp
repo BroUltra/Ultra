@@ -57,7 +57,7 @@ static FString GetGameplayCuePath(FString GameplayCueTag)
 {
 	FString Path = FString(TEXT("/Game"));
 
-	//@TODO: Try plugins (e.g., GameplayCue.UltraGame.Foo should be in UltraCore or something)
+	//@TODO: Try plugins (e.g., GameplayCue.ShooterGame.Foo should be in ShooterCore or something)
 
 	// Default path to the first entry in the UAbilitySystemGlobals::GameplayCueNotifyPaths.
 	if (IGameplayAbilitiesModule::IsAvailable())
@@ -116,14 +116,14 @@ static bool CanShowCommonMaps()
 static TSharedRef<SWidget> GetCommonMapsDropdown()
 {
 	FMenuBuilder MenuBuilder(true, nullptr);
-	
+
 	for (const FSoftObjectPath& Path : GetDefault<UUltraDeveloperSettings>()->CommonEditorMaps)
 	{
 		if (!Path.IsValid())
 		{
 			continue;
 		}
-		
+
 		const FText DisplayName = FText::FromString(Path.GetAssetName());
 		MenuBuilder.AddMenuEntry(
 			DisplayName,
@@ -175,13 +175,13 @@ static void RegisterGameEditorMenus()
 			FCanExecuteAction::CreateStatic(&HasNoPlayWorld),
 			FIsActionChecked(),
 			FIsActionButtonVisible::CreateStatic(&HasNoPlayWorld)),
-		LOCTEXT( "CheckContentButton", "Check Content" ),
-		LOCTEXT( "CheckContentDescription", "Runs the Content Validation job on all checked out assets to look for warnings and errors" ),
+		LOCTEXT("CheckContentButton", "Check Content"),
+		LOCTEXT("CheckContentDescription", "Runs the Content Validation job on all checked out assets to look for warnings and errors"),
 		FSlateIcon(FGameEditorStyle::GetStyleSetName(), "GameEditor.CheckContent")
 	);
 	CheckContentEntry.StyleNameOverride = "CalloutToolbar";
 	Section.AddEntry(CheckContentEntry);
-	
+
 	FToolMenuEntry CommonMapEntry = FToolMenuEntry::InitComboButton(
 		"CommonMapOptions",
 		FUIAction(
@@ -217,7 +217,7 @@ class FUltraEditorModule : public FDefaultGameModuleImpl
 
 			if (FSlateApplication::IsInitialized())
 			{
-				UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateStatic(&RegisterGameEditorMenus));
+				ToolMenusHandle = UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateStatic(&RegisterGameEditorMenus));
 			}
 
 			FEditorDelegates::BeginPIE.AddRaw(this, &ThisClass::OnBeginPIE);
@@ -225,9 +225,12 @@ class FUltraEditorModule : public FDefaultGameModuleImpl
 		}
 
 		// Register the Context Effects Library asset type actions.
-		IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
-
-		AssetTools.RegisterAssetTypeActions(MakeShareable(new FAssetTypeActions_UltraContextEffectsLibrary));
+		{
+			IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
+			TSharedRef<FAssetTypeActions_UltraContextEffectsLibrary> AssetAction = MakeShared<FAssetTypeActions_UltraContextEffectsLibrary>();
+			UltraContextEffectsLibraryAssetAction = AssetAction;
+			AssetTools.RegisterAssetTypeActions(AssetAction);
+		}
 	}
 
 	void OnBeginPIE(bool bIsSimulating)
@@ -243,7 +246,28 @@ class FUltraEditorModule : public FDefaultGameModuleImpl
 
 	virtual void ShutdownModule() override
 	{
+		// Unregister the Context Effects Library asset type actions.
+		{
+			FAssetToolsModule* AssetToolsModule = FModuleManager::GetModulePtr<FAssetToolsModule>("AssetTools");
+			TSharedPtr<IAssetTypeActions> AssetAction = UltraContextEffectsLibraryAssetAction.Pin();
+			if (AssetToolsModule && AssetAction)
+			{
+				AssetToolsModule->Get().UnregisterAssetTypeActions(AssetAction.ToSharedRef());
+			}
+		}
+
+		FEditorDelegates::BeginPIE.RemoveAll(this);
+		FEditorDelegates::EndPIE.RemoveAll(this);
+
+		// Undo UToolMenus
+		if (UObjectInitialized() && ToolMenusHandle.IsValid())
+		{
+			UToolMenus::UnRegisterStartupCallback(ToolMenusHandle);
+		}
+
+		UnbindGameplayAbilitiesEditorDelegates();
 		FModuleManager::Get().OnModulesChanged().RemoveAll(this);
+		FGameEditorStyle::Shutdown();
 	}
 
 protected:
@@ -257,6 +281,17 @@ protected:
 		GameplayAbilitiesEditorModule.GetGameplayCueNotifyPathDelegate().BindStatic(&GetGameplayCuePath);
 	}
 
+	static void UnbindGameplayAbilitiesEditorDelegates()
+	{
+		if (IGameplayAbilitiesEditorModule::IsAvailable())
+		{
+			IGameplayAbilitiesEditorModule& GameplayAbilitiesEditorModule = IGameplayAbilitiesEditorModule::Get();
+			GameplayAbilitiesEditorModule.GetGameplayCueNotifyClassesDelegate().Unbind();
+			GameplayAbilitiesEditorModule.GetGameplayCueInterfaceClassesDelegate().Unbind();
+			GameplayAbilitiesEditorModule.GetGameplayCueNotifyPathDelegate().Unbind();
+		}
+	}
+
 	void ModulesChangedCallback(FName ModuleThatChanged, EModuleChangeReason ReasonForChange)
 	{
 		if ((ReasonForChange == EModuleChangeReason::ModuleLoaded) && (ModuleThatChanged.ToString() == TEXT("GameplayAbilitiesEditor")))
@@ -264,6 +299,10 @@ protected:
 			BindGameplayAbilitiesEditorDelegates();
 		}
 	}
+
+private:
+	TWeakPtr<IAssetTypeActions> UltraContextEffectsLibraryAssetAction;
+	FDelegateHandle ToolMenusHandle;
 };
 
 IMPLEMENT_MODULE(FUltraEditorModule, UltraEditor);

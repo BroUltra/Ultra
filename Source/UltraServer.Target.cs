@@ -8,14 +8,12 @@ public class UltraServerTarget : TargetRules
 {
 	public UltraServerTarget(TargetInfo Target) : base(Target)
 	{
-		Type = TargetType.Server;
-		DefaultBuildSettings = BuildSettingsVersion.V2;
-		IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
+        Type = TargetType.Server;
 
-		ExtraModuleNames.AddRange(new string[] { "UltraGame" });
+        ExtraModuleNames.AddRange(new string[] { "UltraGame" });
 
-		UltraGameTarget.ApplySharedUltraTargetSettings(this);
+        UltraGameTarget.ApplySharedUltraTargetSettings(this);
 
-		bUseChecksInShipping = true;
-	}
+        bUseChecksInShipping = true;
+    }
 }

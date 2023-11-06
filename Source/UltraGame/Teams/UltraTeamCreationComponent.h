@@ -24,7 +24,7 @@ public:
 
 	//~UObject interface
 #if WITH_EDITOR
-	virtual EDataValidationResult IsDataValid(TArray<FText>& ValidationErrors) override;
+	virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;
 #endif
 	//~End of UObject interface
 
@@ -40,10 +40,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = Teams)
 	TMap<uint8, TObjectPtr<UUltraTeamDisplayAsset>> TeamsToCreate;
 
-	UPROPERTY(EditDefaultsOnly, Category=Teams)
+	UPROPERTY(EditDefaultsOnly, Category = Teams)
 	TSubclassOf<AUltraTeamPublicInfo> PublicTeamInfoClass;
 
-	UPROPERTY(EditDefaultsOnly, Category=Teams)
+	UPROPERTY(EditDefaultsOnly, Category = Teams)
 	TSubclassOf<AUltraTeamPrivateInfo> PrivateTeamInfoClass;
 
 #if WITH_SERVER_CODE

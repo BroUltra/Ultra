@@ -5,6 +5,10 @@
 #include "Engine/World.h"
 #include "UltraGamePhaseSubsystem.h"
 
+#if WITH_EDITOR
+#include "Misc/DataValidation.h"
+#endif
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraGamePhaseAbility)
 
 #define LOCTEXT_NAMESPACE "UUltraGamePhaseAbility"
@@ -43,14 +47,14 @@ void UUltraGamePhaseAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
 }
 
 #if WITH_EDITOR
-EDataValidationResult UUltraGamePhaseAbility::IsDataValid(TArray<FText>& ValidationErrors)
+EDataValidationResult UUltraGamePhaseAbility::IsDataValid(FDataValidationContext& Context) const
 {
-	EDataValidationResult Result = CombineDataValidationResults(Super::IsDataValid(ValidationErrors), EDataValidationResult::Valid);
+	EDataValidationResult Result = CombineDataValidationResults(Super::IsDataValid(Context), EDataValidationResult::Valid);
 
 	if (!GamePhaseTag.IsValid())
 	{
 		Result = EDataValidationResult::Invalid;
-		ValidationErrors.Add(LOCTEXT("GamePhaseTagNotSet", "GamePhaseTag must be set to a tag representing the current phase."));
+		Context.AddError(LOCTEXT("GamePhaseTagNotSet", "GamePhaseTag must be set to a tag representing the current phase."));
 	}
 
 	return Result;

@@ -31,6 +31,7 @@ void UUltraSettingsListEntrySetting_KeyboardInput::NativeOnInitialized()
 	Button_PrimaryKey->OnClicked().AddUObject(this, &ThisClass::HandlePrimaryKeyClicked);
 	Button_SecondaryKey->OnClicked().AddUObject(this, &ThisClass::HandleSecondaryKeyClicked);
 	Button_Clear->OnClicked().AddUObject(this, &ThisClass::HandleClearClicked);
+	Button_ResetToDefault->OnClicked().AddUObject(this, &ThisClass::HandleResetToDefaultClicked);
 }
 
 void UUltraSettingsListEntrySetting_KeyboardInput::HandlePrimaryKeyClicked()
@@ -128,6 +129,11 @@ void UUltraSettingsListEntrySetting_KeyboardInput::HandleClearClicked()
 	KeyboardInputSetting->ChangeBinding(1, EKeys::Invalid);
 }
 
+void UUltraSettingsListEntrySetting_KeyboardInput::HandleResetToDefaultClicked()
+{
+	KeyboardInputSetting->ResetToDefault();
+}
+
 void UUltraSettingsListEntrySetting_KeyboardInput::OnSettingChanged()
 {
 	Refresh();
@@ -137,8 +143,21 @@ void UUltraSettingsListEntrySetting_KeyboardInput::Refresh()
 {
 	if (ensure(KeyboardInputSetting))
 	{
-		Button_PrimaryKey->SetButtonText(KeyboardInputSetting->GetPrimaryKeyText());
-		Button_SecondaryKey->SetButtonText(KeyboardInputSetting->GetSecondaryKeyText());
+		Button_PrimaryKey->SetButtonText(KeyboardInputSetting->GetKeyTextFromSlot(EPlayerMappableKeySlot::First));
+		Button_SecondaryKey->SetButtonText(KeyboardInputSetting->GetKeyTextFromSlot(EPlayerMappableKeySlot::Second));
+
+		// Only display the reset to default button if a mapping is customized
+		if (ensure(Button_ResetToDefault))
+		{
+			if (KeyboardInputSetting->IsMappingCustomized())
+			{
+				Button_ResetToDefault->SetVisibility(ESlateVisibility::Visible);
+			}
+			else
+			{
+				Button_ResetToDefault->SetVisibility(ESlateVisibility::Hidden);
+			}
+		}
 	}
 }
 

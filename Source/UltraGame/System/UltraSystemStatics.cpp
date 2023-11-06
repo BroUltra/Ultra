@@ -13,7 +13,7 @@
 
 TSoftObjectPtr<UObject> UUltraSystemStatics::GetTypedSoftObjectReferenceFromPrimaryAssetId(FPrimaryAssetId PrimaryAssetId, TSubclassOf<UObject> ExpectedAssetType)
 {
-	if (UAssetManager* Manager = UAssetManager::GetIfValid())
+	if (UAssetManager* Manager = UAssetManager::GetIfInitialized())
 	{
 		FPrimaryAssetTypeInfo Info;
 		if (Manager->GetPrimaryAssetTypeInfo(PrimaryAssetId.PrimaryAssetType, Info) && !Info.bHasBlueprintClasses)
@@ -62,11 +62,11 @@ void UUltraSystemStatics::PlayNextGame(const UObject* WorldContextObject)
 
 	// Add seamless travel option as we want to keep clients connected. This will fall back to hard travel if seamless is disabled
 	LastURL.AddOption(TEXT("SeamlessTravel"));
-	
+
 	FString URL = LastURL.ToString();
 	// If we don't remove the host/port info the server travel will fail.
 	URL.RemoveFromStart(LastURL.GetHostPortString());
-	
+
 	const bool bAbsolute = false; // we want to use TRAVEL_Relative
 	const bool bShouldSkipGameNotify = false;
 	World->ServerTravel(URL, bAbsolute, bShouldSkipGameNotify);
@@ -77,9 +77,9 @@ void UUltraSystemStatics::SetScalarParameterValueOnAllMeshComponents(AActor* Tar
 	if (TargetActor != nullptr)
 	{
 		TargetActor->ForEachComponent<UMeshComponent>(bIncludeChildActors, [=](UMeshComponent* InComponent)
-		{
-			InComponent->SetScalarParameterValueOnMaterials(ParameterName, ParameterValue);
-		});
+			{
+				InComponent->SetScalarParameterValueOnMaterials(ParameterName, ParameterValue);
+			});
 	}
 }
 
@@ -88,9 +88,9 @@ void UUltraSystemStatics::SetVectorParameterValueOnAllMeshComponents(AActor* Tar
 	if (TargetActor != nullptr)
 	{
 		TargetActor->ForEachComponent<UMeshComponent>(bIncludeChildActors, [=](UMeshComponent* InComponent)
-		{
-			InComponent->SetVectorParameterValueOnMaterials(ParameterName, ParameterValue);
-		});
+			{
+				InComponent->SetVectorParameterValueOnMaterials(ParameterName, ParameterValue);
+			});
 	}
 }
 

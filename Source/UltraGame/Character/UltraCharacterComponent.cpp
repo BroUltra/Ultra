@@ -20,6 +20,8 @@
 #include "Components/GameFrameworkComponentManager.h"
 #include "PlayerMappableInputConfig.h"
 #include "Camera/UltraCameraMode.h"
+#include "UserSettings/EnhancedInputUserSettings.h"
+#include "InputMappingContext.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraCharacterComponent)
 
@@ -27,14 +29,14 @@
 #include "Misc/UObjectToken.h"
 #endif	// WITH_EDITOR
 
-namespace UltraHero
+namespace UltraCharacter
 {
 	static const float LookYawRate = 300.0f;
 	static const float LookPitchRate = 165.0f;
 };
 
 const FName UUltraCharacterComponent::NAME_BindInputsNow("BindInputsNow");
-const FName UUltraCharacterComponent::NAME_ActorFeatureName("Hero");
+const FName UUltraCharacterComponent::NAME_ActorFeatureName("Character");
 
 UUltraCharacterComponent::UUltraCharacterComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -55,13 +57,13 @@ void UUltraCharacterComponent::OnRegister()
 		if (GIsEditor)
 		{
 			static const FText Message = NSLOCTEXT("UltraCharacterComponent", "NotOnPawnError", "has been added to a blueprint whose base class is not a Pawn. To use this component, it MUST be placed on a Pawn Blueprint. This will cause a crash if you PIE!");
-			static const FName HeroMessageLogName = TEXT("UltraCharacterComponent");
+			static const FName CharacterMessageLogName = TEXT("UltraCharacterComponent");
 			
-			FMessageLog(HeroMessageLogName).Error()
+			FMessageLog(CharacterMessageLogName).Error()
 				->AddToken(FUObjectToken::Create(this, FText::FromString(GetNameSafe(this))))
 				->AddToken(FTextToken::Create(Message));
 				
-			FMessageLog(HeroMessageLogName).Open();
+			FMessageLog(CharacterMessageLogName).Open();
 		}
 #endif
 	}
@@ -152,7 +154,6 @@ void UUltraCharacterComponent::HandleChangeInitState(UGameFrameworkComponentMana
 			return;
 		}
 
-		const bool bIsLocallyControlled = Pawn->IsLocallyControlled();
 		const UUltraPawnData* PawnData = nullptr;
 
 		if (UUltraPawnExtensionComponent* PawnExtComp = UUltraPawnExtensionComponent::FindPawnExtensionComponent(Pawn))
@@ -172,7 +173,8 @@ void UUltraCharacterComponent::HandleChangeInitState(UGameFrameworkComponentMana
 			}
 		}
 
-		if (bIsLocallyControlled && PawnData)
+		// Hook up the delegate for all pawns, in case we spectate later
+		if (PawnData)
 		{
 			if (UUltraCameraComponent* CameraComponent = UUltraCameraComponent::FindCameraComponent(Pawn))
 			{
@@ -248,15 +250,22 @@ void UUltraCharacterComponent::InitializePlayerInput(UInputComponent* PlayerInpu
 		{
 			if (const UUltraInputConfig* InputConfig = PawnData->InputConfig)
 			{
-				// Register any default input configs with the settings so that they will be applied to the player during AddInputMappings
-				for (const FMappableConfigPair& Pair : DefaultInputConfigs)
+				for (const FInputMappingContextAndPriority& Mapping : DefaultInputMappings)
 				{
-					if (Pair.bShouldActivateAutomatically && Pair.CanBeActivated())
+					if (UInputMappingContext* IMC = Mapping.InputMapping.Get())
 					{
-						FModifyContextOptions Options = {};
-						Options.bIgnoreAllPressedKeysUntilRelease = false;
-						// Actually add the config to the local player							
-						Subsystem->AddPlayerMappableConfig(Pair.Config.LoadSynchronous(), Options);	
+						if (Mapping.bRegisterWithSettings)
+						{
+							if (UEnhancedInputUserSettings* Settings = Subsystem->GetUserSettings())
+							{
+								Settings->RegisterInputMappingContext(IMC);
+							}
+
+							FModifyContextOptions Options = {};
+							Options.bIgnoreAllPressedKeysUntilRelease = false;
+							// Actually add the config to the local player							
+							Subsystem->AddMappingContext(IMC, Mapping.Priority, Options);
+						}
 					}
 				}
 				
@@ -457,12 +466,12 @@ void UUltraCharacterComponent::Input_LookStick(const FInputActionValue& InputAct
 
 	if (Value.X != 0.0f)
 	{
-		Pawn->AddControllerYawInput(Value.X * UltraHero::LookYawRate * World->GetDeltaSeconds());
+		Pawn->AddControllerYawInput(Value.X * UltraCharacter::LookYawRate * World->GetDeltaSeconds());
 	}
 
 	if (Value.Y != 0.0f)
 	{
-		Pawn->AddControllerPitchInput(Value.Y * UltraHero::LookPitchRate * World->GetDeltaSeconds());
+		Pawn->AddControllerPitchInput(Value.Y * UltraCharacter::LookPitchRate * World->GetDeltaSeconds());
 	}
 }
 

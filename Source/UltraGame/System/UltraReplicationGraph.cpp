@@ -1,84 +1,71 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 /**
-*	
+*
 *	===================== UltraReplicationGraph Replication =====================
 *
 *	Overview
-*	
+*
 *		This changes the way actor relevancy works. AActor::IsNetRelevantFor is NOT used in this system!
-*		
+*
 *		Instead, The UUltraReplicationGraph contains UReplicationGraphNodes. These nodes are responsible for generating lists of actors to replicate for each connection.
 *		Most of these lists are persistent across frames. This enables most of the gathering work ("which actors should be considered for replication) to be shared/reused.
 *		Nodes may be global (used by all connections), connection specific (each connection gets its own node), or shared (e.g, teams: all connections on the same team share).
-*		Actors can be in multiple nodes! For example a pawn may be in the spatialization node but also in the always-relevant-for-team node. It will be returned twice for 
+*		Actors can be in multiple nodes! For example a pawn may be in the spatialization node but also in the always-relevant-for-team node. It will be returned twice for
 *		teammates. This is ok though should be minimized when possible.
-*		
+*
 *		UUltraReplicationGraph is intended to not be directly used by the game code. That is, you should not have to include UltraReplicationGraph.h anywhere else.
 *		Rather, UUltraReplicationGraph depends on the game code and registers for events that the game code broadcasts (e.g., events for players joining/leaving teams).
 *		This choice was made because it gives UUltraReplicationGraph a complete holistic view of actor replication. Rather than exposing generic public functions that any
 *		place in game code can invoke, all notifications are explicitly registered in UUltraReplicationGraph::InitGlobalActorClassSettings.
-*		
+*
 *	Ultra Nodes
-*	
+*
 *		These are the top level nodes currently used:
-*		
-*		UReplicationGraphNode_GridSpatialization2D: 
-*		This is the spatialization node. All "distance based relevant" actors will be routed here. This node divides the map into a 2D grid. Each cell in the grid contains 
+*
+*		UReplicationGraphNode_GridSpatialization2D:
+*		This is the spatialization node. All "distance based relevant" actors will be routed here. This node divides the map into a 2D grid. Each cell in the grid contains
 *		children nodes that hold lists of actors based on how they update/go dormant. Actors are put in multiple cells. Connections pull from the single cell they are in.
-*		
+*
 *		UReplicationGraphNode_ActorList
 *		This is an actor list node that contains the always relevant actors. These actors are always relevant to every connection.
-*		
+*
 *		UUltraReplicationGraphNode_AlwaysRelevant_ForConnection
 *		This is the node for connection specific always relevant actors. This node does not maintain a persistent list but builds it each frame. This is possible because (currently)
 *		these actors are all easily accessed from the PlayerController. A persistent list would require notifications to be broadcast when these actors change, which would be possible
 *		but currently not necessary.
-*		
+*
 *		UUltraReplicationGraphNode_PlayerStateFrequencyLimiter
 *		A custom node for handling player state replication. This replicates a small rolling set of player states (currently 2/frame). This is so player states replicate
 *		to simulated connections at a low, steady frequency, and to take advantage of serialization sharing. Auto proxy player states are replicated at higher frequency (to the
 *		owning connection only) via UUltraReplicationGraphNode_AlwaysRelevant_ForConnection.
-*		
+*
 *		UReplicationGraphNode_TearOff_ForConnection
 *		Connection specific node for handling tear off actors. This is created and managed in the base implementation of Replication Graph.
-*		
-*	Dependent Actors (AUltraWeapon)
-*		
-*		Replication Graph introduces a concept of dependent actor replication. This is an actor (AUltraWeapon) that only replicates when another actor replicates (Pawn). I.e, the weapon
-*		actor itself never goes into the Replication Graph. It is never gathered on its own and never prioritized. It just has a chance to replicate when the Pawn replicates. This keeps
-*		the graph leaner since no extra work has to be done for the weapon actors.
-* 
-*		Something to note is how this parent/dependent relationship can affect certain functionality, such as ForceNetUpdate and dormancy. Unless the dependent is routed elsewhere in the
-*		graph, it will rely entirely on the parent to be replicated. This means that if ForceNetUpdate is called on only the dependent, it will have no effect, but calling ForceNetUpdate
-*		on the parent will force both actors to replicate on the next update. This also means if the parent is set as dormant, the dependent will no longer replicate despite not being 
-*		marked as dormant itself, which can lead to the dependent actor's channel being closed due to inactivity.
-*		
-*		See UUltraReplicationGraph::OnCharacterWeaponChange: this is how actors are added/removed from the dependent actor list. 
-*	
+*
 *	How To Use
-*	
+*
 *		Making something always relevant: Please avoid if you can :) If you must, just setting AActor::bAlwaysRelevant = true in the class defaults will do it.
-*		
-*		Making something always relevant to connection: You will need to modify UUltraReplicationGraphNode_AlwaysRelevant_ForConnection::GatherActorListsForConnection. You will also want 
+*
+*		Making something always relevant to connection: You will need to modify UUltraReplicationGraphNode_AlwaysRelevant_ForConnection::GatherActorListsForConnection. You will also want
 *		to make sure the actor does not get put in one of the other nodes. The safest way to do this is by setting its EClassRepNodeMapping to NotRouted in UUltraReplicationGraph::InitGlobalActorClassSettings.
 *
 *	How To Debug
-*	
+*
 *		Its a good idea to just disable rep graph to see if your problem is specific to this system or just general replication/game play problem.
-*		
+*
 *		If it is replication graph related, there are several useful commands that can be used: see ReplicationGraph_Debugging.cpp. The most useful are below. Use the 'cheat' command to run these on the server from a client.
-*	
-*		"Net.RepGraph.PrintGraph" - this will print the graph to the log: each node and actor. 
+*
+*		"Net.RepGraph.PrintGraph" - this will print the graph to the log: each node and actor.
 *		"Net.RepGraph.PrintGraph class" - same as above but will group by class.
 *		"Net.RepGraph.PrintGraph nclass" - same as above but will group by native classes (hides blueprint noise)
-*		
+*
 *		Net.RepGraph.PrintAll <Frames> <ConnectionIdx> <"Class"/"Nclass"> -  will print the entire graph, the gathered actors, and how they were prioritized for a given connection for X amount of frames.
-*		
+*
 *		Net.RepGraph.PrintAllActorInfo <ActorMatchString> - will print the class, global, and connection replication info associated with an actor/class. If MatchString is empty will print everything. Call directly from client.
-*		
+*
 *		Ultra.RepGraph.PrintRouting - will print the EClassRepNodeMapping for each class. That is, how a given actor class is routed (or not) in the Replication Graph.
-*	
+*
 */
 
 #include "UltraReplicationGraph.h"
@@ -104,7 +91,7 @@
 #include "Character/UltraCharacter.h"
 #include "Player/UltraPlayerController.h"
 
-DEFINE_LOG_CATEGORY( LogUltraRepGraph );
+DEFINE_LOG_CATEGORY(LogUltraRepGraph);
 
 namespace Ultra::RepGraph
 {
@@ -224,27 +211,27 @@ EClassRepNodeMapping UUltraReplicationGraph::GetClassNodeMapping(UClass* Class) 
 	{
 		return EClassRepNodeMapping::NotRouted;
 	}
-	
+
 	if (const EClassRepNodeMapping* Ptr = ClassRepNodePolicies.FindWithoutClassRecursion(Class))
 	{
 		return *Ptr;
 	}
-	
+
 	AActor* ActorCDO = Cast<AActor>(Class->GetDefaultObject());
 	if (!ActorCDO || !ActorCDO->GetIsReplicated())
 	{
 		return EClassRepNodeMapping::NotRouted;
 	}
-		
+
 	auto ShouldSpatialize = [](const AActor* CDO)
-	{
-		return CDO->GetIsReplicated() && (!(CDO->bAlwaysRelevant || CDO->bOnlyRelevantToOwner || CDO->bNetUseOwnerRelevancy));
-	};
+		{
+			return CDO->GetIsReplicated() && (!(CDO->bAlwaysRelevant || CDO->bOnlyRelevantToOwner || CDO->bNetUseOwnerRelevancy));
+		};
 
 	auto GetLegacyDebugStr = [](const AActor* CDO)
-	{
-		return FString::Printf(TEXT("%s [%d/%d/%d]"), *CDO->GetClass()->GetName(), CDO->bAlwaysRelevant, CDO->bOnlyRelevantToOwner, CDO->bNetUseOwnerRelevancy);
-	};
+		{
+			return FString::Printf(TEXT("%s [%d/%d/%d]"), *CDO->GetClass()->GetName(), CDO->bAlwaysRelevant, CDO->bOnlyRelevantToOwner, CDO->bNetUseOwnerRelevancy);
+		};
 
 	// Only handle this class if it differs from its super. There is no need to put every child class explicitly in the graph class mapping
 	UClass* SuperClass = Class->GetSuperClass();
@@ -374,10 +361,10 @@ void UUltraReplicationGraph::InitGlobalActorClassSettings()
 		});
 
 	ClassRepNodePolicies.InitNewElement = [this](UClass* Class, EClassRepNodeMapping& NodeMapping)
-	{
-		NodeMapping = GetClassNodeMapping(Class);
-		return true;
-	};
+		{
+			NodeMapping = GetClassNodeMapping(Class);
+			return true;
+		};
 
 	const UUltraReplicationGraphSettings* UltraRepGraphSettings = GetDefault<UUltraReplicationGraphSettings>();
 	check(UltraRepGraphSettings);
@@ -389,7 +376,7 @@ void UUltraReplicationGraph::InitGlobalActorClassSettings()
 		{
 			if (UClass* StaticActorClass = ActorClassSettings.GetStaticActorClass())
 			{
-				UE_LOG(LogUltraRepGraph, Log, TEXT("ActorClassSettings -- AddClassRepInfo - %s :: %i"), *StaticActorClass->GetName(), ActorClassSettings.ClassNodeMapping);
+				UE_LOG(LogUltraRepGraph, Log, TEXT("ActorClassSettings -- AddClassRepInfo - %s :: %i"), *StaticActorClass->GetName(), int(ActorClassSettings.ClassNodeMapping));
 				AddClassRepInfo(StaticActorClass, ActorClassSettings.ClassNodeMapping);
 			}
 		}
@@ -454,18 +441,18 @@ void UUltraReplicationGraph::InitGlobalActorClassSettings()
 	//	to send a FastShared update to all relevant connections.
 	// ------------------------------------------------------------------------------------------------------
 	CharacterClassRepInfo.FastSharedReplicationFunc = [](AActor* Actor)
-	{
-		bool bSuccess = false;
-		if (AUltraCharacter* Character = Cast<AUltraCharacter>(Actor))
 		{
-			bSuccess = Character->UpdateSharedReplication();
-		}
-		return bSuccess;
-	};
+			bool bSuccess = false;
+			if (AUltraCharacter* Character = Cast<AUltraCharacter>(Actor))
+			{
+				bSuccess = Character->UpdateSharedReplication();
+			}
+			return bSuccess;
+		};
 
 	CharacterClassRepInfo.FastSharedReplicationFuncName = FName(TEXT("FastSharedReplication"));
 
-	FastSharedPathConstants.MaxBitsPerFrame = (int32)((float)(Ultra::RepGraph::TargetKBytesSecFastSharedPath * 1024 * 8) / NetDriver->NetServerMaxTickRate);
+	FastSharedPathConstants.MaxBitsPerFrame = (int32)((float)(Ultra::RepGraph::TargetKBytesSecFastSharedPath * 1024 * 8) / NetDriver->GetNetServerMaxTickRate());
 	FastSharedPathConstants.DistanceRequirementPct = Ultra::RepGraph::FastSharedPathCullDistPct;
 
 	SetClassInfo(AUltraCharacter::StaticClass(), CharacterClassRepInfo);
@@ -556,7 +543,7 @@ void UUltraReplicationGraph::InitGlobalGraphNodes()
 	{
 		GridNode->AddToClassRebuildDenyList(AActor::StaticClass()); // Disable All spatial rebuilding
 	}
-	
+
 	AddGlobalGraphNode(GridNode);
 
 	// -----------------------------------------------
@@ -595,94 +582,94 @@ EClassRepNodeMapping UUltraReplicationGraph::GetMappingPolicy(UClass* Class)
 void UUltraReplicationGraph::RouteAddNetworkActorToNodes(const FNewReplicatedActorInfo& ActorInfo, FGlobalActorReplicationInfo& GlobalInfo)
 {
 	EClassRepNodeMapping Policy = GetMappingPolicy(ActorInfo.Class);
-	switch(Policy)
+	switch (Policy)
 	{
-		case EClassRepNodeMapping::NotRouted:
-		{
-			break;
-		}
-		
-		case EClassRepNodeMapping::RelevantAllConnections:
-		{
-			if (ActorInfo.StreamingLevelName == NAME_None)
-			{
-				AlwaysRelevantNode->NotifyAddNetworkActor(ActorInfo);
-			}
-			else
-			{
-				FActorRepListRefView& RepList = AlwaysRelevantStreamingLevelActors.FindOrAdd(ActorInfo.StreamingLevelName);
-				RepList.ConditionalAdd(ActorInfo.Actor);
-			}
-			break;
-		}
+	case EClassRepNodeMapping::NotRouted:
+	{
+		break;
+	}
 
-		case EClassRepNodeMapping::Spatialize_Static:
+	case EClassRepNodeMapping::RelevantAllConnections:
+	{
+		if (ActorInfo.StreamingLevelName == NAME_None)
 		{
-			GridNode->AddActor_Static(ActorInfo, GlobalInfo);
-			break;
+			AlwaysRelevantNode->NotifyAddNetworkActor(ActorInfo);
 		}
-		
-		case EClassRepNodeMapping::Spatialize_Dynamic:
+		else
 		{
-			GridNode->AddActor_Dynamic(ActorInfo, GlobalInfo);
-			break;
+			FActorRepListRefView& RepList = AlwaysRelevantStreamingLevelActors.FindOrAdd(ActorInfo.StreamingLevelName);
+			RepList.ConditionalAdd(ActorInfo.Actor);
 		}
-		
-		case EClassRepNodeMapping::Spatialize_Dormancy:
-		{
-			GridNode->AddActor_Dormancy(ActorInfo, GlobalInfo);
-			break;
-		}
+		break;
+	}
+
+	case EClassRepNodeMapping::Spatialize_Static:
+	{
+		GridNode->AddActor_Static(ActorInfo, GlobalInfo);
+		break;
+	}
+
+	case EClassRepNodeMapping::Spatialize_Dynamic:
+	{
+		GridNode->AddActor_Dynamic(ActorInfo, GlobalInfo);
+		break;
+	}
+
+	case EClassRepNodeMapping::Spatialize_Dormancy:
+	{
+		GridNode->AddActor_Dormancy(ActorInfo, GlobalInfo);
+		break;
+	}
 	};
 }
 
 void UUltraReplicationGraph::RouteRemoveNetworkActorToNodes(const FNewReplicatedActorInfo& ActorInfo)
 {
 	EClassRepNodeMapping Policy = GetMappingPolicy(ActorInfo.Class);
-	switch(Policy)
+	switch (Policy)
 	{
-		case EClassRepNodeMapping::NotRouted:
+	case EClassRepNodeMapping::NotRouted:
+	{
+		break;
+	}
+
+	case EClassRepNodeMapping::RelevantAllConnections:
+	{
+		if (ActorInfo.StreamingLevelName == NAME_None)
 		{
-			break;
+			AlwaysRelevantNode->NotifyRemoveNetworkActor(ActorInfo);
 		}
-		
-		case EClassRepNodeMapping::RelevantAllConnections:
+		else
 		{
-			if (ActorInfo.StreamingLevelName == NAME_None)
+			FActorRepListRefView& RepList = AlwaysRelevantStreamingLevelActors.FindChecked(ActorInfo.StreamingLevelName);
+			if (RepList.RemoveFast(ActorInfo.Actor) == false)
 			{
-				AlwaysRelevantNode->NotifyRemoveNetworkActor(ActorInfo);
+				UE_LOG(LogUltraRepGraph, Warning, TEXT("Actor %s was not found in AlwaysRelevantStreamingLevelActors list. LevelName: %s"), *GetActorRepListTypeDebugString(ActorInfo.Actor), *ActorInfo.StreamingLevelName.ToString());
 			}
-			else
-			{
-				FActorRepListRefView& RepList = AlwaysRelevantStreamingLevelActors.FindChecked(ActorInfo.StreamingLevelName);
-				if (RepList.RemoveFast(ActorInfo.Actor) == false)
-				{
-					UE_LOG(LogUltraRepGraph, Warning, TEXT("Actor %s was not found in AlwaysRelevantStreamingLevelActors list. LevelName: %s"), *GetActorRepListTypeDebugString(ActorInfo.Actor), *ActorInfo.StreamingLevelName.ToString());
-				}				
-			}
-
-			SetActorDestructionInfoToIgnoreDistanceCulling(ActorInfo.GetActor());
-
-			break;
 		}
 
-		case EClassRepNodeMapping::Spatialize_Static:
-		{
-			GridNode->RemoveActor_Static(ActorInfo);
-			break;
-		}
-		
-		case EClassRepNodeMapping::Spatialize_Dynamic:
-		{
-			GridNode->RemoveActor_Dynamic(ActorInfo);
-			break;
-		}
-		
-		case EClassRepNodeMapping::Spatialize_Dormancy:
-		{
-			GridNode->RemoveActor_Dormancy(ActorInfo);
-			break;
-		}
+		SetActorDestructionInfoToIgnoreDistanceCulling(ActorInfo.GetActor());
+
+		break;
+	}
+
+	case EClassRepNodeMapping::Spatialize_Static:
+	{
+		GridNode->RemoveActor_Static(ActorInfo);
+		break;
+	}
+
+	case EClassRepNodeMapping::Spatialize_Dynamic:
+	{
+		GridNode->RemoveActor_Dynamic(ActorInfo);
+		break;
+	}
+
+	case EClassRepNodeMapping::Spatialize_Dormancy:
+	{
+		GridNode->RemoveActor_Dormancy(ActorInfo);
+		break;
+	}
 	};
 }
 
@@ -699,29 +686,29 @@ void UUltraReplicationGraph::OnGameplayDebuggerOwnerChange(AGameplayDebuggerCate
 	CHECK_WORLDS(Debugger);
 
 	auto GetAlwaysRelevantForConnectionNode = [this](APlayerController* Controller) -> UUltraReplicationGraphNode_AlwaysRelevant_ForConnection*
-	{
-		if (Controller)
 		{
-			if (UNetConnection* NetConnection = Controller->GetNetConnection())
+			if (Controller)
 			{
-				if (NetConnection->GetDriver() == NetDriver)
+				if (UNetConnection* NetConnection = Controller->GetNetConnection())
 				{
-					if (UNetReplicationGraphConnection* GraphConnection = FindOrAddConnectionManager(NetConnection))
+					if (NetConnection->GetDriver() == NetDriver)
 					{
-						for (UReplicationGraphNode* ConnectionNode : GraphConnection->GetConnectionGraphNodes())
+						if (UNetReplicationGraphConnection* GraphConnection = FindOrAddConnectionManager(NetConnection))
 						{
-							if (UUltraReplicationGraphNode_AlwaysRelevant_ForConnection* AlwaysRelevantConnectionNode = Cast<UUltraReplicationGraphNode_AlwaysRelevant_ForConnection>(ConnectionNode))
+							for (UReplicationGraphNode* ConnectionNode : GraphConnection->GetConnectionGraphNodes())
 							{
-								return AlwaysRelevantConnectionNode;
+								if (UUltraReplicationGraphNode_AlwaysRelevant_ForConnection* AlwaysRelevantConnectionNode = Cast<UUltraReplicationGraphNode_AlwaysRelevant_ForConnection>(ConnectionNode))
+								{
+									return AlwaysRelevantConnectionNode;
+								}
 							}
 						}
 					}
 				}
 			}
-		}
 
-		return nullptr;
-	};
+			return nullptr;
+		};
 
 	if (UUltraReplicationGraphNode_AlwaysRelevant_ForConnection* AlwaysRelevantConnectionNode = GetAlwaysRelevantForConnectionNode(OldOwner))
 	{
@@ -801,10 +788,10 @@ void UUltraReplicationGraphNode_AlwaysRelevant_ForConnection::GatherActorListsFo
 
 	// Always relevant streaming level actors.
 	FPerConnectionActorInfoMap& ConnectionActorInfoMap = Params.ConnectionManager.ActorInfoMap;
-	
+
 	TMap<FName, FActorRepListRefView>& AlwaysRelevantStreamingLevelActors = UltraGraph->AlwaysRelevantStreamingLevelActors;
 
-	for (int32 Idx=AlwaysRelevantStreamingLevelsNeedingReplication.Num()-1; Idx >= 0; --Idx)
+	for (int32 Idx = AlwaysRelevantStreamingLevelsNeedingReplication.Num() - 1; Idx >= 0; --Idx)
 	{
 		const FName& StreamingLevel = AlwaysRelevantStreamingLevelsNeedingReplication[Idx];
 
@@ -812,7 +799,7 @@ void UUltraReplicationGraphNode_AlwaysRelevant_ForConnection::GatherActorListsFo
 		if (Ptr == nullptr)
 		{
 			// No always relevant lists for that level
-			UE_CLOG(Ultra::RepGraph::DisplayClientLevelStreaming > 0, LogUltraRepGraph, Display, TEXT("CLIENTSTREAMING Removing %s from AlwaysRelevantStreamingLevelActors because FActorRepListRefView is null. %s "), *StreamingLevel.ToString(),  *Params.ConnectionManager.GetName());
+			UE_CLOG(Ultra::RepGraph::DisplayClientLevelStreaming > 0, LogUltraRepGraph, Display, TEXT("CLIENTSTREAMING Removing %s from AlwaysRelevantStreamingLevelActors because FActorRepListRefView is null. %s "), *StreamingLevel.ToString(), *Params.ConnectionManager.GetName());
 			AlwaysRelevantStreamingLevelsNeedingReplication.RemoveAtSwap(Idx, 1, false);
 			continue;
 		}
@@ -917,11 +904,11 @@ void UUltraReplicationGraphNode_PlayerStateFrequencyLimiter::PrepareForReplicati
 		if (CurrentList->Num() >= TargetActorsPerFrame)
 		{
 			ReplicationActorLists.AddDefaulted();
-			CurrentList = &ReplicationActorLists.Last(); 
+			CurrentList = &ReplicationActorLists.Last();
 		}
-		
+
 		CurrentList->Add(PS);
-	}	
+	}
 }
 
 void UUltraReplicationGraphNode_PlayerStateFrequencyLimiter::GatherActorListsForConnection(const FConnectionGatherActorListParameters& Params)
@@ -932,15 +919,15 @@ void UUltraReplicationGraphNode_PlayerStateFrequencyLimiter::GatherActorListsFor
 	if (ForceNetUpdateReplicationActorList.Num() > 0)
 	{
 		Params.OutGatheredReplicationLists.AddReplicationActorList(ForceNetUpdateReplicationActorList);
-	}	
+	}
 }
 
 void UUltraReplicationGraphNode_PlayerStateFrequencyLimiter::LogNode(FReplicationGraphDebugInfo& DebugInfo, const FString& NodeName) const
 {
 	DebugInfo.Log(NodeName);
-	DebugInfo.PushIndent();	
+	DebugInfo.PushIndent();
 
-	int32 i=0;
+	int32 i = 0;
 	for (const FActorRepListRefView& List : ReplicationActorLists)
 	{
 		LogActorRepList(DebugInfo, FString::Printf(TEXT("Bucket[%d]"), i++), List);
@@ -966,37 +953,37 @@ void UUltraReplicationGraph::PrintRepNodePolicies()
 	for (auto It = ClassRepNodePolicies.CreateIterator(); It; ++It)
 	{
 		FObjectKey ObjKey = It.Key();
-		
+
 		EClassRepNodeMapping Mapping = It.Value();
 
 		GLog->Logf(TEXT("%-40s --> %s"), *GetNameSafe(ObjKey.ResolveObjectPtr()), *Enum->GetNameStringByValue(static_cast<uint32>(Mapping)));
 	}
 }
 
-FAutoConsoleCommandWithWorldAndArgs UltraPrintRepNodePoliciesCmd(TEXT("Ultra.RepGraph.PrintRouting"),TEXT("Prints how actor classes are routed to RepGraph nodes"),
+FAutoConsoleCommandWithWorldAndArgs UltraPrintRepNodePoliciesCmd(TEXT("Ultra.RepGraph.PrintRouting"), TEXT("Prints how actor classes are routed to RepGraph nodes"),
 	FConsoleCommandWithWorldAndArgsDelegate::CreateLambda([](const TArray<FString>& Args, UWorld* World)
-	{
-		for (TObjectIterator<UUltraReplicationGraph> It; It; ++It)
 		{
-			It->PrintRepNodePolicies();
-		}
-	})
+			for (TObjectIterator<UUltraReplicationGraph> It; It; ++It)
+			{
+				It->PrintRepNodePolicies();
+			}
+		})
 );
 
 // ------------------------------------------------------------------------------
 
-FAutoConsoleCommandWithWorldAndArgs ChangeFrequencyBucketsCmd(TEXT("Ultra.RepGraph.FrequencyBuckets"), TEXT("Resets frequency bucket count."), FConsoleCommandWithWorldAndArgsDelegate::CreateLambda([](const TArray< FString >& Args, UWorld* World) 
-{
-	int32 Buckets = 1;
-	if (Args.Num() > 0)
+FAutoConsoleCommandWithWorldAndArgs ChangeFrequencyBucketsCmd(TEXT("Ultra.RepGraph.FrequencyBuckets"), TEXT("Resets frequency bucket count."), FConsoleCommandWithWorldAndArgsDelegate::CreateLambda([](const TArray< FString >& Args, UWorld* World)
 	{
-		LexTryParseString<int32>(Buckets, *Args[0]);
-	}
+		int32 Buckets = 1;
+		if (Args.Num() > 0)
+		{
+			LexTryParseString<int32>(Buckets, *Args[0]);
+		}
 
-	UE_LOG(LogUltraRepGraph, Display, TEXT("Setting Frequency Buckets to %d"), Buckets);
-	for (TObjectIterator<UReplicationGraphNode_ActorListFrequencyBuckets> It; It; ++It)
-	{
-		UReplicationGraphNode_ActorListFrequencyBuckets* Node = *It;
-		Node->SetNonStreamingCollectionSize(Buckets);
-	}
-}));
+		UE_LOG(LogUltraRepGraph, Display, TEXT("Setting Frequency Buckets to %d"), Buckets);
+		for (TObjectIterator<UReplicationGraphNode_ActorListFrequencyBuckets> It; It; ++It)
+		{
+			UReplicationGraphNode_ActorListFrequencyBuckets* Node = *It;
+			Node->SetNonStreamingCollectionSize(Buckets);
+		}
+	}));

@@ -8,6 +8,10 @@
 #include "Engine/World.h"
 #include "GameModes/UltraGameMode.h"
 
+#if WITH_EDITOR
+#include "Misc/DataValidation.h"
+#endif
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UltraTeamCreationComponent)
 
 UUltraTeamCreationComponent::UUltraTeamCreationComponent(const FObjectInitializer& ObjectInitializer)
@@ -18,9 +22,9 @@ UUltraTeamCreationComponent::UUltraTeamCreationComponent(const FObjectInitialize
 }
 
 #if WITH_EDITOR
-EDataValidationResult UUltraTeamCreationComponent::IsDataValid(TArray<FText>& ValidationErrors)
+EDataValidationResult UUltraTeamCreationComponent::IsDataValid(FDataValidationContext& Context) const
 {
-	EDataValidationResult Result = Super::IsDataValid(ValidationErrors);
+	EDataValidationResult Result = Super::IsDataValid(Context);
 
 	//@TODO: TEAMS: Validate that all display assets have the same properties set!
 
@@ -149,7 +153,7 @@ int32 UUltraTeamCreationComponent::GetLeastPopulatedTeamID() const
 				if ((PlayerTeamID != INDEX_NONE) && !UltraPS->IsInactive())	// do not count unassigned or disconnected players
 				{
 					check(TeamMemberCounts.Contains(PlayerTeamID))
-					TeamMemberCounts[PlayerTeamID] += 1;
+						TeamMemberCounts[PlayerTeamID] += 1;
 				}
 			}
 		}

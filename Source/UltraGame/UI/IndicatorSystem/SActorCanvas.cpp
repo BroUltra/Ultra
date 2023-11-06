@@ -49,14 +49,14 @@ class SActorCanvasArrowWidget : public SLeafWidget
 public:
 
 	SLATE_BEGIN_ARGS(SActorCanvasArrowWidget)
-	{}
-	/** always goes at the end */
+		{}
+		/** always goes at the end */
 	SLATE_END_ARGS()
 
 	/** Ctor */
 	SActorCanvasArrowWidget()
-	: Rotation(0.0f)
-	, Arrow(nullptr)
+		: Rotation(0.0f)
+		, Arrow(nullptr)
 	{
 
 	}
@@ -87,7 +87,7 @@ public:
 			FSlateDrawElement::MakeRotatedBox(
 				OutDrawElements,
 				MaxLayerId++,
-				AllottedGeometry.ToPaintGeometry(FVector2D::ZeroVector, Arrow->ImageSize, 1.f),
+				AllottedGeometry.ToPaintGeometry(Arrow->ImageSize, FSlateLayoutTransform()),
 				Arrow,
 				DrawEffects,
 				FMath::DegreesToRadians(GetRotation()),
@@ -124,7 +124,7 @@ public:
 
 private:
 	float Rotation;
-	
+
 	const FSlateBrush* Arrow;
 };
 
@@ -143,7 +143,7 @@ void SActorCanvas::Construct(const FArguments& InArgs, const FLocalPlayerContext
 	{
 		TSharedRef<SActorCanvasArrowWidget> ArrowWidget = SNew(SActorCanvasArrowWidget, ActorCanvasArrowBrush);
 		ArrowWidget->SetVisibility(EVisibility::Collapsed);
-		
+
 		ArrowChildren.AddSlot(MoveTemp(
 			FArrowSlot::FSlotArguments(MakeUnique<FArrowSlot>())
 			[
@@ -174,7 +174,7 @@ EActiveTimerReturnType SActorCanvas::UpdateCanvas(double InCurrentTime, float In
 		{
 			// World may have changed
 			IndicatorPool.SetWorld(LocalPlayerContext.GetWorld());
-			
+
 			IndicatorComponentPtr = IndicatorComponent;
 			IndicatorComponent->OnIndicatorAdded.AddSP(this, &SActorCanvas::OnIndicatorAdded);
 			IndicatorComponent->OnIndicatorRemoved.AddSP(this, &SActorCanvas::OnIndicatorRemoved);
@@ -329,9 +329,9 @@ void SActorCanvas::OnArrangeChildren(const FGeometry& AllottedGeometry, FArrange
 		}
 
 		SortedSlots.StableSort([](const SActorCanvas::FSlot& A, const SActorCanvas::FSlot& B)
-		{
-			return A.GetPriority() == B.GetPriority() ? A.GetDepth() > B.GetDepth() : A.GetPriority() < B.GetPriority();
-		});
+			{
+				return A.GetPriority() == B.GetPriority() ? A.GetDepth() > B.GetDepth() : A.GetPriority() < B.GetPriority();
+			});
 
 		// Go through all the sorted children
 		for (int32 ChildIndex = 0; ChildIndex < SortedSlots.Num(); ++ChildIndex)
@@ -538,7 +538,7 @@ FString SActorCanvas::GetReferencerName() const
 	return TEXT("SActorCanvas");
 }
 
-void SActorCanvas::AddReferencedObjects( FReferenceCollector& Collector )
+void SActorCanvas::AddReferencedObjects(FReferenceCollector& Collector)
 {
 	Collector.AddReferencedObjects(AllIndicators);
 }
@@ -547,14 +547,14 @@ void SActorCanvas::OnIndicatorAdded(UIndicatorDescriptor* Indicator)
 {
 	AllIndicators.Add(Indicator);
 	InactiveIndicators.Add(Indicator);
-	
+
 	AddIndicatorForEntry(Indicator);
 }
 
 void SActorCanvas::OnIndicatorRemoved(UIndicatorDescriptor* Indicator)
 {
 	RemoveIndicatorForEntry(Indicator);
-	
+
 	AllIndicators.Remove(Indicator);
 	InactiveIndicators.Remove(Indicator);
 }
@@ -588,15 +588,15 @@ void SActorCanvas::AddIndicatorForEntry(UIndicatorDescriptor* Indicator)
 					InactiveIndicators.Remove(Indicator);
 
 					AddActorSlot(Indicator)
-					[
-						SAssignNew(Indicator->CanvasHost, SBox)
 						[
-							IndicatorWidget->TakeWidget()
-						]
-					];
+							SAssignNew(Indicator->CanvasHost, SBox)
+								[
+									IndicatorWidget->TakeWidget()
+								]
+						];
 				}
 			}
-		});
+			});
 		StartAsyncLoading();
 	}
 }
@@ -611,7 +611,7 @@ void SActorCanvas::RemoveIndicatorForEntry(UIndicatorDescriptor* Indicator)
 		}
 
 		Indicator->IndicatorWidget = nullptr;
-		
+
 		IndicatorPool.Release(IndicatorWidget);
 	}
 
@@ -633,14 +633,14 @@ SActorCanvas::FScopedWidgetSlotArguments SActorCanvas::AddActorSlot(UIndicatorDe
 			{
 				Canvas->UpdateActiveTimer();
 			}
-		}};
+		} };
 }
 
 int32 SActorCanvas::RemoveActorSlot(const TSharedRef<SWidget>& SlotWidget)
 {
 	for (int32 SlotIdx = 0; SlotIdx < CanvasChildren.Num(); ++SlotIdx)
 	{
-		if ( SlotWidget == CanvasChildren[SlotIdx].GetWidget() )
+		if (SlotWidget == CanvasChildren[SlotIdx].GetWidget())
 		{
 			CanvasChildren.RemoveAt(SlotIdx);
 
@@ -654,7 +654,7 @@ int32 SActorCanvas::RemoveActorSlot(const TSharedRef<SWidget>& SlotWidget)
 }
 
 void SActorCanvas::GetOffsetAndSize(const UIndicatorDescriptor* Indicator,
-	FVector2D& OutSize, 
+	FVector2D& OutSize,
 	FVector2D& OutOffset,
 	FVector2D& OutPaddingMin,
 	FVector2D& OutPaddingMax) const
@@ -670,47 +670,47 @@ void SActorCanvas::GetOffsetAndSize(const UIndicatorDescriptor* Indicator,
 	}
 
 	//handle horizontal alignment
-	switch(Indicator->GetHAlign())
+	switch (Indicator->GetHAlign())
 	{
-		case HAlign_Left: // same as Align_Top
-			OutOffset.X = 0.0f;
-			OutPaddingMin.X = 0.0f;
-			OutPaddingMax.X = OutSize.X;
-			break;
-		
-		case HAlign_Center:
-			OutOffset.X = (AllottedSize.X - OutSize.X) / 2.0f;
-			OutPaddingMin.X = OutSize.X / 2.0f;
-			OutPaddingMax.X = OutPaddingMin.X;
-			break;
-		
-		case HAlign_Right: // same as Align_Bottom
-			OutOffset.X = AllottedSize.X - OutSize.X;
-			OutPaddingMin.X = OutSize.X;
-			OutPaddingMax.X = 0.0f;
-			break;
+	case HAlign_Left: // same as Align_Top
+		OutOffset.X = 0.0f;
+		OutPaddingMin.X = 0.0f;
+		OutPaddingMax.X = OutSize.X;
+		break;
+
+	case HAlign_Center:
+		OutOffset.X = (AllottedSize.X - OutSize.X) / 2.0f;
+		OutPaddingMin.X = OutSize.X / 2.0f;
+		OutPaddingMax.X = OutPaddingMin.X;
+		break;
+
+	case HAlign_Right: // same as Align_Bottom
+		OutOffset.X = AllottedSize.X - OutSize.X;
+		OutPaddingMin.X = OutSize.X;
+		OutPaddingMax.X = 0.0f;
+		break;
 	}
 
 	//Now, handle vertical alignment
-	switch(Indicator->GetVAlign())
+	switch (Indicator->GetVAlign())
 	{
-		case VAlign_Top:
-			OutOffset.Y = 0.0f;
-			OutPaddingMin.Y = 0.0f;
-			OutPaddingMax.Y = OutSize.Y;
-			break;
-		
-		case VAlign_Center:
-			OutOffset.Y = (AllottedSize.Y - OutSize.Y) / 2.0f;
-			OutPaddingMin.Y = OutSize.Y / 2.0f;
-			OutPaddingMax.Y = OutPaddingMin.Y;
-			break;
-		
-		case VAlign_Bottom:
-			OutOffset.Y = AllottedSize.Y - OutSize.Y;
-			OutPaddingMin.Y = OutSize.Y;
-			OutPaddingMax.Y = 0.0f;
-			break;
+	case VAlign_Top:
+		OutOffset.Y = 0.0f;
+		OutPaddingMin.Y = 0.0f;
+		OutPaddingMax.Y = OutSize.Y;
+		break;
+
+	case VAlign_Center:
+		OutOffset.Y = (AllottedSize.Y - OutSize.Y) / 2.0f;
+		OutPaddingMin.Y = OutSize.Y / 2.0f;
+		OutPaddingMax.Y = OutPaddingMin.Y;
+		break;
+
+	case VAlign_Bottom:
+		OutOffset.Y = AllottedSize.Y - OutSize.Y;
+		OutPaddingMin.Y = OutSize.Y;
+		OutPaddingMax.Y = 0.0f;
+		break;
 	}
 }
 
