@@ -1,0 +1,11 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.UltraCoreRuntime.cpp.obj": [
+			"Battle_PlayerSpawningManagementComponent.cpp.obj",
+			"UltraCoreRuntimeModule.cpp.obj",
+			"UltraCoreRuntimeSettings.cpp.obj",
+			"UltraCoreRuntime.init.gen.cpp.obj"
+		]
+	}
+}

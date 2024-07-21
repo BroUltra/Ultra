@@ -21,7 +21,7 @@ struct FGameplayEffectModCallbackData;
 /**
  * UUltraStyleSet
  *
- *	Class that defines attributes that are necessary for taking score.
+ *	Class that defines attributes that are necessary for obtaining score.
  *	Attribute examples include: style, shields, and resistances.
  */
 UCLASS(BlueprintType)
